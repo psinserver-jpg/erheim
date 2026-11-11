@@ -54,7 +54,28 @@ async function boot() {
     emitChat: (m) => { hud.chat.add(m); if (game && m.name && (m.channel === 'local' || m.channel === 'party') && Math.random() < 0.6) { const b = game.bots.find(x => x.name === m.name); if (b) hud.bubble(b.id, m.text, 3500); } } }), 'chat.');
   const ui = { hud, win, on: (ev, f) => (handlers[ev] = handlers[ev] || []).push(f) };
   game = await createGame({ engine, world, ui, vfx: safe(vfx, 'vfx.'), sound, names: Names, chat });
-  ui.on('menu', (n) => { if (n === 'enhance') game.enh.open(); else { game.refreshWindows(); win.toggle(n); } });
+
+  // ── 전체화면 · 실수로 탭이 닫히는 것 막기 ──────────────────────
+  // 브라우저의 Ctrl+W(탭 닫기)는 웹페이지가 직접 막을 수 없다. 그래서 ① 전체화면에서는 키보드 잠금으로 Ctrl+W 를 게임이 가져가고(크롬·엣지),
+  // ② 창 모드에서는 닫기 전에 "나가시겠습니까?" 확인창을 띄운다.
+  const LOCK = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyT', 'KeyN', 'KeyQ'];
+  const isFs = () => !!document.fullscreenElement;
+  const toggleFs = async () => {
+    try {
+      if (isFs()) { await document.exitFullscreen(); return; }
+      await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      if (navigator.keyboard && navigator.keyboard.lock) { try { await navigator.keyboard.lock(LOCK); } catch (e) { } }
+      hud.toast('전체화면 — F 키 또는 Esc 로 해제', 'info');
+    } catch (e) { hud.toast('이 브라우저에서는 전체화면을 쓸 수 없습니다.', 'info'); }
+  };
+  document.addEventListener('fullscreenchange', () => { if (!isFs() && navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock(); });
+  addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && LOCK.includes(e.code)) { e.preventDefault(); return; }
+    if (e.code === 'KeyF' && !e.repeat && !(e.target && e.target.tagName === 'INPUT')) toggleFs();
+  }, true);
+  let started = false;
+  addEventListener('beforeunload', (e) => { if (started && !q.get('demo') && !q.get('play')) { e.preventDefault(); e.returnValue = ''; } });
+  ui.on('menu', (n) => { if (n === 'fullscreen') toggleFs(); else if (n === 'enhance') game.enh.open(); else { game.refreshWindows(); win.toggle(n); } });
   const demo = createDemo({ engine, world, game, ui, vfx: safe(vfx, 'vfx.'), sound, chat });
   window.__GAME__ = { game, engine, demo, hud, win, vfx };
   win.loading.set(1, '입장 준비 완료'); 
@@ -65,7 +86,7 @@ async function boot() {
     engine.update(dt); engine.render();
     if (acc > 0.5) window.__READY__ = true;
   });
-  const start = (isDemo) => { win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
+  const start = (isDemo) => { started = true; win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
   setTimeout(() => { win.loading.hide(); if (q.get('demo') || q.get('auto')) start(true); else if (q.get('play')) start(false); else win.title.show({ onStart: () => start(false), onDemo: () => start(true) }); }, 300);
 }
 boot().catch(e => { console.error(e); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f88;position:absolute;top:0;z-index:99">' + (e.stack || e) + '</pre>'); });

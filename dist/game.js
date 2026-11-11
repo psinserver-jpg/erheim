@@ -39585,6 +39585,7 @@ void main() {
     ["enhance", "\uAC15\uD654", '<path d="M12 2.8l2.2 3.4v8.3H9.8V6.2z"/><path d="M7.5 14.5h9"/><path d="M12 14.5v6.2"/><path d="M18.6 3.4v4M16.6 5.4h4"/>'],
     ["skills", "\uC2A4\uD0AC", '<path d="M12 3l2.6 5.7 6.1.7-4.5 4.2 1.2 6.1-5.4-3.1-5.4 3.1 1.2-6.1L3.3 9.4l6.1-.7z"/>'],
     ["guild", "\uBB38\uD30C", '<path d="M6 21V3.5"/><path d="M6 4.5h12l-2.8 3.8L18 12H6"/>'],
+    ["fullscreen", "\uC804\uCCB4\uD654\uBA74", '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>'],
     ["settings", "\uC124\uC815", '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/>']
   ];
   var BOSS_COL = [
@@ -47727,8 +47728,46 @@ void main() {
     }), "chat.");
     const ui = { hud, win, on: (ev, f) => (handlers[ev] = handlers[ev] || []).push(f) };
     game = await createGame({ engine, world, ui, vfx: safe(vfx, "vfx."), sound, names: names_exports, chat });
+    const LOCK = ["KeyW", "KeyA", "KeyS", "KeyD", "KeyR", "KeyT", "KeyN", "KeyQ"];
+    const isFs = () => !!document.fullscreenElement;
+    const toggleFs = async () => {
+      try {
+        if (isFs()) {
+          await document.exitFullscreen();
+          return;
+        }
+        await document.documentElement.requestFullscreen({ navigationUI: "hide" });
+        if (navigator.keyboard && navigator.keyboard.lock) {
+          try {
+            await navigator.keyboard.lock(LOCK);
+          } catch (e) {
+          }
+        }
+        hud.toast("\uC804\uCCB4\uD654\uBA74 \u2014 F \uD0A4 \uB610\uB294 Esc \uB85C \uD574\uC81C", "info");
+      } catch (e) {
+        hud.toast("\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C\uB294 \uC804\uCCB4\uD654\uBA74\uC744 \uC4F8 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.", "info");
+      }
+    };
+    document.addEventListener("fullscreenchange", () => {
+      if (!isFs() && navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    });
+    addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && LOCK.includes(e.code)) {
+        e.preventDefault();
+        return;
+      }
+      if (e.code === "KeyF" && !e.repeat && !(e.target && e.target.tagName === "INPUT")) toggleFs();
+    }, true);
+    let started = false;
+    addEventListener("beforeunload", (e) => {
+      if (started && !q.get("demo") && !q.get("play")) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
     ui.on("menu", (n) => {
-      if (n === "enhance") game.enh.open();
+      if (n === "fullscreen") toggleFs();
+      else if (n === "enhance") game.enh.open();
       else {
         game.refreshWindows();
         win.toggle(n);
@@ -47760,6 +47799,7 @@ void main() {
       if (acc > 0.5) window.__READY__ = true;
     });
     const start = (isDemo) => {
+      started = true;
       win.title.hide();
       hud.setVisible(true);
       try {
