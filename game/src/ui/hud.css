@@ -377,3 +377,11 @@
 .h-hud.h-cinema .h-cine { transform: none; }
 .h-hud.h-cinema .h-caption { bottom: 136px; }
 .h-fade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+
+/* 의뢰를 누르면 자동 진행 */
+.h-q.interactive { cursor: pointer; padding: 4px 6px 5px; margin-left: -6px; border-left: 2px solid transparent; border-radius: 2px; transition: background .15s, border-color .15s; }
+.h-q.interactive:hover { background: rgba(255, 214, 120, .13); border-left-color: #ffd97a; }
+.h-q.run { background: rgba(120, 220, 140, .14); border-left-color: #6fe07f; }
+.h-q .qt em.go { color: #06210b; background: linear-gradient(180deg, #b8ffc2, #46c25a); animation: hq-go 1s ease-in-out infinite alternate; }
+@keyframes hq-go { from { opacity: .65; } to { opacity: 1; } }
+.h-quest .hd::after { content: '눌러서 자동 진행'; margin-left: 8px; font-size: 10.5px; letter-spacing: 0; font-weight: 400; color: #cfc8b4; opacity: .8; }

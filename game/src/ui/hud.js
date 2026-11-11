@@ -344,9 +344,10 @@ export function create(ctx) {
     list = list || []; qEl.classList.toggle('on', list.length > 0);
     qList.textContent = '';
     for (const d of list) {
-      const e = h('div', 'h-q'); const t = h('div', 'qt h-serif');
+      const e = h('div', 'h-q interactive' + (d.active ? ' run' : '')); const t = h('div', 'qt h-serif');
+      if (d.id) e.addEventListener('click', () => emit('quest', d.id));
       const allDone = d.lines && d.lines.length && d.lines.every((l) => l.done || (l.max != null && l.cur >= l.max));
-      if (d.tag || allDone) t.appendChild(h('em', null, allDone ? '완료' : d.tag));
+      if (d.tag || allDone || d.active) t.appendChild(h('em', d.active && !allDone ? 'go' : null, allDone ? '완료' : d.active ? '자동 진행 중' : d.tag));
       t.appendChild(doc.createTextNode(d.title || '')); e.appendChild(t);
       for (const l of d.lines || []) {
         const done = l.done || (l.max != null && l.cur >= l.max);
