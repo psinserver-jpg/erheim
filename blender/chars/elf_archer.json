@@ -1,0 +1,20 @@
+{
+ "source": "assets/raw/elf_archer.glb",
+ "target_height": 1.72,
+ "landmarks": {},
+ "weights": {},
+ "gear": {
+  "module": "gear_elf_archer"
+ },
+ "anim": {
+  "module": "anims_elf_archer",
+  "set": "elf_archer_set",
+  "big_clips": [
+   "skill1"
+  ]
+ },
+ "export": {
+  "tex": 1024,
+  "lod": 0.35
+ }
+}

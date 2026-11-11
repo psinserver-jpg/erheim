@@ -1,0 +1,16 @@
+{
+  "name": "mmorpg-game",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "pack": "node pack_assets.mjs"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans-kr": "^5.3.1",
+    "@fontsource/noto-serif-kr": "^5.3.1",
+    "esbuild": "^0.28.2",
+    "puppeteer": "^25.17.0",
+    "three": "^0.187.0"
+  }
+}

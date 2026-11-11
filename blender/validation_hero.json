@@ -1,0 +1,187 @@
+{
+ "tag": "hero",
+ "bones_total": 27,
+ "bones_deform": 23,
+ "bone_names": [
+  "root",
+  "hips",
+  "spine",
+  "chest",
+  "neck",
+  "head",
+  "shoulder.L",
+  "upper_arm.L",
+  "forearm.L",
+  "forearm_roll.L",
+  "hand.L",
+  "weapon.L",
+  "shield.L",
+  "shoulder.R",
+  "upper_arm.R",
+  "forearm.R",
+  "forearm_roll.R",
+  "hand.R",
+  "weapon.R",
+  "thigh.L",
+  "shin.L",
+  "foot.L",
+  "toe.L",
+  "thigh.R",
+  "shin.R",
+  "foot.R",
+  "toe.R"
+ ],
+ "clips": {
+  "idle": {
+   "frames": 73,
+   "duration": 2.4,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.005,
+   "stretch_p999": 1.346,
+   "foot_min_z_mm": 0.301,
+   "body_min_z_mm": 0.301
+  },
+  "run": {
+   "frames": 21,
+   "duration": 0.6667,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.554,
+   "stretch_p999": 1.416,
+   "foot_min_z_mm": 0.003,
+   "body_min_z_mm": 0.003
+  },
+  "walk": {
+   "frames": 33,
+   "duration": 1.0667,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 1.949,
+   "stretch_p999": 1.288,
+   "foot_min_z_mm": 0.006,
+   "body_min_z_mm": 0.006
+  },
+  "attack1": {
+   "frames": 16,
+   "duration": 0.5,
+   "loop": false,
+   "events": {
+    "hit": 0.29
+   },
+   "grip_palm_max_mm": 7.213,
+   "stretch_max": 2.376,
+   "stretch_p999": 1.773,
+   "foot_min_z_mm": 0.151,
+   "body_min_z_mm": 0.151
+  },
+  "attack2": {
+   "frames": 16,
+   "duration": 0.5,
+   "loop": false,
+   "events": {
+    "hit": 0.27
+   },
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.198,
+   "stretch_p999": 1.584,
+   "foot_min_z_mm": 0.301,
+   "body_min_z_mm": 0.301
+  },
+  "attack3": {
+   "frames": 22,
+   "duration": 0.7,
+   "loop": false,
+   "events": {
+    "hit": 0.33
+   },
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.531,
+   "stretch_p999": 1.903,
+   "foot_min_z_mm": 0.012,
+   "body_min_z_mm": 0.012
+  },
+  "skill1": {
+   "frames": 28,
+   "duration": 0.9,
+   "loop": false,
+   "events": {
+    "hit": 0.3,
+    "hit2": 0.5
+   },
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.248,
+   "stretch_p999": 1.597,
+   "foot_min_z_mm": 0.054,
+   "body_min_z_mm": 0.054
+  },
+  "skill2": {
+   "frames": 34,
+   "duration": 1.1,
+   "loop": false,
+   "events": {
+    "hit": 0.64
+   },
+   "grip_palm_max_mm": 7.213,
+   "stretch_max": 2.651,
+   "stretch_p999": 1.857,
+   "foot_min_z_mm": 0.022,
+   "body_min_z_mm": 0.022
+  },
+  "skill3": {
+   "frames": 37,
+   "duration": 1.2,
+   "loop": false,
+   "events": {
+    "cast": 0.3
+   },
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.578,
+   "stretch_p999": 2.028,
+   "foot_min_z_mm": 0.016,
+   "body_min_z_mm": 0.016
+  },
+  "hit": {
+   "frames": 13,
+   "duration": 0.4,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 7.213,
+   "stretch_max": 2.121,
+   "stretch_p999": 1.369,
+   "foot_min_z_mm": 0.007,
+   "body_min_z_mm": 0.007
+  },
+  "death": {
+   "frames": 46,
+   "duration": 1.5,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 7.214,
+   "stretch_max": 2.21,
+   "stretch_p999": 1.584,
+   "foot_min_z_mm": 0.019,
+   "body_min_z_mm": 0.019
+  }
+ },
+ "criteria": {
+  "grip_palm_max_m": 0.01,
+  "stretch_max": 3.0,
+  "foot_min_z_m": 0.0
+ },
+ "total": {
+  "frames": 339,
+  "grip_palm_max_mm": 7.214,
+  "stretch_max": 2.651,
+  "foot_min_z_mm": 0.003,
+  "body_min_z_mm": 0.003,
+  "passed": {
+   "grip": true,
+   "stretch": true,
+   "foot": true
+  }
+ }
+}

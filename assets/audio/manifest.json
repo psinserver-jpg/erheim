@@ -1,0 +1,299 @@
+{
+  "bgm_town": {
+    "file": "assets/audio/bgm_town.mp3",
+    "kind": "bgm",
+    "duration": 74,
+    "title": "Stjarnornas Valsignelse",
+    "artist": "Blackbard",
+    "url": "https://artlist.io/royalty-free-music/song/stjarnornas-valsignelse/130965",
+    "songId": "130965"
+  },
+  "bgm_field": {
+    "file": "assets/audio/bgm_field.mp3",
+    "kind": "bgm",
+    "duration": 92,
+    "title": "The Dawning of a New Age",
+    "artist": "Ian Post",
+    "url": "https://artlist.io/royalty-free-music/song/the-dawning-of-a-new-age/116598",
+    "songId": "116598"
+  },
+  "bgm_boss": {
+    "file": "assets/audio/bgm_boss.mp3",
+    "kind": "bgm",
+    "duration": 97,
+    "title": "Final Confrontation",
+    "artist": "Matthias Förster",
+    "url": "https://artlist.io/royalty-free-music/song/final-confrontation/124304",
+    "songId": "124304"
+  },
+  "amb_town": {
+    "file": "assets/audio/amb_town.mp3",
+    "kind": "amb",
+    "duration": 26,
+    "title": "Faraway Land - Medieval Tavern Ambience, Crowds Walla, Cutlery, Fireplace Crackling",
+    "artist": "Vadi Sound",
+    "url": "https://artlist.io/sfx/track/faraway-land---medieval-tavern-ambience-crowds-walla-cutlery-fireplace-crackling/94882",
+    "songId": "94882"
+  },
+  "amb_forest": {
+    "file": "assets/audio/amb_forest.mp3",
+    "kind": "amb",
+    "duration": 26,
+    "title": "European Nature - Forest Ambience, Birds Chirping in The Woods",
+    "artist": "Cinematic Sound Design",
+    "url": "https://artlist.io/sfx/track/european-nature---forest-ambience-birds-chirping-in-the-woods/84984",
+    "songId": "84984"
+  },
+  "sword_swing1": {
+    "file": "assets/audio/sword_swing1.mp3",
+    "kind": "sfx",
+    "duration": 0.31,
+    "title": "Medieval Weapons - Sword Swing, Whoosh",
+    "artist": "HD Audio",
+    "url": "https://artlist.io/sfx/track/medieval-weapons---sword-swing-whoosh/52752",
+    "songId": "52752"
+  },
+  "sword_swing2": {
+    "file": "assets/audio/sword_swing2.mp3",
+    "kind": "sfx",
+    "duration": 0.23,
+    "title": "Medieval Foley - Sword Whoosh, Dry",
+    "artist": "BOOM Library",
+    "url": "https://artlist.io/sfx/track/medieval-foley---sword-whoosh-dry/70139",
+    "songId": "70139"
+  },
+  "hit1": {
+    "file": "assets/audio/hit1.mp3",
+    "kind": "sfx",
+    "duration": 0.56,
+    "title": "Bloodlust - Blade Stab, Flesh Wound",
+    "artist": "Epic Stock Media",
+    "url": "https://artlist.io/sfx/track/bloodlust---blade-stab-flesh-wound/64830",
+    "songId": "64830"
+  },
+  "hit2": {
+    "file": "assets/audio/hit2.mp3",
+    "kind": "sfx",
+    "duration": 0.52,
+    "title": "Weapons of War - Metal Armor Hit By Sword",
+    "artist": "Cyberwave Orchestra",
+    "url": "https://artlist.io/sfx/track/weapons-of-war---metal-armor-hit-by-sword/99138",
+    "songId": "99138"
+  },
+  "crit": {
+    "file": "assets/audio/crit.mp3",
+    "kind": "sfx",
+    "duration": 1.2,
+    "title": "Swordplay - Fast Whoosh, Metal Impact, Clanging",
+    "artist": "Krotos",
+    "url": "https://artlist.io/sfx/track/swordplay---fast-whoosh-metal-impact-clanging/68469",
+    "songId": "68469"
+  },
+  "skill_spin": {
+    "file": "assets/audio/skill_spin.mp3",
+    "kind": "sfx",
+    "duration": 1.4,
+    "title": "Just Whoosh - Swirling Air Whoosh",
+    "artist": "SoundBits",
+    "url": "https://artlist.io/sfx/track/just-whoosh---swirling-air-whoosh-/90952",
+    "songId": "90952"
+  },
+  "skill_slam": {
+    "file": "assets/audio/skill_slam.mp3",
+    "kind": "sfx",
+    "duration": 2.4,
+    "title": "Earth Motion - Debris Avalanche",
+    "artist": "Artlist Studios",
+    "url": "https://artlist.io/sfx/track/earth-motion---debris-avalanche-/117140",
+    "songId": "117140"
+  },
+  "skill_buff": {
+    "file": "assets/audio/skill_buff.mp3",
+    "kind": "sfx",
+    "duration": 1.99,
+    "title": "It's Magic - Hollow Light Aura Spell",
+    "artist": "Final Cat Studio",
+    "url": "https://artlist.io/sfx/track/its-magic---hollow-light-aura-spell/110044",
+    "songId": "110044"
+  },
+  "player_hurt": {
+    "file": "assets/audio/player_hurt.mp3",
+    "kind": "sfx",
+    "duration": 0.33,
+    "title": "Injured Male - Painful Grunt, Hurt",
+    "artist": "Bjorn Lynne",
+    "url": "https://artlist.io/sfx/track/injured-male---painful-grunt-hurt-/103629",
+    "songId": "103629"
+  },
+  "monster_hurt": {
+    "file": "assets/audio/monster_hurt.mp3",
+    "kind": "sfx",
+    "duration": 0.7,
+    "title": "Monster, Hitting BlackBoss, rough, deep and pained voice 03",
+    "artist": "Lukas Tvrdon",
+    "url": "https://artlist.io/sfx/track/monster-hitting-blackboss-rough-deep-and-pained-voice-03/24213",
+    "songId": "24213"
+  },
+  "monster_die": {
+    "file": "assets/audio/monster_die.mp3",
+    "kind": "sfx",
+    "duration": 1.8,
+    "title": "Monster, TwinHead, mutant death yelling, 03",
+    "artist": "Lukas Tvrdon",
+    "url": "https://artlist.io/sfx/track/monster-twinhead-mutant-death-yelling-03/24289",
+    "songId": "24289"
+  },
+  "wolf_growl": {
+    "file": "assets/audio/wolf_growl.mp3",
+    "kind": "sfx",
+    "duration": 1.6,
+    "title": "Wild Animals - Wolf, Deep Growl and Snarl",
+    "artist": "Selkor Studio",
+    "url": "https://artlist.io/sfx/track/wild-animals---wolf-deep-growl-and-snarl/67436",
+    "songId": "67436"
+  },
+  "orc_grunt": {
+    "file": "assets/audio/orc_grunt.mp3",
+    "kind": "sfx",
+    "duration": 1,
+    "title": "Monster Mash - Orc Grunt, Straining",
+    "artist": "SoundBits",
+    "url": "https://artlist.io/sfx/track/monster-mash---orc-grunt-straining/91148",
+    "songId": "91148"
+  },
+  "bones": {
+    "file": "assets/audio/bones.mp3",
+    "kind": "sfx",
+    "duration": 1.4,
+    "title": "Violent Mess - Small Wooden Sticks, Rattling",
+    "artist": "SpillAudio",
+    "url": "https://artlist.io/sfx/track/violent-mess---small-wooden-sticks-rattling/99817",
+    "songId": "99817"
+  },
+  "boss_roar": {
+    "file": "assets/audio/boss_roar.mp3",
+    "kind": "sfx",
+    "duration": 3.4,
+    "title": "Haunted Halloween - Enraged Demon Roar",
+    "artist": "Selkor Studio",
+    "url": "https://artlist.io/sfx/track/haunted-halloween---enraged-demon-roar-/76119",
+    "songId": "76119"
+  },
+  "boss_slam": {
+    "file": "assets/audio/boss_slam.mp3",
+    "kind": "sfx",
+    "duration": 2.2,
+    "title": "Booms & Wows - Dark Cave Impact, Long, Reverberant",
+    "artist": "BOOM Library",
+    "url": "https://artlist.io/sfx/track/booms--wows---dark-cave-impact-long-reverberant/69658",
+    "songId": "69658"
+  },
+  "fire": {
+    "file": "assets/audio/fire.mp3",
+    "kind": "sfx",
+    "duration": 2.2,
+    "title": "Logo Legends - Burst of Fire Whoosh, Big Flame, Reverb",
+    "artist": "Marcello Del Monaco",
+    "url": "https://artlist.io/sfx/track/logo-legends---burst-of-fire-whoosh-big-flame-reverb/99582",
+    "songId": "99582"
+  },
+  "levelup": {
+    "file": "assets/audio/levelup.mp3",
+    "kind": "sfx",
+    "duration": 1.58,
+    "title": "White Magic - Level Up, Positive, Winning",
+    "artist": "Cristian Lucchetta",
+    "url": "https://artlist.io/sfx/track/white-magic---level-up-positive-winning/66401",
+    "songId": "66401"
+  },
+  "anvil": {
+    "file": "assets/audio/anvil.mp3",
+    "kind": "sfx",
+    "duration": 0.43,
+    "title": "Medieval Times - Anvil Hit 01",
+    "artist": "SoundCrib",
+    "url": "https://artlist.io/sfx/track/medieval-times---anvil-hit-01/135479",
+    "songId": "135479"
+  },
+  "enhance_success": {
+    "file": "assets/audio/enhance_success.mp3",
+    "kind": "sfx",
+    "duration": 1.4,
+    "title": "Vibrant Game - Ascending Achievement, Playful",
+    "artist": "Epic Stock Media",
+    "url": "https://artlist.io/sfx/track/vibrant-game---ascending-achievement-playful/101630",
+    "songId": "101630"
+  },
+  "enhance_fail": {
+    "file": "assets/audio/enhance_fail.mp3",
+    "kind": "sfx",
+    "duration": 1,
+    "title": "Break Room - Glass, Shattering, Single Hit",
+    "artist": "Artlist Productions",
+    "url": "https://artlist.io/sfx/track/break-room---glass-shattering-single-hit/89425",
+    "songId": "89425"
+  },
+  "ui_click": {
+    "file": "assets/audio/ui_click.mp3",
+    "kind": "sfx",
+    "duration": 0.14,
+    "title": "RPG Game - Menu Button Click",
+    "artist": "Alberto Sueri",
+    "url": "https://artlist.io/sfx/track/rpg-game---menu-button-click/94366",
+    "songId": "94366"
+  },
+  "coin": {
+    "file": "assets/audio/coin.mp3",
+    "kind": "sfx",
+    "duration": 1,
+    "title": "Coins - Coin Transfer by Hand",
+    "artist": "Artlist Studios",
+    "url": "https://artlist.io/sfx/track/coins---coin-transfer-by-hand/131164",
+    "songId": "131164"
+  },
+  "potion": {
+    "file": "assets/audio/potion.mp3",
+    "kind": "sfx",
+    "duration": 1.36,
+    "title": "Cute Monster Game - Healing Potion Gulp",
+    "artist": "DT Sound",
+    "url": "https://artlist.io/sfx/track/cute-monster-game---healing-potion-gulp/118447",
+    "songId": "118447"
+  },
+  "footstep": {
+    "file": "assets/audio/footstep.mp3",
+    "kind": "sfx",
+    "duration": 0.38,
+    "title": "Foley - gravel 2",
+    "artist": "Marcello Del Monaco",
+    "url": "https://artlist.io/sfx/track/foley---gravel-2/29155",
+    "songId": "29155"
+  },
+  "magic_cast": {
+    "file": "assets/audio/magic_cast.mp3",
+    "kind": "sfx",
+    "duration": 1.3,
+    "title": "Black Magic - Whizzing Whoosh, Wand Spell Cast",
+    "artist": "Cristian Lucchetta",
+    "url": "https://artlist.io/sfx/track/black-magic---whizzing-whoosh-wand-spell-cast/66349",
+    "songId": "66349"
+  },
+  "arrow_shot": {
+    "file": "assets/audio/arrow_shot.mp3",
+    "kind": "sfx",
+    "duration": 0.3,
+    "title": "Weapons of War - Bow Release, Arrow Whoosh, Shooting",
+    "artist": "Cyberwave Orchestra",
+    "url": "https://artlist.io/sfx/track/weapons-of-war---bow-release-arrow-whoosh-shooting/99123",
+    "songId": "99123"
+  },
+  "teleport": {
+    "file": "assets/audio/teleport.mp3",
+    "kind": "sfx",
+    "duration": 1.19,
+    "title": "It's Magical - Blast Shimmer, Sparkling",
+    "artist": "Bjorn Lynne",
+    "url": "https://artlist.io/sfx/track/its-magical---blast-shimmer-sparkling/103413",
+    "songId": "103413"
+  }
+}

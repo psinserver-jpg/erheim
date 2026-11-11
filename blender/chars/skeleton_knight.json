@@ -1,0 +1,20 @@
+{
+ "source": "assets/raw/skeleton_knight.glb",
+ "target_height": 1.95,
+ "landmarks": {},
+ "weights": {},
+ "gear": {
+  "module": "gear_skeleton_knight"
+ },
+ "anim": {
+  "module": "anims_skeleton_knight",
+  "set": "skeleton_knight_set",
+  "big_clips": [
+   "death"
+  ]
+ },
+ "export": {
+  "tex": 1024,
+  "lod": 0.35
+ }
+}

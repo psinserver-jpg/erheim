@@ -1,0 +1,149 @@
+{
+ "tag": "demon_lord",
+ "bones_total": 27,
+ "bones_deform": 23,
+ "bone_names": [
+  "root",
+  "hips",
+  "spine",
+  "chest",
+  "neck",
+  "head",
+  "shoulder.L",
+  "upper_arm.L",
+  "forearm.L",
+  "forearm_roll.L",
+  "hand.L",
+  "weapon.L",
+  "shield.L",
+  "shoulder.R",
+  "upper_arm.R",
+  "forearm.R",
+  "forearm_roll.R",
+  "hand.R",
+  "weapon.R",
+  "thigh.L",
+  "shin.L",
+  "foot.L",
+  "toe.L",
+  "thigh.R",
+  "shin.R",
+  "foot.R",
+  "toe.R"
+ ],
+ "clips": {
+  "idle": {
+   "frames": 97,
+   "duration": 3.2,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 1.79,
+   "stretch_p999": 1.542,
+   "foot_min_z_mm": 0.389,
+   "body_min_z_mm": 0.389
+  },
+  "walk": {
+   "frames": 49,
+   "duration": 1.6,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.052,
+   "stretch_p999": 1.445,
+   "foot_min_z_mm": 0.03,
+   "body_min_z_mm": 0.03
+  },
+  "attack1": {
+   "frames": 31,
+   "duration": 1.0,
+   "loop": false,
+   "events": {
+    "hit": 0.52
+   },
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.243,
+   "stretch_p999": 1.796,
+   "foot_min_z_mm": 0.36,
+   "body_min_z_mm": 0.36
+  },
+  "attack2": {
+   "frames": 34,
+   "duration": 1.1,
+   "loop": false,
+   "events": {
+    "hit": 0.55
+   },
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.339,
+   "stretch_p999": 1.905,
+   "foot_min_z_mm": 0.03,
+   "body_min_z_mm": 0.03
+  },
+  "skill1": {
+   "frames": 58,
+   "duration": 1.9,
+   "loop": false,
+   "events": {
+    "hit": 1.08
+   },
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.389,
+   "stretch_p999": 1.834,
+   "foot_min_z_mm": 0.001,
+   "body_min_z_mm": 0.001
+  },
+  "skill2": {
+   "frames": 61,
+   "duration": 2.0,
+   "loop": false,
+   "events": {
+    "cast": 0.8
+   },
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.025,
+   "stretch_p999": 1.739,
+   "foot_min_z_mm": 0.118,
+   "body_min_z_mm": 0.118
+  },
+  "hit": {
+   "frames": 16,
+   "duration": 0.5,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 1.921,
+   "stretch_p999": 1.616,
+   "foot_min_z_mm": 0.346,
+   "body_min_z_mm": 0.346
+  },
+  "death": {
+   "frames": 79,
+   "duration": 2.6,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 0.0,
+   "stretch_max": 2.491,
+   "stretch_p999": 1.777,
+   "foot_min_z_mm": 0.056,
+   "body_min_z_mm": 0.056
+  }
+ },
+ "criteria": {
+  "grip_palm_max_m": 0.01,
+  "stretch_max": 3.0,
+  "foot_min_z_m": 0.0
+ },
+ "total": {
+  "frames": 425,
+  "grip_palm_max_mm": 0.0,
+  "stretch_max": 2.491,
+  "foot_min_z_mm": 0.001,
+  "body_min_z_mm": 0.001,
+  "passed": {
+   "grip": true,
+   "stretch": true,
+   "foot": true
+  }
+ }
+}

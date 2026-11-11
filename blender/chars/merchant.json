@@ -1,0 +1,15 @@
+{
+ "source": "assets/raw/merchant.glb",
+ "target_height": 1.66,
+ "landmarks": {},
+ "weights": {},
+ "gear": {},
+ "anim": {
+  "module": "anims",
+  "set": "knight_set"
+ },
+ "export": {
+  "tex": 1024,
+  "lod": 1.0
+ }
+}

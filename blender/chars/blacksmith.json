@@ -1,0 +1,22 @@
+{
+ "source": "assets/raw/blacksmith.glb",
+ "target_height": 1.78,
+ "landmarks": {
+  "shoulder_out": 0.5,
+  "shoulder_below_neck": 0.08
+ },
+ "weights": {
+  "heat_c": 0.5
+ },
+ "gear": {
+  "module": "gear_blacksmith"
+ },
+ "anim": {
+  "module": "anims_blacksmith",
+  "set": "blacksmith_set"
+ },
+ "export": {
+  "tex": 1024,
+  "lod": 1
+ }
+}

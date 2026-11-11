@@ -1,0 +1,39 @@
+{
+ "note": "주인공(기사) 리깅 설정. landmarks 값은 키(H) 대비 비율.",
+ "source": "input/hero_raw.glb",
+ "target_height": 1.8,
+ "blend": "blender/current.blend",
+ "landmarks": {
+  "elbow_t": 0.6,
+  "joints": {
+   "grip.R": [
+    -0.42939,
+    -0.09944,
+    0.95893
+   ]
+  }
+ },
+ "gear": {
+  "weapon": {
+   "type": "sword",
+   "blade_len": 1.02,
+   "blade_w": 0.082,
+   "guard_w": 0.3
+  },
+  "shield": true
+ },
+ "anim": {
+  "module": "anims",
+  "set": "knight_set",
+  "big_clips": [
+   "skill1",
+   "skill2",
+   "skill3"
+  ]
+ },
+ "export": {
+  "tex": 2048,
+  "lod": 0.25
+ },
+ "note2": "grip.R: 손바닥 기준점을 '주먹 정점 전체의 중심'으로 재든 '손잡이 주변 4~5cm 정점 평균'으로 재든 1cm 안에 들도록 격자 탐색으로 정한 손잡이 중심(blender/scripts/diag_grip.py)"
+}

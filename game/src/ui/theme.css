@@ -1,0 +1,43 @@
+/* 공통 테마 (수정 금지: HUD·창 모듈이 함께 쓴다) */
+#ui {
+  --gold: #d8b56a; --gold-hi: #ffe7a8; --gold-lo: #8a6a2e; --gold-line: rgba(200,164,90,.55);
+  --panel: rgba(13,16,24,.86); --panel-2: rgba(22,27,40,.92); --panel-line: rgba(255,255,255,.07);
+  --ink: #e9e4d6; --ink-dim: #a9a595; --ink-faint: #6f6c62;
+  --hp-a: #ff5a4a; --hp-b: #8e1010; --mp-a: #4fb2ff; --mp-b: #123a9a; --exp-a: #ffe08a; --exp-b: #c98a1e;
+  --common: #cfd3da; --rare: #4aa3ff; --epic: #b36bff; --legend: #ffb23e;
+  --ch-world: #ffd27a; --ch-local: #ececec; --ch-guild: #7dff9a; --ch-party: #7ecbff; --ch-trade: #ffa0d8; --ch-system: #ff8a5c;
+  --shadow: 0 6px 24px rgba(0,0,0,.55);
+  position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden;
+  pointer-events: none; user-select: none; color: var(--ink);
+  font-family: 'GameSans', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 15px; line-height: 1.35;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+#ui * { box-sizing: border-box; }
+#ui .interactive, #ui button, #ui input { pointer-events: auto; }
+#ui .serif { font-family: 'GameSerif', 'AppleMyungjo', 'Batang', serif; }
+/* 금테 패널 */
+#ui .panel {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--gold-line); border-radius: 4px;
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+}
+/* 금속 금빛 글자 */
+#ui .gold-text {
+  font-family: 'GameSerif', serif; font-weight: 900;
+  background: linear-gradient(180deg, #fff6d0 0%, #ffd97a 32%, #c98f2c 58%, #7a4f12 78%, #e9c069 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.85)) drop-shadow(0 0 14px rgba(255,190,80,.35));
+}
+#ui .outline { text-shadow: 0 0 2px #000, 0 1px 2px #000, 1px 0 2px #000, -1px 0 2px #000, 0 -1px 2px #000; }
+/* 기본 버튼 */
+#ui .btn {
+  font-family: 'GameSerif', serif; font-weight: 700; font-size: 17px; color: #f6e7bd; letter-spacing: .04em;
+  padding: 9px 26px; border-radius: 3px; cursor: pointer; border: 1px solid #b08a3e;
+  background: linear-gradient(180deg, #5a4420 0%, #2e210d 55%, #1c1407 100%);
+  box-shadow: inset 0 1px 0 rgba(255,236,170,.35), inset 0 -8px 14px rgba(0,0,0,.35), 0 3px 10px rgba(0,0,0,.5);
+  text-shadow: 0 1px 2px #000; transition: filter .12s, transform .08s;
+}
+#ui .btn:hover { filter: brightness(1.25); }
+#ui .btn:active { transform: translateY(1px); filter: brightness(.9); }
+#ui .btn.primary { background: linear-gradient(180deg, #b8862a 0%, #6d4a10 55%, #3d2906 100%); border-color: #f0cf7e; color: #fff8dc; }
+#ui .rar-common { color: var(--common); } #ui .rar-rare { color: var(--rare); } #ui .rar-epic { color: var(--epic); } #ui .rar-legend { color: var(--legend); }

@@ -1,0 +1,18 @@
+{
+ "source": "assets/raw/werewolf.glb",
+ "target_height": 2.05,
+ "landmarks": {},
+ "weights": {},
+ "gear": {},
+ "anim": {
+  "module": "anims_werewolf",
+  "set": "werewolf_set",
+  "big_clips": [
+   "death"
+  ]
+ },
+ "export": {
+  "tex": 1024,
+  "lod": 0.35
+ }
+}

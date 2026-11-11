@@ -1,0 +1,123 @@
+{
+ "tag": "blacksmith",
+ "bones_total": 27,
+ "bones_deform": 23,
+ "bone_names": [
+  "root",
+  "hips",
+  "spine",
+  "chest",
+  "neck",
+  "head",
+  "shoulder.L",
+  "upper_arm.L",
+  "forearm.L",
+  "forearm_roll.L",
+  "hand.L",
+  "weapon.L",
+  "shield.L",
+  "shoulder.R",
+  "upper_arm.R",
+  "forearm.R",
+  "forearm_roll.R",
+  "hand.R",
+  "weapon.R",
+  "thigh.L",
+  "shin.L",
+  "foot.L",
+  "toe.L",
+  "thigh.R",
+  "shin.R",
+  "foot.R",
+  "toe.R"
+ ],
+ "clips": {
+  "idle": {
+   "frames": 97,
+   "duration": 3.2,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 0.163,
+   "stretch_max": 1.517,
+   "stretch_p999": 1.276,
+   "foot_min_z_mm": 0.0,
+   "body_min_z_mm": 0.0
+  },
+  "walk": {
+   "frames": 37,
+   "duration": 1.2,
+   "loop": true,
+   "events": {},
+   "grip_palm_max_mm": 0.212,
+   "stretch_max": 1.817,
+   "stretch_p999": 1.369,
+   "foot_min_z_mm": 0.25,
+   "body_min_z_mm": 0.25
+  },
+  "work": {
+   "frames": 49,
+   "duration": 1.6,
+   "loop": true,
+   "events": {
+    "clang": 0.6
+   },
+   "grip_palm_max_mm": 0.491,
+   "stretch_max": 2.469,
+   "stretch_p999": 1.759,
+   "foot_min_z_mm": 0.036,
+   "body_min_z_mm": 0.036
+  },
+  "talk": {
+   "frames": 61,
+   "duration": 2.0,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 0.143,
+   "stretch_max": 2.092,
+   "stretch_p999": 1.387,
+   "foot_min_z_mm": 0.004,
+   "body_min_z_mm": 0.004
+  },
+  "cheer": {
+   "frames": 37,
+   "duration": 1.2,
+   "loop": false,
+   "events": {
+    "cheer": 0.36
+   },
+   "grip_palm_max_mm": 0.387,
+   "stretch_max": 2.688,
+   "stretch_p999": 1.92,
+   "foot_min_z_mm": 0.007,
+   "body_min_z_mm": 0.007
+  },
+  "sad": {
+   "frames": 43,
+   "duration": 1.4,
+   "loop": false,
+   "events": {},
+   "grip_palm_max_mm": 0.369,
+   "stretch_max": 1.643,
+   "stretch_p999": 1.386,
+   "foot_min_z_mm": 0.007,
+   "body_min_z_mm": 0.007
+  }
+ },
+ "criteria": {
+  "grip_palm_max_m": 0.01,
+  "stretch_max": 3.0,
+  "foot_min_z_m": 0.0
+ },
+ "total": {
+  "frames": 324,
+  "grip_palm_max_mm": 0.491,
+  "stretch_max": 2.688,
+  "foot_min_z_mm": 0.0,
+  "body_min_z_mm": 0.0,
+  "passed": {
+   "grip": true,
+   "stretch": true,
+   "foot": true
+  }
+ }
+}

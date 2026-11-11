@@ -1,0 +1,102 @@
+{
+ "source": "assets/raw/demon_lord.glb",
+ "target_height": 2.6,
+ "landmarks": {
+  "neck_z": 0.875,
+  "joints": {
+   "shoulder_joint.L": [
+    0.4089,
+    0.08,
+    2.04
+   ],
+   "shoulder_joint.R": [
+    -0.7311,
+    0.08,
+    2.04
+   ],
+   "clavicle.L": [
+    -0.0011,
+    0.05,
+    2.08
+   ],
+   "clavicle.R": [
+    -0.3211,
+    0.05,
+    2.08
+   ],
+   "elbow.L": [
+    0.6389,
+    0.0,
+    1.71
+   ],
+   "elbow.R": [
+    -0.9611,
+    0.0,
+    1.71
+   ],
+   "wrist.L": [
+    0.6289,
+    -0.135,
+    1.4
+   ],
+   "wrist.R": [
+    -0.9511,
+    -0.135,
+    1.4
+   ],
+   "neck_base": [
+    -0.1611,
+    0.03,
+    2.19
+   ],
+   "head_joint": [
+    -0.1611,
+    -0.03,
+    2.31
+   ],
+   "head_top": [
+    -0.1611,
+    -0.08,
+    2.561
+   ]
+  }
+ },
+ "weights": {
+  "heat_c": 0.4
+ },
+ "gear": {
+  "module": "gear_demon_lord",
+  "blade_len": 1.9,
+  "armpit_smooth_pow": 1.5,
+  "armpit_smooth_iters": 400,
+  "grip_shot_scale": 2.6
+ },
+ "anim": {
+  "module": "anims_demon_lord",
+  "set": "demon_lord_set",
+  "big_clips": [
+   "attack1",
+   "attack2",
+   "skill1",
+   "skill2",
+   "death"
+  ]
+ },
+ "export": {
+  "tex": 2048,
+  "lod": 1
+ },
+ "_pipeline": {
+  "order": [
+   "import",
+   "skeleton",
+   "gear",
+   "weights",
+   "gear",
+   "anims --sheets",
+   "export"
+  ],
+  "note": "이 캐릭터는 rig_char.sh demon_lord all 로는 재현되지 않는다. 공용 skeleton 단계가 몸 중심선을 약 -0.16 m 로 잘못 잡아 메시를 옮기므로, skeleton 뒤에 gear 를 한 번 돌려 메시 중심을 되돌리고(gear_demon_lord._fix_center) weights 를 만든 다음, gear 를 다시 돌려 겨드랑이 가중치 평활·늘어남 완화(_smooth_armpits)와 대검 장착을 한다. 그 뒤 anims, export. 재현 스크립트: _work/demon_lord_rebuild.sh",
+  "review_views": "DL_VIEWS=b,t,g,r blender/rig_char.sh demon_lord anims --sheets  → blender/diag/demon_lord_anim_<clip>_<b|t|g|r>_<n>.png (오른쪽 뒤/위/게임 쿼터뷰/오른쪽 옆)"
+ }
+}
