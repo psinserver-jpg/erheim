@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { loadCharModel, Character } from '../entities/chars.js';
 import { POI, ZONES } from '../world/world.js';
+import { WHO, PROLOGUE, CHAPTERS as CH, STORY_MON } from './story.js';
 
 const V = (x, z) => new THREE.Vector3(x, 0, z);
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -17,10 +18,10 @@ const GUILDS = ['은사자', '붉은까마귀', '새벽검', '철권단', '폭�
 export const RATES = [1, 1, 1, 0.9, 0.8, 0.65, 0.5, 0.4, 0.3, 0.2, 0.12];
 const EXPREQ = (lv) => Math.round(260 + (lv - 14) * 90);
 const SKILLS = [
-  { id: 'spin', name: '회전 베기', icon: 2, key: '1', cd: 6, mp: 18, clip: 'skill1' },
-  { id: 'slam', name: '도약 강타', icon: 3, key: '2', cd: 10, mp: 30, clip: 'skill2' },
-  { id: 'roar', name: '사자후', icon: 6, key: '3', cd: 24, mp: 25, clip: 'skill3' },
-  { id: 'recall', name: '귀환', icon: 7, key: '4', cd: 30, mp: 10, clip: null },
+  { id: 'spin', name: '회전 베기', icon: 2, key: '1', cd: 6, mp: 18, clip: 'skill1', lv: 1 },
+  { id: 'slam', name: '도약 강타', icon: 3, key: '2', cd: 10, mp: 30, clip: 'skill2', lv: 3 },
+  { id: 'roar', name: '사자후', icon: 6, key: '3', cd: 24, mp: 25, clip: 'skill3', lv: 5 },
+  { id: 'recall', name: '귀환', icon: 7, key: '4', cd: 30, mp: 10, clip: null, lv: 1 },
 ];
 
 export async function createGame({ engine, world, ui, vfx, sound, names, chat }) {
@@ -31,7 +32,11 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   for (const t of ['hero', 'werewolf', 'orc_warrior', 'skeleton_knight', 'blacksmith', 'mage', 'elf_archer', 'demon_lord']) {
     try { models[t] = await loadCharModel(t, { lod: false }); models[t + '_lod'] = await loadCharModel(t, { lod: true }); } catch (e) { console.warn('모델 없음', t); }
   }
-  const G = { ents: [], time: 0, timeScale: 1, hitstop: 0, auto: false, demo: false, boss: null, raid: null, events: [], paused: false };
+  const G = { ents: [], time: 0, timeScale: 1, hitstop: 0, auto: false, demo: false, boss: null, raid: null, events: [], paused: false, story: false, talk: false };
+  const ST = { ch: 0, n: 0, seen: false, started: false, raidOk: false, autoNext: false };   // 이야기 진행 상태(계정 모드)
+  const md = (tag) => (G.story ? { ...MON[tag], ...STORY_MON[tag] } : MON[tag]);
+  const expReq = (lv) => (G.story ? 90 + lv * 55 : EXPREQ(lv));
+  const unlocked = (sk) => !G.story || P.level >= (sk.lv || 1);
   let nextId = 1;
   const sp = new THREE.Vector3(), sp2 = new THREE.Vector3(), scr = { x: 0, y: 0, z: 0 };
 
@@ -61,14 +66,16 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   const setTrail = (on) => { try { trail && trail.setActive(on); } catch (e) { } };
   function atkPower() { return (P.atk + P.plus * 14) * (P.buffT > 0 ? 1.35 : 1); }
   function refreshPlayerUI() { hud.setPlayer({ name: P.name, level: P.level, guild: GUILDS[0], crest: 0, hp: Math.ceil(P.hp), hpMax: P.hpMax, mp: Math.ceil(P.mp), mpMax: P.mpMax, exp: P.exp, gold: P.gold, power: Math.round(atkPower() * 31 + P.hpMax * 2.2) }); }
-  function skillState() { return SKILLS.map(s => ({ id: s.id, name: s.name, icon: s.icon, key: s.key, cd: s.cd, cdLeft: Math.max(0, P.cds[s.id] || 0), mp: s.mp, enabled: P.mp >= s.mp })); }
+  function skillState() { return SKILLS.map(s => ({ id: s.id, name: s.name, icon: s.icon, key: s.key, cd: s.cd, cdLeft: Math.max(0, P.cds[s.id] || 0), mp: s.mp, enabled: P.mp >= s.mp && unlocked(s) })); }
+  function recalc() { const L = P.level - 1; P.hpMax = 380 + 80 * L; P.mpMax = 140 + 14 * L; P.atk = 34 + 6 * L; }   // 이야기 모드: 레벨로 능력치를 정한다
   hud.setSkills(skillState()); hud.setPotions(P.potions); refreshPlayerUI();
 
   function gainExp(x) {
-    P.exp += x / EXPREQ(P.level);
-    const s = screenOf(P, 2.3); hud.damage(s.x + 40, s.y, '+' + x + ' EXP', { kind: 'exp' });
+    P.exp += x / expReq(P.level);
+    const s = screenOf(P, 2.3); hud.damage(s.x + 40, s.y, x, { kind: 'exp' });
     while (P.exp >= 1) {
-      P.exp -= 1; P.level++; P.hpMax += 90; P.mpMax += 20; P.atk += 7; P.hp = P.hpMax; P.mp = P.mpMax;
+      P.exp -= 1; P.level++; if (G.story) recalc(); else { P.hpMax += 90; P.mpMax += 20; P.atk += 7; } P.hp = P.hpMax; P.mp = P.mpMax;
+      if (G.story) for (const sk of SKILLS) if (sk.lv === P.level && sk.lv > 1) { hud.notice(`새 기술 [${sk.name}]을 익혔습니다! (단축키 ${sk.key})`, 'info'); hud.setSkills(skillState()); }
       hud.levelUp(P.level); try { vfx.levelUp(P.ch.root); } catch (e) { } S('levelup'); engine.flash(0xfff2c0, 0.35); engine.shake(0.25, 0.4);
       hud.chat.add({ channel: 'system', text: `레벨이 올랐습니다! (Lv.${P.level}) 체력·내력이 모두 회복되었습니다.` });
       chat && chat.event('levelUp', { name: P.name, level: P.level }); G.events.push('levelup');
@@ -76,7 +83,7 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
     refreshPlayerUI();
   }
   function hurtPlayer(d, src) {
-    if (P.dead) return; if (G.demo) d = Math.min(d, Math.max(0, P.hp - P.hpMax * 0.22));
+    if (P.dead || G.talk) return; if (G.demo) d = Math.min(d, Math.max(0, P.hp - P.hpMax * 0.22));
     if (!G.demo && src && src.kind === 'boss') d *= 0.5;   // 직접 플레이: AI 인원이 적어 보스 공격이 주인공에게 몰리므로 피해를 줄인다
     d = Math.round(d); if (d <= 0) return; P.hp -= d; dmgNum(P, d, 'take'); S('player_hurt', { volume: 0.6 }); P.ch.flash(0.5); P.flashT = 0.12; engine.shake(0.12, 0.15);
     if (P.state === 'idle' || P.state === 'move') { /* 가벼운 피격은 동작을 끊지 않는다 */ }
@@ -114,8 +121,9 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   function kill(m, src) {
     m.hp = 0; m.dead = true; m.state = 'dead'; m.t = 0; m.ch.play('death', { loop: false, fade: 0.08 }); S('monster_die', { pos: m.pos, volume: 0.7 });
     if (m.kind === 'monster') {
-      const d = MON[m.tag];
+      const d = md(m.tag);
       if (src === P || dist2(m.pos, P.pos) < 8) {
+        if (G.story && Math.random() < 0.18) { P.potions.hp += 1; hud.setPotions(P.potions); hud.loot({ icon: 9, name: '빨간 물약', count: 1, rarity: 'common' }); }
         P.kills++; gainExp(d.exp); const gold = Math.round(rand(d.gold[0], d.gold[1])); P.gold += gold;
         hud.loot({ icon: 14, name: '금화', count: gold, rarity: 'common' }); S('coin', { volume: 0.5 });
         if (Math.random() < 0.16) { P.scrolls++; hud.loot({ icon: 11, name: '무기 강화 주문서', count: 1, rarity: 'rare' }); try { vfx.lootBeam(m.pos, { color: 0x4aa3ff, duration: 2.5 }); } catch (e) { } }
@@ -128,8 +136,15 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
 
   // ---------------- 의뢰 ----------------
   let qrun = null;   // 자동 진행 중인 의뢰
-  const quest = { n: { werewolf: 0, orc_warrior: 0 }, kill(t) { if (this.n[t] !== undefined) { this.n[t]++; this.show(); } },
-    show() { const act = (id) => !!(qrun && qrun.id === id); hud.setQuest([{ id: 'hunt', active: act('hunt'), title: '[일일] 숲의 위협', lines: [{ text: '늑대인간 처치', cur: Math.min(this.n.werewolf, 20), max: 20, done: this.n.werewolf >= 20 }, { text: '오크 전사 처치', cur: Math.min(this.n.orc_warrior, 10), max: 10, done: this.n.orc_warrior >= 10 }] }, { id: 'raid', active: act('raid'), title: '[문파] 발카르 토벌전', lines: [{ text: '잿불 제단의 레이드에 참가', cur: G.raid && G.raid.done ? 1 : 0, max: 1, done: !!(G.raid && G.raid.done) }] }, { id: 'enh', active: act('enh'), title: '[성장] 여명의 장검 +7 달성', lines: [{ text: '대장장이 브롬에게 강화', cur: Math.min(P.plus, 7), max: 7, done: P.plus >= 7 }] }]); } };
+  const quest = { n: { werewolf: 0, orc_warrior: 0 },
+    kill(t) {
+      if (G.story && ST.ch < CH.length) { const o = CH[ST.ch].obj; if (o.type === 'kill' && o.tag === t && ST.n < o.max) { ST.n++; this.show(); } return; }
+      if (this.n[t] !== undefined) { this.n[t]++; this.show(); } },
+    show() { const act = (id) => !!(qrun && qrun.id === id);
+      if (G.story && ST.ch < CH.length) { const c = CH[ST.ch], o = c.obj, max = o.max || 1;
+        const cur = o.type === 'kill' ? ST.n : o.type === 'enh' ? Math.min(P.plus, max) : o.type === 'level' ? Math.min(P.level, max) : 0;
+        hud.setQuest([{ id: 'story', active: act('story'), title: `[이야기 ${ST.ch + 1}장] ${c.title}`, lines: [{ text: o.text, cur, max, done: cur >= max }] }]); return; }
+      hud.setQuest([{ id: 'hunt', active: act('hunt'), title: '[일일] 숲의 위협', lines: [{ text: '늑대인간 처치', cur: Math.min(this.n.werewolf, 20), max: 20, done: this.n.werewolf >= 20 }, { text: '오크 전사 처치', cur: Math.min(this.n.orc_warrior, 10), max: 10, done: this.n.orc_warrior >= 10 }] }, { id: 'raid', active: act('raid'), title: '[문파] 발카르 토벌전', lines: [{ text: '잿불 제단의 레이드에 참가', cur: G.raid && G.raid.done ? 1 : 0, max: 1, done: !!(G.raid && G.raid.done) }] }, { id: 'enh', active: act('enh'), title: '[성장] 여명의 장검 +7 달성', lines: [{ text: '대장장이 브롬에게 강화', cur: Math.min(P.plus, 7), max: 7, done: P.plus >= 7 }] }]); } };
   quest.show();
 
   // ---------------- 몬스터 ----------------
@@ -171,6 +186,10 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
     const shim = { root, update() { mm.scale.y = 1.66 * (1 + Math.sin(G.time * 1.7) * 0.006); }, flash() { }, play() { return 1; }, has() { return false; }, setOpacity() { } };
     G.ents.push({ id: nextId++, kind: 'npc', tag: 'merchant', ch: shim, pos: root.position, yaw: 0, name: '잡화상인 리나', guild: null, level: 30, hp: 1, hpMax: 1, r: 0.5, height: 1.66, title: '물약 · 주문서', dead: false, state: 'idle' });
   } catch (e) { console.warn('merchant', e); }
+  // 이야기 인물
+  const liena = spawn('npc', 'elf_archer', V(7.0, 10.0), { name: '리에나', yaw: -2.6, level: 58, hp: 9999 }); if (liena) liena.title = '은사자 부문주';
+  const orben = spawn('npc', 'mage', V(-8.0, 10.5), { name: '현자 오르벤', yaw: 2.6, level: 60, hp: 9999 }); if (orben) orben.title = '성채 기록관';
+  const NPCS = { brom: { ent: smith, stand: POI.smithStand }, liena: { ent: liena, stand: V(5.6, 8.2) }, orben: { ent: orben, stand: V(-6.5, 8.6) } };
   const guards = [];
   for (const [x, z, yaw] of [[-5.5, -41, 0], [5.5, -41, 0], [-4, -53, 3.14], [4, -53, 3.14]]) { const g2 = spawn('npc', 'hero', V(x, z), { lod: true, name: '성채 경비병', yaw, tint: 0xd8b0a0, level: 50, hp: 9999 }); if (g2) { g2.title = '벨로스 수비대'; guards.push(g2); } }
 
@@ -228,8 +247,9 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
     P.atkDur = P.ch.play(c, { loop: false, restart: true, fade: 0.06, speed: 1.12 }); P.hitAt = (P.ch.event(c, 'hit') ?? 0.3) / 1.12; P.atkDur *= 0.86; P.hitDone = false; P.t = 0; P.state = 'attack'; P.atkClip = c;
     setTrail(true); S(Math.random() < 0.5 ? 'sword_swing1' : 'sword_swing2', { volume: 0.7 });
   }
-  function castSkill(id) {
-    const s = SKILLS.find(x => x.id === id); if (!s || P.dead || P.state === 'skill' || (P.cds[id] || 0) > 0 || P.mp < s.mp) return false;
+  function castSkill(id, quiet) {
+    const s = SKILLS.find(x => x.id === id); if (!s || P.dead || G.talk) return false; if (!unlocked(s)) { if (!quiet) hud.toast(`[${s.name}]은 Lv.${s.lv}에 익힙니다.`, 'info'); return false; }
+    if (P.state === 'skill' || (P.cds[id] || 0) > 0 || P.mp < s.mp) return false;
     if (id === 'recall') { if (G.raid && G.raid.active) return false; P.cds[id] = s.cd; P.mp -= s.mp; teleport(POI.plaza); return true; }
     if (id === 'slam') { const tg = P.target && !P.target.dead ? P.target : nearestMonster(P.pos, 14); if (!tg) return false; P.slamTo = tg; face(P, tg.pos, 1, 100); }
     P.cds[id] = s.cd; P.mp -= s.mp; P.state = 'skill'; P.skill = id; P.t = 0; P.fx = 0; P.atkDur = P.ch.play(s.clip, { loop: false, restart: true, fade: 0.06 }); setTrail(id !== 'roar');
@@ -273,12 +293,14 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   function autoHunt(dt) {
     if (P.mp < 60 && P.potions.mp > 0) usePotion('mp');
     let tg = P.target && !P.target.dead ? P.target : null;
-    if (!tg) { tg = G.boss && !G.boss.dead && dist2(G.boss.pos, P.pos) < 60 ? G.boss : ((qrun && qrun.tag && nearestMonster(P.pos, 38, m => m.tag === qrun.tag && dist2(m.pos, P.huntAnchor) < 60)) || nearestMonster(P.pos, qrun && qrun.tag ? 7 : 38, m => dist2(m.pos, P.huntAnchor) < 60)); if (tg) setTarget(tg); else if (dist2(P.pos, P.huntAnchor) > 6) P.moveTo = P.huntAnchor; }
+    if (tg && tg.kind === 'monster') { if (P.huntTg !== tg || tg.hp !== P.huntHp) { P.huntTg = tg; P.huntHp = tg.hp; P.huntT = 0; } else if ((P.huntT += dt) > 6) { tg.skipUntil = G.time + 15; if (tg.target === P) tg.target = null; P.target = null; hud.setTarget(null); tg = null; P.huntTg = null; } }
+    const okT = (m) => !(m.skipUntil > G.time);
+    if (!tg) { tg = G.boss && !G.boss.dead && dist2(G.boss.pos, P.pos) < 60 ? G.boss : ((qrun && qrun.tag && nearestMonster(P.pos, 38, m => okT(m) && m.tag === qrun.tag && dist2(m.pos, P.huntAnchor) < 60)) || nearestMonster(P.pos, qrun && qrun.tag ? 7 : 38, m => okT(m) && dist2(m.pos, P.huntAnchor) < 60)); if (tg) setTarget(tg); else if (dist2(P.pos, P.huntAnchor) > 6) P.moveTo = P.huntAnchor; }
     if (!tg) return;
     const d = dist2(tg.pos, P.pos) - (tg.kind === 'boss' ? 4 : 0);
-    if (P.buffT <= 0 && d < 12 && castSkill('roar')) return;
-    if (d < 9 && d > 3 && castSkill('slam')) return;
-    if (d < 3.4 && (near(P.pos, 4.6).length >= 2 || tg.kind === 'boss') && castSkill('spin')) return;
+    if (P.buffT <= 0 && d < 12 && castSkill('roar', true)) return;
+    if (d < 9 && d > 3 && castSkill('slam', true)) return;
+    if (d < 3.4 && (near(P.pos, 4.6).length >= 2 || tg.kind === 'boss') && castSkill('spin', true)) return;
   }
 
   // ---------------- 강화 ----------------
@@ -295,22 +317,23 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
       const pr = win.enhance.play(res, { from, to: from + 1, name: P.weaponName });
       setTimeout(() => {
         if (ok) { S('enhance_success'); engine.flash(0xfff0b0, 0.45); P.plus++; try { glow && glow.setLevel(P.plus); vfx.buff(P.ch.root, { color: 0xffd060, duration: 2 }); } catch (e) { } if (smith && smith.ch.has('cheer')) smith.ch.play('cheer', { loop: false, restart: true }); }
-        else { S('enhance_fail'); engine.flash(0xff2010, 0.5); engine.shake(0.6, 0.6); if (smith && smith.ch.has('sad')) smith.ch.play('sad', { loop: false, restart: true }); if (destroy) { P.plus = 0; P.weaponName = '낡은 장검'; try { glow && glow.setLevel(0); } catch (e) { } } }
+        else { S('enhance_fail'); engine.flash(0xff2010, 0.5); engine.shake(0.6, 0.6); if (smith && smith.ch.has('sad')) smith.ch.play('sad', { loop: false, restart: true }); if (destroy) { P.plus = 0; if (!G.story) P.weaponName = '낡은 장검'; try { glow && glow.setLevel(0); } catch (e) { } } }
       }, 1250);
       await pr;
       this.log.push(ok ? `+${from} → +${from + 1} 강화 성공!` : destroy ? `+${from} ${'여명의 장검'} 증발…` : `+${from} 강화 실패`);
-      if (ok) { hud.chat.add({ channel: 'system', text: `${P.weaponName} +${P.plus} 강화에 성공했습니다!` }); if (P.plus >= 6) { hud.notice(`[은사자] 카일 님이 +${P.plus} ${P.weaponName} 강화에 성공했습니다!`, 'enhance'); chat && chat.event('enhanceSuccess', { name: P.name, item: P.weaponName, plus: P.plus }); } }
-      else { hud.chat.add({ channel: 'system', text: destroy ? `강화 실패! +${from} 여명의 장검이 증발했습니다…` : `강화에 실패했습니다. (+${from} 유지)` }); if (destroy) { hud.notice(`[은사자] 카일 님의 +${from} 여명의 장검이 강화 중 증발했습니다…`, 'enhance'); } chat && chat.event('enhanceFail', { name: P.name, item: '여명의 장검', plus: from }); }
+      if (ok) { hud.chat.add({ channel: 'system', text: `${P.weaponName} +${P.plus} 강화에 성공했습니다!` }); if (P.plus >= 6) { hud.notice(`[은사자] ${P.name} 님이 +${P.plus} ${P.weaponName} 강화에 성공했습니다!`, 'enhance'); chat && chat.event('enhanceSuccess', { name: P.name, item: P.weaponName, plus: P.plus }); } }
+      else { hud.chat.add({ channel: 'system', text: destroy ? (G.story ? `강화 실패! +${from} ${P.weaponName}의 강화 수치가 모두 사라졌습니다…` : `강화 실패! +${from} 여명의 장검이 증발했습니다…`) : `강화에 실패했습니다. (+${from} 유지)` }); if (destroy) { hud.notice(`[은사자] ${P.name} 님의 +${from} 여명의 장검이 강화 중 증발했습니다…`, 'enhance'); } chat && chat.event('enhanceFail', { name: P.name, item: '여명의 장검', plus: from }); }
       win.enhance.set(this.state()); refreshPlayerUI(); quest.show(); this.busy = false; G.events.push('enhance:' + res); return res;
     } };
 
   // ---------------- 보스 레이드 ----------------
   function startRaid() {
     if (G.raid && G.raid.active) return; const A = POI.altar;
+    if (G.story && !G.demo && ST.ch < RAID_CH) { hud.toast('아직 제단의 봉인이 풀리지 않았습니다. 이야기를 먼저 진행하세요.', 'info'); return; }
     const B = spawn('boss', 'demon_lord', A.clone(), { scale: 2.6, name: '염옥의 군주 발카르', level: 60, hp: G.demo ? 260000 : 95000, atk: 150, speed: 3.2, r: 2.6, range: 7.5, yaw: 0 });
     if (!B) return; B.threat = new Map(); B.phase = 1; B.cool = 3; B.title = '레이드 보스'; G.boss = B; G.raid = { active: true, done: false, t: 0, tele: [] };
     try { vfx.flameBurst(A.clone().setY(1), { scale: 3 }); vfx.shockwave(A.clone().setY(0.6), 14, { color: 0xff5010, duration: 1.2 }); G.raid.amb = vfx.ambient('embers', { center: A.clone(), radius: 30, count: 70 }); } catch (e) { }
-    S('boss_roar'); engine.shake(0.9, 1.2); engine.flash(0xff4010, 0.4); sound && sound.bgm && sound.bgm('bgm_boss', { fade: 1.5 });
+    S('boss_roar'); S('raid_horn', { delay: 0.5 }); S('battle_cry', { delay: 1.8, volume: 0.7 }); engine.shake(0.9, 1.2); engine.flash(0xff4010, 0.4); sound && sound.bgm && sound.bgm('bgm_boss', { fade: 1.5 }); sound && sound.ambient && sound.ambient('amb_altar', { fade: 1.5, volume: 0.7 });
     hud.notice('잿불 제단에 염옥의 군주 발카르가 강림했습니다! 문파원들은 집결하십시오!', 'boss'); hud.setBoss({ name: B.name, title: '염옥의 군주', hp: B.hp, hpMax: B.hpMax, phase: 1, phases: 3 });
     chat && chat.event('bossSpawn', { boss: '발카르', zone: '잿불 제단' });
     // 봇 집결
@@ -332,30 +355,31 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
     if (B.dead) return;
     hud.setBoss({ name: B.name, title: '염옥의 군주', hp: Math.max(0, Math.round(B.hp)), hpMax: B.hpMax, phase: B.phase, phases: 3 });
     const ph = B.hp < B.hpMax * 0.35 ? 3 : B.hp < B.hpMax * 0.7 ? 2 : 1;
-    if (ph !== B.phase) { B.phase = ph; S('boss_roar'); engine.shake(0.8, 1); engine.flash(0xff3010, 0.35); hud.notice(ph === 2 ? '발카르가 분노합니다! 화염이 거세집니다!' : '발카르가 광폭해졌습니다! 모두 버텨라!', 'boss'); chat && chat.event('bossPhase', { boss: '발카르', phase: ph }); try { vfx.fireRing(B.pos.clone().setY(0.65), 8, { duration: 1.2 }); } catch (e) { } }
+    if (ph !== B.phase) { B.phase = ph; S('boss_roar'); S('raid_horn', { delay: 0.8, volume: 0.7, rate: 0.9 }); S('battle_cry', { delay: 1.6, volume: 0.5 }); engine.shake(0.8, 1); engine.flash(0xff3010, 0.35); hud.notice(ph === 2 ? '발카르가 분노합니다! 화염이 거세집니다!' : '발카르가 광폭해졌습니다! 모두 버텨라!', 'boss'); chat && chat.event('bossPhase', { boss: '발카르', phase: ph }); try { vfx.fireRing(B.pos.clone().setY(0.65), 8, { duration: 1.2 }); } catch (e) { } }
     // 대상: 위협 수치 1위
     let tg = null, best = -1; for (const [id, v] of B.threat) { const e = G.ents.find(x => x.id === id); if (e && !e.dead && v > best) { best = v; tg = e; } } if (!tg) tg = !P.dead && dist2(P.pos, B.pos) < 40 ? P : bots.find(b => b.role === 'raid' && !b.dead);
     if (B.state === 'cast') { B.t += dt; if (tg) face(B, tg.pos, dt, 2.5); if (!B.hitDone && B.t >= B.hitAt) { B.hitDone = true; B.onHit && B.onHit(); } if (B.t >= B.atkDur) { B.state = 'idle'; B.cool = rand(1.0, 2.0) / (ph === 3 ? 1.6 : 1); } return; }
     if (!tg) { B.ch.play('idle'); return; }
     B.cool -= dt; const d = dist2(tg.pos, B.pos);
-    if (d > B.range) { stepTo(B, tg.pos, dt, B.speed, B.range * 0.8); B.ch.play('walk'); return; }
+    if (d > B.range) { stepTo(B, tg.pos, dt, B.speed, B.range * 0.8); B.ch.play('walk'); if ((B.stepT = (B.stepT || 0) - dt) <= 0) { B.stepT = 0.66; S('boss_step', { pos: B.pos, volume: 0.75 }); } return; }
     face(B, tg.pos, dt, 3);
     if (B.cool > 0) { B.ch.play('idle'); return; }
     const roll = Math.random(); let c;
-    if (roll < 0.22 && B.ch.has('skill2')) { c = 'skill2'; B.onHit = () => { S('boss_roar'); const n = ph === 1 ? 4 : ph === 2 ? 6 : 8; for (let i = 0; i < n; i++) { const q = i === 0 && !P.dead ? P.pos : pick(bots.filter(b => b.role === 'raid')).pos; const pos = V(q.x + rand(-4, 4), q.z + rand(-4, 4)); setTimeout(() => { if (!G.raid || !G.raid.active) return; try { vfx.meteor(pos.clone().setY(0.62), { delay: 1.3, radius: 2.6 }); } catch (e) { } bossTelegraph(B, pos, 2.8, 1.3, 240, 'meteor'); }, i * 160); } }; }
+    if (roll < 0.22 && B.ch.has('skill2')) { c = 'skill2'; B.onHit = () => { S('boss_roar'); const n = ph === 1 ? 4 : ph === 2 ? 6 : 8; for (let i = 0; i < n; i++) { const q = i === 0 && !P.dead ? P.pos : pick(bots.filter(b => b.role === 'raid')).pos; const pos = V(q.x + rand(-4, 4), q.z + rand(-4, 4)); setTimeout(() => { if (!G.raid || !G.raid.active) return; try { vfx.meteor(pos.clone().setY(0.62), { delay: 1.3, radius: 2.6 }); } catch (e) { } S('meteor_fall', { pos, volume: 0.8 }); bossTelegraph(B, pos, 2.8, 1.3, 240, 'meteor'); }, i * 160); } }; }
     else if (roll < 0.5 && B.ch.has('skill1')) { c = 'skill1'; const pos = V(B.pos.x + Math.sin(B.yaw) * 6, B.pos.z + Math.cos(B.yaw) * 6); const dur = B.ch.dur('skill1'); const at = B.ch.event('skill1', 'hit') ?? dur * 0.6; bossTelegraph(B, pos, ph === 3 ? 9.5 : 8, at, 420, 'slam'); B.onHit = () => { }; }
     else { c = Math.random() < 0.5 ? 'attack1' : 'attack2'; const pos = V(B.pos.x + Math.sin(B.yaw) * 5.5, B.pos.z + Math.cos(B.yaw) * 5.5); const at = B.ch.event(c, 'hit') ?? 0.5; bossTelegraph(B, pos, 4.8, at, 260, 'slam'); B.onHit = () => { try { vfx.slash(pos.clone().setY(3), B.yaw, { kind: c === 'attack1' ? 'smash' : 'arc2', color: 0xff6a20, scale: 2.6 }); } catch (e) { } }; }
+    if (c !== 'skill2') S('boss_swing', { pos: B.pos, rate: c === 'skill1' ? 0.55 : 0.8, delay: c === 'skill1' ? 0.35 : 0.15 });
     B.atkDur = B.ch.play(c, { loop: false, restart: true, fade: 0.15 }); B.hitAt = B.ch.event(c, 'hit') ?? B.ch.event(c, 'cast') ?? B.atkDur * 0.5; B.hitDone = false; B.t = 0; B.state = 'cast';
   }
   function bossDead(B) {
     const R = G.raid; R.active = false; R.done = true; hud.setBoss(null); G.timeScale = 0.25; setTimeout(() => { G.timeScale = 1; }, 1600);
-    engine.flash(0xffffff, 0.7); engine.shake(1.2, 1.6); S('boss_roar'); S('levelup');
+    engine.flash(0xffffff, 0.7); engine.shake(1.2, 1.6); S('boss_death'); S('boss_slam', { delay: 0.9 }); S('raid_victory', { delay: 1.6 }); S('cheer', { delay: 2.6, volume: 0.9 }); S('battle_cry', { delay: 3.0, volume: 0.45 });
     for (let i = 0; i < 9; i++) setTimeout(() => { const p = V(B.pos.x + rand(-7, 7), B.pos.z + rand(-7, 7)); try { vfx.flameBurst(p.clone().setY(rand(1, 6)), { scale: rand(2, 4) }); vfx.lootBeam(p, { color: pick([0xffb23e, 0xb36bff, 0x4aa3ff]), duration: 7 }); } catch (e) { } }, i * 180);
     try { R.amb && R.amb.dispose(); } catch (e) { }
     hud.notice('염옥의 군주 발카르 토벌 성공! 은사자 문파가 에르하임을 지켜냈습니다!', 'boss'); chat && chat.event('bossDead', { boss: '발카르' });
     const rank = [...B.threat.entries()].map(([id, v]) => { const e = G.ents.find(x => x.id === id); return e ? { name: e.name, guild: e.guild !== null ? GUILDS[e.guild] : '-', dmg: Math.round(v), mvp: false } : null; }).filter(Boolean).sort((a, b) => b.dmg - a.dmg).slice(0, 8);
     const me = rank.find(r => r.name === P.name); if (me) { rank.splice(rank.indexOf(me), 1); } rank.unshift({ name: P.name, guild: GUILDS[0], dmg: Math.max(me ? me.dmg : 0, (rank[0] ? rank[0].dmg : 0) + 4321), mvp: true });
-    setTimeout(() => { win.raidResult.show({ title: '발카르 토벌 성공', rank, loot: [{ icon: 0, name: '염옥의 대검 조각', rarity: 'legend' }, { icon: 13, name: '축복받은 강화 주문서 x3', rarity: 'epic' }, { icon: 15, name: '마력 결정 x12', rarity: 'epic' }, { icon: 14, name: '금화 x250,000', rarity: 'common' }] }); P.gold += 250000; gainExp(1800); G.events.push('raidDone'); sound && sound.bgm && sound.bgm('bgm_field', { fade: 2 }); }, 3200);
+    setTimeout(() => { win.raidResult.show({ title: '발카르 토벌 성공', rank, loot: [{ icon: 0, name: '염옥의 대검 조각', rarity: 'legend' }, { icon: 13, name: '축복받은 강화 주문서 x3', rarity: 'epic' }, { icon: 15, name: '마력 결정 x12', rarity: 'epic' }, { icon: 14, name: '금화 x250,000', rarity: 'common' }] }); P.gold += 250000; gainExp(1800); G.events.push('raidDone'); sound && sound.bgm && sound.bgm('bgm_field', { fade: 2 }); setTimeout(() => { ST.raidOk = true; }, 9000); }, 3200);
     setTimeout(() => { for (const b of bots) if (b.role === 'raid') { b.role = 'town2'; b.ch.play(b.ch.has('skill1') && b.tag !== 'hero' ? 'idle' : 'skill3', { loop: false, restart: true }); } quest.show(); }, 900);
   }
 
@@ -384,7 +408,7 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   var MOODS = { town: { sky: 0xa9c9e8, fogNear: 60, fogFar: 170, sun: 2.6, hemi: 0.85, tint: [1.03, 1.0, 0.95] }, forest: { sky: 0x8fb89a, fogNear: 42, fogFar: 135, sun: 2.5, hemi: 0.8, tint: [0.97, 1.03, 0.95] }, grave: { sky: 0x5c6a80, fogNear: 26, fogFar: 95, sun: 1.3, hemi: 0.6, tint: [0.9, 0.95, 1.08] }, altar: { sky: 0x2a1614, fogNear: 34, fogFar: 120, sun: 1.7, hemi: 0.65, tint: [1.04, 0.96, 0.92] }, wild: { sky: 0x9cc0e0, fogNear: 55, fogFar: 160, sun: 2.9, hemi: 0.9, tint: [1, 1, 1] } };
   function updZone(dt) {
     const z = world.zoneAt(P.pos.x, P.pos.z); engine.setMood(MOODS[z.id] || MOODS.wild, 1 - Math.exp(-dt * 1.4)); world.night = z.id === 'altar' || z.id === 'grave' ? 1 : 0.2;
-    if (z.id !== zoneId) { zoneId = z.id; hud.setZone(z.name, z.sub); if (G.time > 1) hud.zoneBanner(z.name, z.sub); if (sound && sound.bgm && !(G.raid && G.raid.active)) { sound.bgm(z.id === 'town' ? 'bgm_town' : z.id === 'altar' ? 'bgm_boss' : 'bgm_field', { fade: 2 }); sound.ambient && sound.ambient(z.id === 'town' ? 'amb_town' : z.id === 'altar' ? null : 'amb_forest', { fade: 2, volume: 0.5 }); } }
+    if (z.id !== zoneId) { zoneId = z.id; hud.setZone(z.name, z.sub); if (G.time > 1) hud.zoneBanner(z.name, z.sub); if (sound && sound.bgm && !(G.raid && G.raid.active)) { sound.bgm(z.id === 'town' ? 'bgm_town' : z.id === 'altar' ? 'bgm_boss' : 'bgm_field', { fade: 2 }); sound.ambient && sound.ambient(z.id === 'town' ? 'amb_town' : z.id === 'altar' ? 'amb_altar' : z.id === 'grave' ? 'amb_grave' : 'amb_forest', { fade: 2, volume: z.id === 'altar' ? 0.45 : z.id === 'grave' ? 0.7 : 0.5 }); } }
   }
 
 
@@ -393,23 +417,41 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   const QN = { hunt: '숲의 위협', raid: '발카르 토벌전', enh: '여명의 장검 +7 달성' };
   const inTown = (p) => Math.hypot(p.x, p.z) < 46;
   function routeTo(dest) { const r = [], a = inTown(P.pos), b = inTown(dest), mid = new THREE.Vector3(0, 0, -30); if (a && !b) r.push(mid, POI.gateOut.clone()); else if (!a && b) r.push(POI.gateOut.clone(), mid); r.push(dest.clone()); return r; }
-  function questGo(q, dest) { q.phase = 'go'; q.dest = dest.clone(); q.route = routeTo(dest); q.stuckT = 0; q.last = P.pos.clone(); G.auto = false; hud.setAuto(false); P.target = null; hud.setTarget(null); P.chase = false; P.wantSmith = false; clickMove = null; P.moveTo = q.route.shift(); P.speed = 9; }
+  function questGo(q, dest) { q.phase = 'go'; q.dest = dest.clone(); q.route = routeTo(dest); q.stuckT = 0; q.last = P.pos.clone(); G.auto = false; hud.setAuto(false); P.target = null; hud.setTarget(null); P.chase = false; P.wantNpc = null; clickMove = null; P.moveTo = q.route.shift(); P.speed = 9; }
   function questStop(msg) { if (!qrun) return; if (qrun.id === 'raid') engine.cam.zoomTarget = 14; qrun = null; P.speed = 6.4; if (msg) hud.toast(msg, 'info'); quest.show(); }
+  const HUNT = { werewolf: POI.forest, orc_warrior: POI.orcCamp, skeleton_knight: POI.grave };
+  const RAID_CH = CH.findIndex(c => c.obj.type === 'raid');
+  const raidSpot = () => new THREE.Vector3(POI.altar.x + 3, 0, POI.altar.z + 24);
+  // 의뢰 하나를 "어디로 가서 무엇을 할지"로 바꾼다
+  function questPlan(id) {
+    if (id === 'story') {
+      if (!G.story || ST.ch >= CH.length) return null; const c = CH[ST.ch], o = c.obj, name = c.title;
+      if (o.type === 'talk') return { kind: 'talk', npc: o.npc, dest: NPCS[o.npc].stand, name };
+      if (o.type === 'kill') return { kind: 'hunt', tag: o.tag, dest: HUNT[o.tag], name };
+      if (o.type === 'level') { const tag = P.level < 4 ? 'werewolf' : P.level < 8 ? 'orc_warrior' : 'skeleton_knight'; return { kind: 'hunt', tag, dest: HUNT[tag], name }; }
+      if (o.type === 'enh') { if (P.scrolls <= 0) return { err: '강화 주문서가 없습니다. 사냥으로 주문서를 모으세요.' }; return { kind: 'enh', target: o.max, dest: POI.smithStand, name }; }
+      if (o.type === 'raid') { if (G.raid && G.raid.done) { ST.raidOk = true; return null; } return { kind: 'raid', dest: raidSpot(), name }; }
+      return null;
+    }
+    if (!QN[id]) return null; const name = QN[id];
+    if (id === 'hunt') { if (quest.n.werewolf >= 20 && quest.n.orc_warrior >= 10) return { err: '이미 완료한 의뢰입니다.' }; const tag = quest.n.werewolf < 20 ? 'werewolf' : 'orc_warrior'; return { kind: 'hunt', daily: true, tag, dest: HUNT[tag], name }; }
+    if (id === 'raid') { if (G.raid && G.raid.done) return { err: '이미 완료한 의뢰입니다.' }; return { kind: 'raid', dest: raidSpot(), name }; }
+    if (P.plus >= 7) return { err: '이미 완료한 의뢰입니다.' }; if (P.weaponName !== '여명의 장검') return { err: '여명의 장검이 없습니다.' }; if (P.scrolls <= 0) return { err: '강화 주문서가 없습니다. 사냥으로 주문서를 모으세요.' };
+    return { kind: 'enh', target: 7, needDawn: true, dest: POI.smithStand, name };
+  }
   function questStart(id) {
-    if (G.demo || P.dead || !QN[id]) return;
+    if (G.demo || P.dead || dlgQ) return;
     if (qrun && qrun.id === id) { questStop('의뢰 자동 진행을 멈췄습니다.'); if (G.auto) api.setAuto(false); P.moveTo = null; return; }
-    let dest, tag = null;
-    if (id === 'hunt') { if (quest.n.werewolf >= 20 && quest.n.orc_warrior >= 10) return hud.toast('이미 완료한 의뢰입니다.', 'info'); tag = quest.n.werewolf < 20 ? 'werewolf' : 'orc_warrior'; dest = tag === 'werewolf' ? POI.forest : POI.orcCamp; }
-    else if (id === 'raid') { if (G.raid && G.raid.done) return hud.toast('이미 완료한 의뢰입니다.', 'info'); dest = new THREE.Vector3(POI.altar.x + 3, 0, POI.altar.z + 24); }
-    else { if (P.plus >= 7) return hud.toast('이미 완료한 의뢰입니다.', 'info'); if (P.weaponName !== '여명의 장검') return hud.toast('여명의 장검이 없습니다.', 'info'); if (P.scrolls <= 0) return hud.toast('강화 주문서가 없습니다. 사냥으로 주문서를 모으세요.', 'info'); dest = POI.smithStand; }
+    const pl = questPlan(id); if (!pl) return; if (pl.err) return hud.toast(pl.err, 'info');
     if (qrun) questStop(); win.close('enhance');
-    qrun = { id, tag, t: 0 }; questGo(qrun, dest);
-    hud.toast(`의뢰 [${QN[id]}] 자동 진행 — 목적지로 이동합니다.`, 'info'); quest.show();
+    qrun = { id, t: 0, ...pl }; questGo(qrun, pl.dest);
+    hud.toast(`[${pl.name}] 자동 진행 — 목적지로 이동합니다.`, 'info'); quest.show();
   }
   function questArrive(q) {
     P.speed = 6.4; q.phase = 'do';
-    if (q.id === 'hunt') { api.setAuto(true); P.huntAnchor = q.dest.clone(); }
-    else if (q.id === 'raid') { if (!(G.raid && G.raid.active)) startRaid(); api.setAuto(true); P.huntAnchor = POI.altar.clone(); engine.cam.zoomTarget = 28; }
+    if (q.kind === 'hunt') { api.setAuto(true); P.huntAnchor = q.dest.clone(); }
+    else if (q.kind === 'raid') { if (!(G.raid && G.raid.active)) startRaid(); api.setAuto(true); P.huntAnchor = POI.altar.clone(); engine.cam.zoomTarget = 28; }
+    else if (q.kind === 'talk') { const id = q.npc; ST.autoNext = true; questStop(); talkTo(id); }
     else { face(P, smith.pos, 1, 100); enh.open(); q.t = 1.2; }
   }
   function updQuest(dt) {
@@ -419,41 +461,111 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
       q.stuckT += dt; if (q.stuckT > 2.5) { if (dist2(P.pos, q.last) < 2) { P.pos.copy(P.moveTo); world.resolve(P.pos, P.r); } q.last.copy(P.pos); q.stuckT = 0; }   // 지형에 걸리면 다음 지점으로 넘긴다
       return;
     }
-    if (q.id === 'hunt') {
+    if (q.kind === 'hunt') {
       if (!G.auto) return questStop('의뢰 자동 진행을 멈췄습니다.');
+      if (!q.daily) return;   // 이야기 의뢰는 장이 끝날 때 storyCheck 가 멈춘다
       const max = q.tag === 'werewolf' ? 20 : 10;
       if (quest.n[q.tag] >= max) {
         if (q.tag === 'werewolf' && quest.n.orc_warrior < 10) { q.tag = 'orc_warrior'; questGo(q, POI.orcCamp); hud.toast('늑대인간 처치 완료 — 오크 야영지로 이동합니다.', 'info'); }
-        else questStop('의뢰 [숲의 위협] 완료! 자동사냥은 계속합니다.');
+        else { S('quest_done'); questStop('의뢰 [숲의 위협] 완료! 자동사냥은 계속합니다.'); }
       }
-    } else if (q.id === 'raid') {
-      if (G.raid && G.raid.done) { questStop('의뢰 [발카르 토벌전] 완료!'); if (G.auto) api.setAuto(false); }
+    } else if (q.kind === 'raid') {
+      if (G.raid && G.raid.done) { const st = q.id === 'story'; questStop(st ? null : '의뢰 [발카르 토벌전] 완료!'); if (G.auto) api.setAuto(false); if (st) ST.autoNext = true; }
       else if (!G.auto) questStop('의뢰 자동 진행을 멈췄습니다.');
-    } else {
-      if (P.plus >= 7) return questStop('의뢰 [여명의 장검 +7 달성] 완료!');
+    } else if (q.kind === 'enh') {
+      if (P.plus >= q.target) { if (q.id === 'story') { ST.autoNext = true; return questStop(); } S('quest_done'); return questStop(`의뢰 [${q.name}] 완료!`); }
       if (enh.busy) return; q.t -= dt; if (q.t > 0) return;
-      if (P.weaponName !== '여명의 장검') return questStop('검이 증발해 강화 의뢰를 계속할 수 없습니다…');
+      if (q.needDawn && P.weaponName !== '여명의 장검') return questStop('검이 증발해 강화 의뢰를 계속할 수 없습니다…');
       if (P.scrolls <= 0) return questStop('강화 주문서가 떨어졌습니다. 사냥으로 주문서를 모으세요.');
       enh.run(); q.t = 1.0;
     }
   }
 
+  // ---------------- 이야기(대화·장 진행) ----------------
+  let dlgQ = null;
+  function say(lines, done) { dlgQ = { lines, i: 0, done }; G.talk = true; P.moveTo = null; clickMove = null; P.chase = false; nextLine(); }
+  function nextLine() {
+    const q = dlgQ; if (!q) return;
+    if (q.i >= q.lines.length) { dlgQ = null; G.talk = false; win.dialog.hide(); q.done && q.done(); return; }
+    const l = q.lines[q.i++], w = WHO[l[0]] || WHO.nar, last = q.i >= q.lines.length; S('page', { volume: 0.7 });
+    win.dialog.show({ name: w.name === '@' ? P.name : w.name, role: w.name === '@' && P.title ? P.title : w.role, portrait: w.portrait, text: l[1].replace(/@/g, P.name),
+      options: last ? [{ label: '확인', id: 'next' }] : [{ label: '다음', id: 'next' }, { label: '건너뛰기', id: 'skip' }], escId: 'skip' });
+  }
+  ui.on('dialog', (id) => { if (!dlgQ) return; if (id === 'skip') dlgQ.i = dlgQ.lines.length; nextLine(); });
+  const IDLE = { liena: '제단 쪽 하늘에서 눈을 떼지 마. 필요한 게 있으면 의뢰창을 확인하고.', orben: '기록은 거짓말을 하지 않네. 사람이 잊을 뿐이지.', brom: '쇠는 정직하다네. 운은 그렇지 않지만.' };
+  function talkTo(id) {
+    const n = NPCS[id]; if (!n || dlgQ || G.demo) return; if (n.ent) face(P, n.ent.pos, 1, 100);
+    const c = G.story && CH[ST.ch];
+    if (c && c.obj.type === 'talk' && c.obj.npc === id) return finishChapter();
+    if (id === 'brom') return enh.open();
+    say([[id, IDLE[id]]]);
+  }
+  function grant(r) {
+    if (!r) return;
+    if (r.weapon) { P.weaponName = r.weapon; P.plus = 0; try { glow && glow.setLevel(0); } catch (e) { } hud.loot({ icon: 0, name: r.weapon, count: 1, rarity: 'epic' }); try { vfx.buff(P.ch.root, { color: 0x9fd0ff, duration: 2.5 }); } catch (e) { } }
+    if (r.gold) { P.gold += r.gold; hud.loot({ icon: 14, name: '금화', count: r.gold, rarity: 'common' }); }
+    if (r.scrolls) { P.scrolls += r.scrolls; hud.loot({ icon: 11, name: '무기 강화 주문서', count: r.scrolls, rarity: 'rare' }); }
+    if (r.potions) { P.potions.hp += r.potions.hp || 0; P.potions.mp += r.potions.mp || 0; hud.setPotions(P.potions); hud.loot({ icon: 9, name: '빨간 물약', count: r.potions.hp || 0, rarity: 'common' }); }
+    if (r.title) { P.title = r.title; hud.notice(`칭호 [${r.title}]을 얻었습니다!`, 'info'); }
+    if (r.exp) gainExp(r.exp);
+    refreshPlayerUI(); refreshWindows();
+  }
+  function finishChapter() {
+    const c = CH[ST.ch]; if (!c || dlgQ) return;
+    if (qrun && qrun.id === 'story') { ST.autoNext = true; questStop(); }
+    if (G.auto) api.setAuto(false); P.target = null; hud.setTarget(null);
+    say(c.done || [], () => {
+      const no = ST.ch + 1; ST.ch++; ST.n = 0; ST.started = false; ST.raidOk = false;
+      S('quest_done'); engine.flash(0xfff2c0, 0.25); hud.notice(`이야기 ${no}장 「${c.title}」 완료!`, 'info'); hud.chat.add({ channel: 'system', text: `이야기 ${no}장 「${c.title}」을 마쳤습니다.` });
+      grant(c.reward); quest.show(); G.events.push('story:' + ST.ch);
+      if (ST.ch >= CH.length) { ST.autoNext = false; hud.notice('〈사자의 맹세〉 완결! 이제 일일·문파 의뢰를 자유롭게 즐기세요.', 'info'); }
+    });
+  }
+  // 0.4초마다: 프롤로그 → 장 시작 대사 → 목표 달성 확인
+  let stT = 0;
+  function storyCheck(dt) {
+    if (!G.story || G.demo || (stT -= dt) > 0) return; stT = 0.4;
+    if (dlgQ || P.dead || enh.busy || ST.ch >= CH.length) return;
+    if (!ST.seen) return say(PROLOGUE, () => { ST.seen = true; G.events.push('story:prologue'); });
+    const c = CH[ST.ch], o = c.obj;
+    if (!ST.started) { const go = () => { ST.started = true; if (ST.autoNext) { ST.autoNext = false; questStart('story'); } }; if (c.start && c.start.length) return say(c.start, go); go(); }
+    const ok = o.type === 'kill' ? ST.n >= o.max : o.type === 'enh' ? P.plus >= o.max : o.type === 'level' ? P.level >= o.max : o.type === 'raid' ? ST.raidOk : false;
+    if (ok) finishChapter();
+  }
+  ui.on('raidResultClose', () => { if (G.raid && G.raid.done) ST.raidOk = true; });
+  // 계정의 캐릭터 불러오기 / 저장할 내용 만들기
+  function loadProfile(d) {
+    G.story = true; P.name = d.name || P.name; P.level = Math.max(1, d.level | 0); P.exp = +d.exp || 0; P.gold = d.gold | 0; P.plus = d.plus | 0; P.weaponName = d.weapon || '낡은 장검';
+    P.scrolls = d.scrolls | 0; P.potions = { hp: (d.potions && d.potions.hp) | 0, mp: (d.potions && d.potions.mp) | 0 }; P.kills = d.kills | 0; P.title = d.title || null; P.played = d.played || 0;
+    recalc(); P.hp = P.hpMax; P.mp = P.mpMax; P.buffT = 0;
+    const st = d.story || {}; ST.ch = Math.min(CH.length, st.ch | 0); ST.n = st.n | 0; ST.seen = !!st.seen; ST.started = !!st.started; ST.raidOk = false; ST.autoNext = false;
+    quest.n = { werewolf: (d.daily && d.daily.werewolf) | 0, orc_warrior: (d.daily && d.daily.orc_warrior) | 0 };
+    for (const m of spawnPts) { const v = STORY_MON[m.tag]; if (v) { m.level = v.level; m.hpMax = m.hp = v.hp; m.atk = v.atk; } }
+    for (const z of ZONES) { if (z.id === 'forest') z.sub = '권장 레벨 1~8'; if (z.id === 'grave') z.sub = '권장 레벨 8~12'; if (z.id === 'altar') z.sub = '레이드 구역 · 권장 레벨 12'; }
+    try { glow && glow.setLevel(P.plus); } catch (e) { }
+    hud.setSkills(skillState()); hud.setPotions(P.potions); refreshPlayerUI(); refreshWindows(); quest.show();
+  }
+  function snapshot() {
+    return { v: 1, name: P.name, level: P.level, exp: P.exp, gold: P.gold, plus: P.plus, weapon: P.weaponName, scrolls: P.scrolls, potions: { hp: P.potions.hp, mp: P.potions.mp }, kills: P.kills,
+      story: { ch: ST.ch, n: ST.n, seen: ST.seen, started: ST.started }, daily: { ...quest.n }, title: P.title || null, played: (P.played || 0) + G.time };
+  }
+
   // ---------------- 입력 ----------------
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   function onDown(ev) {
-    if (G.demo || ev.target !== engine.renderer.domElement) return; const rc = engine.renderer.domElement.getBoundingClientRect();
+    if (G.demo || G.talk || ev.target !== engine.renderer.domElement) return; const rc = engine.renderer.domElement.getBoundingClientRect();
     ndc.set((ev.clientX - rc.left) / rc.width * 2 - 1, -((ev.clientY - rc.top) / rc.height * 2 - 1)); ray.setFromCamera(ndc, engine.camera); const hit = new THREE.Vector3(); if (!ray.ray.intersectPlane(plane, hit)) return;
     if (qrun && qrun.phase === 'go') questStop('의뢰 자동 진행을 멈췄습니다.');
     let best = null, bd = 1.6; for (const m of G.ents) { if (m.dead || m === P) continue; const d = dist2(m.pos, hit) - (m.kind === 'boss' ? 4 : 0); if (d < bd) { bd = d; best = m; } }
     if (best && (best.kind === 'monster' || best.kind === 'boss')) { setTarget(best); P.chase = true; clickMove = null; }
-    else if (best && best === smith) { P.moveTo = POI.smithStand.clone(); P.wantSmith = true; }
+    else if (best && Object.values(NPCS).some(v => v.ent === best)) { const id = Object.keys(NPCS).find(k => NPCS[k].ent === best); P.moveTo = NPCS[id].stand.clone(); P.wantNpc = id; clickMove = null; }
     else { clickMove = hit; P.chase = false; P.target = null; hud.setTarget(null); try { vfx.groundDecal(hit.clone().setY(0.05), { kind: 'circle', radius: 0.7, duration: 0.5, color: 0xffe080 }); } catch (e) { } }
   }
   engine.renderer.domElement.addEventListener('pointerdown', onDown);
   addEventListener('keydown', (e) => { if (e.target && e.target.tagName === 'INPUT') return; keys[e.code] = true; if (G.demo) return; if (qrun && qrun.phase === 'go' && /^(Key[WASD]|Arrow)/.test(e.code)) questStop('의뢰 자동 진행을 멈췄습니다.'); const s = SKILLS.find(x => x.key === e.key); if (s) castSkill(s.id); if (e.code === 'Space') { const t = P.target && !P.target.dead ? P.target : nearestMonster(P.pos, 8); if (t) { setTarget(t); P.chase = true; } else if (P.state !== 'attack' && P.state !== 'skill') startAttack(); e.preventDefault(); }
     if (e.code === 'KeyR') api.setAuto(!G.auto); if (e.code === 'KeyQ') usePotion('hp'); if (e.code === 'KeyI') win.toggle('inventory'); if (e.code === 'KeyC') win.toggle('character'); if (e.code === 'KeyB') startRaid(); });
   addEventListener('keyup', (e) => { keys[e.code] = false; });
-  ui.on('skill', castSkill); ui.on('attack', () => { const t = P.target && !P.target.dead ? P.target : nearestMonster(P.pos, 8); if (t) { setTarget(t); P.chase = true; } });
+  ui.on('skill', (id) => castSkill(id)); ui.on('attack', () => { const t = P.target && !P.target.dead ? P.target : nearestMonster(P.pos, 8); if (t) { setTarget(t); P.chase = true; } });
   ui.on('toggleAuto', () => api.setAuto(!G.auto)); ui.on('quest', questStart); ui.on('potion', usePotion); ui.on('enhance', () => enh.run());
   ui.on('chat', (t) => hud.chat.add({ channel: 'local', name: P.name, guild: GUILDS[0], text: t }));
   ui.on('revive', () => { win.death.hide(); P.dead = false; P.hp = P.hpMax; P.state = 'idle'; P.ch.play('idle', { restart: true }); teleport(POI.plaza); refreshPlayerUI(); });
@@ -468,14 +580,15 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
   // ---------------- 메인 루프 ----------------
   let uiT = 0, mmT = 0;
   const api = {
-    G, P, POI, bots, smith, enh, startRaid, castSkill, teleport, setTarget, usePotion, refreshWindows, nearestMonster,
+    G, P, ST, POI, bots, smith, enh, loadProfile, snapshot, questStart, talkTo, finishChapter, startRaid, castSkill, teleport, setTarget, usePotion, refreshWindows, nearestMonster,
     setAuto(on) { G.auto = on; hud.setAuto(on); if (on) { const z = world.zoneAt(P.pos.x, P.pos.z); P.huntAnchor = z.id === 'grave' ? POI.grave.clone() : z.id === 'altar' ? POI.altar.clone() : z.id === 'forest' ? P.pos.clone() : POI.forest.clone(); hud.toast('자동사냥을 시작합니다.', 'info'); } else { P.target = null; hud.setTarget(null); hud.toast('자동사냥을 종료합니다.', 'info'); } },
     update(rawDt) {
       if (G.paused) return;
       let dt = rawDt * G.timeScale; if (G.hitstop > 0) { G.hitstop -= rawDt; dt *= 0.06; }
       G.time += dt;
       updPlayer(dt); updQuest(dt);
-      if (P.wantSmith && dist2(P.pos, POI.smithStand) < 1.2) { P.wantSmith = false; face(P, smith.pos, 1, 100); enh.open(); }
+      if (P.wantNpc && dist2(P.pos, NPCS[P.wantNpc].stand) < 1.3) { const id = P.wantNpc; P.wantNpc = null; talkTo(id); }
+      storyCheck(rawDt);
       for (const e of G.ents) {
         if (e.flashT > 0) { e.flashT -= rawDt; if (e.flashT <= 0) e.ch.flash(0); }
         if (e.kind === 'monster') { if (dist2(e.pos, P.pos) < 70 || e.target) updMonster(e, dt); }
@@ -487,7 +600,7 @@ export async function createGame({ engine, world, ui, vfx, sound, names, chat })
       for (const b of bots) if (b.role === 'town2') { b.wait2 = (b.wait2 || 2.5) - dt; if (b.wait2 <= 0) { b.role = 'hunt'; b.ch.play('idle'); } }
       updZone(dt);
       if (P.target) { const m = P.target; if (m.dead) { P.target = null; hud.setTarget(null); } else if ((uiT -= rawDt) <= 0) { uiT = 0.1; setTarget(m); } }
-      syncPlates(); if ((mmT -= rawDt) <= 0) { mmT = 0.12; drawMinimap(); for (const s of SKILLS) hud.updateSkill(s.id, { cdLeft: Math.max(0, P.cds[s.id] || 0), enabled: P.mp >= s.mp, active: P.state === 'skill' && P.skill === s.id }); if (P.buffT > 0) hud.setBuffs([{ id: 'roar', icon: 6, name: '사자후', remain: P.buffT, total: 15 }]); else if (P.hadBuff) hud.setBuffs([]); P.hadBuff = P.buffT > 0; refreshPlayerUI(); }
+      syncPlates(); if ((mmT -= rawDt) <= 0) { mmT = 0.12; drawMinimap(); for (const s of SKILLS) hud.updateSkill(s.id, { cdLeft: Math.max(0, P.cds[s.id] || 0), enabled: P.mp >= s.mp && unlocked(s), active: P.state === 'skill' && P.skill === s.id }); if (P.buffT > 0) hud.setBuffs([{ id: 'roar', icon: 6, name: '사자후', remain: P.buffT, total: 15 }]); else if (P.hadBuff) hud.setBuffs([]); P.hadBuff = P.buffT > 0; refreshPlayerUI(); }
       sound && sound.setListener && sound.setListener(P.pos.x, P.pos.z);
       chat && chat.update(dt);
     },

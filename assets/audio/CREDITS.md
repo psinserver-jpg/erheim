@@ -39,3 +39,16 @@
 | `magic_cast` | 효과음 | 1.30 | Black Magic - Whizzing Whoosh, Wand Spell Cast | Cristian Lucchetta | 66349 | https://artlist.io/sfx/track/black-magic---whizzing-whoosh-wand-spell-cast/66349 |
 | `arrow_shot` | 효과음 | 0.30 | Weapons of War - Bow Release, Arrow Whoosh, Shooting | Cyberwave Orchestra | 99123 | https://artlist.io/sfx/track/weapons-of-war---bow-release-arrow-whoosh-shooting/99123 |
 | `teleport` | 효과음 | 1.19 | It's Magical - Blast Shimmer, Sparkling | Bjorn Lynne | 103413 | https://artlist.io/sfx/track/its-magical---blast-shimmer-sparkling/103413 |
+| `raid_horn` | 효과음 | 4.93 | Warfare Transitions - Bugle Phrase, War Horn | Ni Sound | 71850 | https://artlist.io/sfx/track/warfare-transitions---bugle-phrase-war-horn-/71850 |
+| `meteor_fall` | 효과음 | 1.86 | RPG Game - Incoming Fireball | Alberto Sueri | 94330 | https://artlist.io/sfx/track/rpg-game---incoming-fireball-/94330 |
+| `boss_step` | 효과음 | 3.30 | Mythical Creatures - Impact, Giant, Heavy Stomp | Silence+Other Sounds | 64094 | https://artlist.io/sfx/track/mythical-creatures---impact-giant-heavy-stomp-/64094 |
+| `boss_death` | 효과음 | 2.46 | Monster Mash - Minotaur Moan, Long | SoundBits | 91163 | https://artlist.io/sfx/track/monster-mash---minotaur-moan-long/91163 |
+| `raid_victory` | 효과음 | 5.35 | Cinematic Logos - Trumpet Phrase, Victory Fanfare | Tomas Herudek | 36879 | https://artlist.io/sfx/track/cinematic-logos---trumpet-phrase-victory-fanfare-/36879 |
+| `amb_altar` | 환경음 | 20.00 | Designed Fire - Blazing Inferno, Rumbling, Crackling | Gregor Quendel | 74221 | https://artlist.io/sfx/track/designed-fire---blazing-inferno-rumbling-crackling/74221 |
+| `boss_swing` | 효과음 | 0.74 | Cinematic Transitions - Light Airy Whoosh, Swift | Krotos | 68217 | https://artlist.io/sfx/track/cinematic-transitions---light-airy-whoosh-swift/68217 |
+| `battle_cry` | 효과음 | 8.51 | Energetic Crowds - Battle Cry, Attack Screams, Cheering Aggressively | BOOM Library | 69850 | https://artlist.io/sfx/track/energetic-crowds---battle-cry-attack-screams-cheering-aggressively/69850 |
+| `cheer` | 효과음 | 2.50 | Crowd, joyfully cheering, 01 | Clap Studios | 19765 | https://artlist.io/sfx/track/crowd-joyfully-cheering-01/19765 |
+| `quest_done` | 효과음 | 3.62 | Heartwarming Transitions - Pizzicato Strings, Sparkly Chimes, Positive | Ni Sound | 71627 | https://artlist.io/sfx/track/heartwarming-transitions---pizzicato-strings-sparkly-chimes-positive-/71627 |
+| `ui_open` | 효과음 | 0.62 | RPG Game - Close Menu Interface | Alberto Sueri | 94361 | https://artlist.io/sfx/track/rpg-game---close-menu-interface/94361 |
+| `page` | 효과음 | 1.40 | Magical Game UI - Menu, Old Book Scroll | Unrealsfx | 63351 | https://artlist.io/sfx/track/magical-game-ui---menu-old-book-scroll/63351 |
+| `amb_grave` | 환경음 | 20.00 | Fantasy Soundscapes - Spooky Graveyard, Howling Wind, Crows, Rumble | Alberto Sueri | 94285 | https://artlist.io/sfx/track/fantasy-soundscapes---spooky-graveyard-howling-wind-crows-rumble/94285 |

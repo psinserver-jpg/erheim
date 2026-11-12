@@ -1,0 +1,406 @@
+[
+ {
+  "key": "models/blacksmith.glb",
+  "file": "assets/models/blacksmith.glb"
+ },
+ {
+  "key": "models/demon_lord.glb",
+  "file": "assets/models/demon_lord.glb"
+ },
+ {
+  "key": "models/elf_archer.glb",
+  "file": "assets/models/elf_archer.glb"
+ },
+ {
+  "key": "models/elf_archer_lod.glb",
+  "file": "assets/models/elf_archer_lod.glb"
+ },
+ {
+  "key": "models/hero.glb",
+  "file": "assets/models/hero.glb"
+ },
+ {
+  "key": "models/hero_lod.glb",
+  "file": "assets/models/hero_lod.glb"
+ },
+ {
+  "key": "models/mage.glb",
+  "file": "assets/models/mage.glb"
+ },
+ {
+  "key": "models/mage_lod.glb",
+  "file": "assets/models/mage_lod.glb"
+ },
+ {
+  "key": "models/orc_warrior.glb",
+  "file": "assets/models/orc_warrior.glb"
+ },
+ {
+  "key": "models/orc_warrior_lod.glb",
+  "file": "assets/models/orc_warrior_lod.glb"
+ },
+ {
+  "key": "models/skeleton_knight.glb",
+  "file": "assets/models/skeleton_knight.glb"
+ },
+ {
+  "key": "models/skeleton_knight_lod.glb",
+  "file": "assets/models/skeleton_knight_lod.glb"
+ },
+ {
+  "key": "models/werewolf.glb",
+  "file": "assets/models/werewolf.glb"
+ },
+ {
+  "key": "models/werewolf_lod.glb",
+  "file": "assets/models/werewolf_lod.glb"
+ },
+ {
+  "key": "env/campfire.glb",
+  "file": "assets/models/env/campfire.glb"
+ },
+ {
+  "key": "env/crates.glb",
+  "file": "assets/models/env/crates.glb"
+ },
+ {
+  "key": "env/dead_tree.glb",
+  "file": "assets/models/env/dead_tree.glb"
+ },
+ {
+  "key": "env/forge.glb",
+  "file": "assets/models/env/forge.glb"
+ },
+ {
+  "key": "env/fountain.glb",
+  "file": "assets/models/env/fountain.glb"
+ },
+ {
+  "key": "env/gatehouse.glb",
+  "file": "assets/models/env/gatehouse.glb"
+ },
+ {
+  "key": "env/gravestones.glb",
+  "file": "assets/models/env/gravestones.glb"
+ },
+ {
+  "key": "env/house.glb",
+  "file": "assets/models/env/house.glb"
+ },
+ {
+  "key": "env/lamp_post.glb",
+  "file": "assets/models/env/lamp_post.glb"
+ },
+ {
+  "key": "env/market_stall.glb",
+  "file": "assets/models/env/market_stall.glb"
+ },
+ {
+  "key": "env/merchant.glb",
+  "file": "assets/models/env/merchant.glb"
+ },
+ {
+  "key": "env/oak_tree.glb",
+  "file": "assets/models/env/oak_tree.glb"
+ },
+ {
+  "key": "env/pine_tree.glb",
+  "file": "assets/models/env/pine_tree.glb"
+ },
+ {
+  "key": "env/rocks.glb",
+  "file": "assets/models/env/rocks.glb"
+ },
+ {
+  "key": "env/tavern.glb",
+  "file": "assets/models/env/tavern.glb"
+ },
+ {
+  "key": "tex/cobble.jpg",
+  "file": "assets/tex/cobble.jpg"
+ },
+ {
+  "key": "tex/dirt.jpg",
+  "file": "assets/tex/dirt.jpg"
+ },
+ {
+  "key": "tex/grass.jpg",
+  "file": "assets/tex/grass.jpg"
+ },
+ {
+  "key": "tex/scorched.jpg",
+  "file": "assets/tex/scorched.jpg"
+ },
+ {
+  "key": "tex/stonewall.jpg",
+  "file": "assets/tex/stonewall.jpg"
+ },
+ {
+  "key": "ui/guild_crests.png",
+  "file": "assets/ui/guild_crests.png"
+ },
+ {
+  "key": "ui/item_icons.png",
+  "file": "assets/ui/item_icons.png"
+ },
+ {
+  "key": "ui/key_art.jpg",
+  "file": "assets/ui/key_art.jpg"
+ },
+ {
+  "key": "ui/portrait_blacksmith.jpg",
+  "file": "assets/ui/portrait_blacksmith.jpg"
+ },
+ {
+  "key": "ui/portrait_demon.jpg",
+  "file": "assets/ui/portrait_demon.jpg"
+ },
+ {
+  "key": "ui/portrait_elf.jpg",
+  "file": "assets/ui/portrait_elf.jpg"
+ },
+ {
+  "key": "ui/portrait_hero.jpg",
+  "file": "assets/ui/portrait_hero.jpg"
+ },
+ {
+  "key": "ui/portrait_mage.jpg",
+  "file": "assets/ui/portrait_mage.jpg"
+ },
+ {
+  "key": "ui/portrait_orc.jpg",
+  "file": "assets/ui/portrait_orc.jpg"
+ },
+ {
+  "key": "ui/portrait_skeleton.jpg",
+  "file": "assets/ui/portrait_skeleton.jpg"
+ },
+ {
+  "key": "ui/portrait_werewolf.jpg",
+  "file": "assets/ui/portrait_werewolf.jpg"
+ },
+ {
+  "key": "ui/skill_icons.png",
+  "file": "assets/ui/skill_icons.png"
+ },
+ {
+  "key": "audio/amb_altar.mp3",
+  "file": "assets/audio/amb_altar.mp3"
+ },
+ {
+  "key": "audio/amb_forest.mp3",
+  "file": "assets/audio/amb_forest.mp3"
+ },
+ {
+  "key": "audio/amb_grave.mp3",
+  "file": "assets/audio/amb_grave.mp3"
+ },
+ {
+  "key": "audio/amb_town.mp3",
+  "file": "assets/audio/amb_town.mp3"
+ },
+ {
+  "key": "audio/anvil.mp3",
+  "file": "assets/audio/anvil.mp3"
+ },
+ {
+  "key": "audio/arrow_shot.mp3",
+  "file": "assets/audio/arrow_shot.mp3"
+ },
+ {
+  "key": "audio/battle_cry.mp3",
+  "file": "assets/audio/battle_cry.mp3"
+ },
+ {
+  "key": "audio/bgm_boss.mp3",
+  "file": "assets/audio/bgm_boss.mp3"
+ },
+ {
+  "key": "audio/bgm_field.mp3",
+  "file": "assets/audio/bgm_field.mp3"
+ },
+ {
+  "key": "audio/bgm_town.mp3",
+  "file": "assets/audio/bgm_town.mp3"
+ },
+ {
+  "key": "audio/bones.mp3",
+  "file": "assets/audio/bones.mp3"
+ },
+ {
+  "key": "audio/boss_death.mp3",
+  "file": "assets/audio/boss_death.mp3"
+ },
+ {
+  "key": "audio/boss_roar.mp3",
+  "file": "assets/audio/boss_roar.mp3"
+ },
+ {
+  "key": "audio/boss_slam.mp3",
+  "file": "assets/audio/boss_slam.mp3"
+ },
+ {
+  "key": "audio/boss_step.mp3",
+  "file": "assets/audio/boss_step.mp3"
+ },
+ {
+  "key": "audio/boss_swing.mp3",
+  "file": "assets/audio/boss_swing.mp3"
+ },
+ {
+  "key": "audio/cheer.mp3",
+  "file": "assets/audio/cheer.mp3"
+ },
+ {
+  "key": "audio/coin.mp3",
+  "file": "assets/audio/coin.mp3"
+ },
+ {
+  "key": "audio/crit.mp3",
+  "file": "assets/audio/crit.mp3"
+ },
+ {
+  "key": "audio/enhance_fail.mp3",
+  "file": "assets/audio/enhance_fail.mp3"
+ },
+ {
+  "key": "audio/enhance_success.mp3",
+  "file": "assets/audio/enhance_success.mp3"
+ },
+ {
+  "key": "audio/fire.mp3",
+  "file": "assets/audio/fire.mp3"
+ },
+ {
+  "key": "audio/footstep.mp3",
+  "file": "assets/audio/footstep.mp3"
+ },
+ {
+  "key": "audio/hit1.mp3",
+  "file": "assets/audio/hit1.mp3"
+ },
+ {
+  "key": "audio/hit2.mp3",
+  "file": "assets/audio/hit2.mp3"
+ },
+ {
+  "key": "audio/levelup.mp3",
+  "file": "assets/audio/levelup.mp3"
+ },
+ {
+  "key": "audio/magic_cast.mp3",
+  "file": "assets/audio/magic_cast.mp3"
+ },
+ {
+  "key": "audio/meteor_fall.mp3",
+  "file": "assets/audio/meteor_fall.mp3"
+ },
+ {
+  "key": "audio/monster_die.mp3",
+  "file": "assets/audio/monster_die.mp3"
+ },
+ {
+  "key": "audio/monster_hurt.mp3",
+  "file": "assets/audio/monster_hurt.mp3"
+ },
+ {
+  "key": "audio/orc_grunt.mp3",
+  "file": "assets/audio/orc_grunt.mp3"
+ },
+ {
+  "key": "audio/page.mp3",
+  "file": "assets/audio/page.mp3"
+ },
+ {
+  "key": "audio/player_hurt.mp3",
+  "file": "assets/audio/player_hurt.mp3"
+ },
+ {
+  "key": "audio/potion.mp3",
+  "file": "assets/audio/potion.mp3"
+ },
+ {
+  "key": "audio/quest_done.mp3",
+  "file": "assets/audio/quest_done.mp3"
+ },
+ {
+  "key": "audio/raid_horn.mp3",
+  "file": "assets/audio/raid_horn.mp3"
+ },
+ {
+  "key": "audio/raid_victory.mp3",
+  "file": "assets/audio/raid_victory.mp3"
+ },
+ {
+  "key": "audio/skill_buff.mp3",
+  "file": "assets/audio/skill_buff.mp3"
+ },
+ {
+  "key": "audio/skill_slam.mp3",
+  "file": "assets/audio/skill_slam.mp3"
+ },
+ {
+  "key": "audio/skill_spin.mp3",
+  "file": "assets/audio/skill_spin.mp3"
+ },
+ {
+  "key": "audio/sword_swing1.mp3",
+  "file": "assets/audio/sword_swing1.mp3"
+ },
+ {
+  "key": "audio/sword_swing2.mp3",
+  "file": "assets/audio/sword_swing2.mp3"
+ },
+ {
+  "key": "audio/teleport.mp3",
+  "file": "assets/audio/teleport.mp3"
+ },
+ {
+  "key": "audio/ui_click.mp3",
+  "file": "assets/audio/ui_click.mp3"
+ },
+ {
+  "key": "audio/ui_open.mp3",
+  "file": "assets/audio/ui_open.mp3"
+ },
+ {
+  "key": "audio/wolf_growl.mp3",
+  "file": "assets/audio/wolf_growl.mp3"
+ },
+ {
+  "key": "audio/manifest.json",
+  "file": "assets/audio/manifest.json"
+ },
+ {
+  "key": "models/blacksmith_meta.json",
+  "file": "assets/models/blacksmith_meta.json"
+ },
+ {
+  "key": "models/demon_lord_meta.json",
+  "file": "assets/models/demon_lord_meta.json"
+ },
+ {
+  "key": "models/elf_archer_meta.json",
+  "file": "assets/models/elf_archer_meta.json"
+ },
+ {
+  "key": "models/hero_meta.json",
+  "file": "assets/models/hero_meta.json"
+ },
+ {
+  "key": "models/mage_meta.json",
+  "file": "assets/models/mage_meta.json"
+ },
+ {
+  "key": "models/orc_warrior_meta.json",
+  "file": "assets/models/orc_warrior_meta.json"
+ },
+ {
+  "key": "models/skeleton_knight_meta.json",
+  "file": "assets/models/skeleton_knight_meta.json"
+ },
+ {
+  "key": "models/werewolf_meta.json",
+  "file": "assets/models/werewolf_meta.json"
+ }
+]

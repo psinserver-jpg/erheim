@@ -35,6 +35,17 @@ const TUNE = {
   magic_cast: { v: 0.75, max: 3, gap: 0.08, jit: 0.05 },
   arrow_shot: { v: 0.7, max: 4, gap: 0.05, jit: 0.06 },
   teleport: { v: 0.8, max: 2, gap: 0.2, jit: 0.02 },
+  raid_horn: { v: 0.9, max: 1, gap: 1.0, jit: 0.0 },
+  battle_cry: { v: 0.8, max: 1, gap: 2.0, jit: 0.03 },
+  meteor_fall: { v: 0.75, max: 3, gap: 0.12, jit: 0.08 },
+  boss_step: { v: 0.8, max: 2, gap: 0.3, jit: 0.08 },
+  boss_swing: { v: 1.0, max: 2, gap: 0.2, jit: 0.06 },
+  boss_death: { v: 1.0, max: 1, gap: 1.0, jit: 0.0 },
+  raid_victory: { v: 0.95, max: 1, gap: 2.0, jit: 0.0 },
+  cheer: { v: 0.8, max: 1, gap: 1.0, jit: 0.03 },
+  quest_done: { v: 0.8, max: 1, gap: 0.5, jit: 0.0 },
+  ui_open: { v: 0.55, max: 2, gap: 0.08, jit: 0.02 },
+  page: { v: 0.7, max: 2, gap: 0.1, jit: 0.05 },
 };
 const MAX_VOICES = 28;          // 효과음 전체 동시 재생 한도
 const REF_DIST = 7;             // 이 거리까지는 원래 음량

@@ -12,6 +12,9 @@ import { VFX } from './fx/vfx.js';
 import * as Names from './data/names.js';
 import { createChatDirector } from './game/chatdirector.js';
 import * as SoundMod from './audio/audio.js';
+import { DB } from './core/db.js';
+import { showAuth } from './ui/auth.js';
+import { newCharacter } from './game/story.js';
 
 // 없는 메서드를 불러도 죽지 않게 감싼다(모듈 사이 계약이 조금 어긋나도 게임은 계속 돈다)
 function safe(obj, path = '') {
@@ -48,7 +51,7 @@ async function boot() {
   const hud = safe(Hud.create(ctx), 'hud.');
   hud.setVisible(false);
   let vfx = null; try { VFX.init({ scene: engine.scene, camera: engine.camera, renderer: engine.renderer }); vfx = VFX; } catch (e) { console.warn('VFX init', e); }
-  const sound = safe(SoundMod.Sound, 'sound.'); try { await sound.init(Assets); } catch (e) { }
+  const sound = safe(SoundMod.Sound, 'sound.'); try { await sound.init(Assets); sound.preload(); } catch (e) { }   // 효과음은 미리 풀어 둔다(처음 한 번이 빠지지 않게)
   let game = null;
   const chat = safe(createChatDirector({ rng: Math.random, getBots: () => (game ? game.bots.map(b => ({ id: b.id, name: b.name, guild: b.guild === null ? null : ['은사자', '붉은까마귀', '새벽검', '철권단', '폭풍', '가시장미'][b.guild], zone: b.role })) : []),
     emitChat: (m) => { hud.chat.add(m); if (game && m.name && (m.channel === 'local' || m.channel === 'party') && Math.random() < 0.6) { const b = game.bots.find(x => x.name === m.name); if (b) hud.bubble(b.id, m.text, 3500); } } }), 'chat.');
@@ -73,11 +76,22 @@ async function boot() {
     if ((e.ctrlKey || e.metaKey) && LOCK.includes(e.code)) { e.preventDefault(); return; }
     if (e.code === 'KeyF' && !e.repeat && !(e.target && e.target.tagName === 'INPUT')) toggleFs();
   }, true);
-  let started = false;
-  addEventListener('beforeunload', (e) => { if (started && !q.get('demo') && !q.get('play')) { e.preventDefault(); e.returnValue = ''; } });
-  ui.on('menu', (n) => { if (n === 'fullscreen') toggleFs(); else if (n === 'enhance') game.enh.open(); else { game.refreshWindows(); win.toggle(n); } });
+  let started = false, leaving = false;
+  // ── 계정: 로그인한 계정의 캐릭터를 데이터베이스에 자동 저장한다 ──
+  let account = null, saving = false;
+  const saveNow = () => { if (!account || saving) return Promise.resolve(); saving = true; return DB.save(account, game.snapshot()).catch((e) => console.warn('[save]', e)).then(() => { saving = false; }); };
+  setInterval(saveNow, 5000);
+  addEventListener('pagehide', saveNow); document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
+  addEventListener('beforeunload', (e) => { saveNow(); if (started && !leaving && !q.get('demo') && !q.get('play')) { e.preventDefault(); e.returnValue = ''; } });
+  ui.on('menu', (n) => {
+    if (n === 'fullscreen') toggleFs(); else if (n === 'enhance') game.enh.open();
+    else if (n === 'logout') { hud.toast(account ? '저장하고 처음 화면으로 돌아갑니다…' : '처음 화면으로 돌아갑니다…', 'info'); saveNow().then(() => { leaving = true; location.reload(); }); }
+    else { game.refreshWindows(); win.toggle(n); } });
+  // 화면 조작 소리
+  ui.on('windowOpen', () => sound.sfx('ui_open', { volume: 0.7 }));
+  document.addEventListener('click', (e) => { if (e.target && e.target.closest && e.target.closest('#ui button, #ui .btn, #ui .interactive, #ui .w-opt, #ui .a-tab')) sound.sfx('ui_click'); }, true);
   const demo = createDemo({ engine, world, game, ui, vfx: safe(vfx, 'vfx.'), sound, chat });
-  window.__GAME__ = { game, engine, demo, hud, win, vfx };
+  window.__GAME__ = { game, engine, demo, hud, win, vfx, sound, DB };
   win.loading.set(1, '입장 준비 완료'); 
   const clock = new THREE.Clock(); let acc = 0;
   engine.renderer.setAnimationLoop(() => {
@@ -86,7 +100,8 @@ async function boot() {
     engine.update(dt); engine.render();
     if (acc > 0.5) window.__READY__ = true;
   });
-  const start = (isDemo) => { started = true; win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
-  setTimeout(() => { win.loading.hide(); if (q.get('demo') || q.get('auto')) start(true); else if (q.get('play')) start(false); else win.title.show({ onStart: () => start(false), onDemo: () => start(true) }); }, 300);
+  const start = (isDemo, profile) => { started = true; if (profile) game.loadProfile(profile); win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
+  setTimeout(() => { win.loading.hide(); if (q.get('demo') || q.get('auto')) start(true); else if (q.get('play')) start(false, q.get('story') ? newCharacter('시험기사') : null);
+    else win.title.show({ onStart: () => showAuth({ root: uiRoot, sfx: (n) => sound.sfx(n), onDone: (res) => { account = res.account; start(false, res.data); }, onGuest: () => start(false) }), onDemo: () => start(true) }); }, 300);
 }
 boot().catch(e => { console.error(e); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f88;position:absolute;top:0;z-index:99">' + (e.stack || e) + '</pre>'); });

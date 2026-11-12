@@ -295,5 +295,122 @@
     "artist": "Bjorn Lynne",
     "url": "https://artlist.io/sfx/track/its-magical---blast-shimmer-sparkling/103413",
     "songId": "103413"
+  },
+  "raid_horn": {
+    "file": "assets/audio/raid_horn.mp3",
+    "kind": "sfx",
+    "duration": 4.93,
+    "title": "Warfare Transitions - Bugle Phrase, War Horn",
+    "artist": "Ni Sound",
+    "url": "https://artlist.io/sfx/track/warfare-transitions---bugle-phrase-war-horn-/71850",
+    "songId": "71850"
+  },
+  "meteor_fall": {
+    "file": "assets/audio/meteor_fall.mp3",
+    "kind": "sfx",
+    "duration": 1.86,
+    "title": "RPG Game - Incoming Fireball",
+    "artist": "Alberto Sueri",
+    "url": "https://artlist.io/sfx/track/rpg-game---incoming-fireball-/94330",
+    "songId": "94330"
+  },
+  "boss_step": {
+    "file": "assets/audio/boss_step.mp3",
+    "kind": "sfx",
+    "duration": 3.3,
+    "title": "Mythical Creatures - Impact, Giant, Heavy Stomp",
+    "artist": "Silence+Other Sounds",
+    "url": "https://artlist.io/sfx/track/mythical-creatures---impact-giant-heavy-stomp-/64094",
+    "songId": "64094"
+  },
+  "boss_death": {
+    "file": "assets/audio/boss_death.mp3",
+    "kind": "sfx",
+    "duration": 2.46,
+    "title": "Monster Mash - Minotaur Moan, Long",
+    "artist": "SoundBits",
+    "url": "https://artlist.io/sfx/track/monster-mash---minotaur-moan-long/91163",
+    "songId": "91163"
+  },
+  "raid_victory": {
+    "file": "assets/audio/raid_victory.mp3",
+    "kind": "sfx",
+    "duration": 5.35,
+    "title": "Cinematic Logos - Trumpet Phrase, Victory Fanfare",
+    "artist": "Tomas Herudek",
+    "url": "https://artlist.io/sfx/track/cinematic-logos---trumpet-phrase-victory-fanfare-/36879",
+    "songId": "36879"
+  },
+  "amb_altar": {
+    "file": "assets/audio/amb_altar.mp3",
+    "kind": "amb",
+    "duration": 20,
+    "title": "Designed Fire - Blazing Inferno, Rumbling, Crackling",
+    "artist": "Gregor Quendel",
+    "url": "https://artlist.io/sfx/track/designed-fire---blazing-inferno-rumbling-crackling/74221",
+    "songId": "74221"
+  },
+  "boss_swing": {
+    "file": "assets/audio/boss_swing.mp3",
+    "kind": "sfx",
+    "duration": 0.74,
+    "title": "Cinematic Transitions - Light Airy Whoosh, Swift",
+    "artist": "Krotos",
+    "url": "https://artlist.io/sfx/track/cinematic-transitions---light-airy-whoosh-swift/68217",
+    "songId": "68217"
+  },
+  "battle_cry": {
+    "file": "assets/audio/battle_cry.mp3",
+    "kind": "sfx",
+    "duration": 8.51,
+    "title": "Energetic Crowds - Battle Cry, Attack Screams, Cheering Aggressively",
+    "artist": "BOOM Library",
+    "url": "https://artlist.io/sfx/track/energetic-crowds---battle-cry-attack-screams-cheering-aggressively/69850",
+    "songId": "69850"
+  },
+  "cheer": {
+    "file": "assets/audio/cheer.mp3",
+    "kind": "sfx",
+    "duration": 2.5,
+    "title": "Crowd, joyfully cheering, 01",
+    "artist": "Clap Studios",
+    "url": "https://artlist.io/sfx/track/crowd-joyfully-cheering-01/19765",
+    "songId": "19765"
+  },
+  "quest_done": {
+    "file": "assets/audio/quest_done.mp3",
+    "kind": "sfx",
+    "duration": 3.62,
+    "title": "Heartwarming Transitions - Pizzicato Strings, Sparkly Chimes, Positive",
+    "artist": "Ni Sound",
+    "url": "https://artlist.io/sfx/track/heartwarming-transitions---pizzicato-strings-sparkly-chimes-positive-/71627",
+    "songId": "71627"
+  },
+  "ui_open": {
+    "file": "assets/audio/ui_open.mp3",
+    "kind": "sfx",
+    "duration": 0.62,
+    "title": "RPG Game - Close Menu Interface",
+    "artist": "Alberto Sueri",
+    "url": "https://artlist.io/sfx/track/rpg-game---close-menu-interface/94361",
+    "songId": "94361"
+  },
+  "page": {
+    "file": "assets/audio/page.mp3",
+    "kind": "sfx",
+    "duration": 1.4,
+    "title": "Magical Game UI - Menu, Old Book Scroll",
+    "artist": "Unrealsfx",
+    "url": "https://artlist.io/sfx/track/magical-game-ui---menu-old-book-scroll/63351",
+    "songId": "63351"
+  },
+  "amb_grave": {
+    "file": "assets/audio/amb_grave.mp3",
+    "kind": "amb",
+    "duration": 20,
+    "title": "Fantasy Soundscapes - Spooky Graveyard, Howling Wind, Crows, Rumble",
+    "artist": "Alberto Sueri",
+    "url": "https://artlist.io/sfx/track/fantasy-soundscapes---spooky-graveyard-howling-wind-crows-rumble/94285",
+    "songId": "94285"
   }
 }

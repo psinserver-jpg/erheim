@@ -2894,12 +2894,12 @@
         applyQuaternion(q) {
           const vx = this.x, vy = this.y, vz = this.z;
           const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
-          const tx = 2 * (qy * vz - qz * vy);
+          const tx2 = 2 * (qy * vz - qz * vy);
           const ty = 2 * (qz * vx - qx * vz);
           const tz = 2 * (qx * vy - qy * vx);
-          this.x = vx + qw * tx + qy * tz - qz * ty;
-          this.y = vy + qw * ty + qz * tx - qx * tz;
-          this.z = vz + qw * tz + qx * ty - qy * tx;
+          this.x = vx + qw * tx2 + qy * tz - qz * ty;
+          this.y = vy + qw * ty + qz * tx2 - qx * tz;
+          this.z = vz + qw * tz + qx * ty - qy * tx2;
           return this;
         }
         /**
@@ -3770,13 +3770,13 @@
          * @param {number} cy - Center y of rotation
          * @return {Matrix3} A reference to this matrix.
          */
-        setUvTransform(tx, ty, sx, sy, rotation, cx, cy) {
+        setUvTransform(tx2, ty, sx, sy, rotation, cx, cy) {
           const c = Math.cos(rotation);
           const s = Math.sin(rotation);
           this.set(
             sx * c,
             sx * s,
-            -sx * (c * cx + s * cy) + cx + tx,
+            -sx * (c * cx + s * cy) + cx + tx2,
             -sy * s,
             sy * c,
             -sy * (-s * cx + c * cy) + cy + ty,
@@ -3819,9 +3819,9 @@
          * @param {number} ty - The amount to translate in the Y axis.
          * @return {Matrix3} A reference to this matrix.
          */
-        translate(tx, ty) {
+        translate(tx2, ty) {
           warnOnce("Matrix3: .translate() is deprecated. Use .makeTranslation() instead.");
-          this.premultiply(_m3.makeTranslation(tx, ty));
+          this.premultiply(_m3.makeTranslation(tx2, ty));
           return this;
         }
         // for 2D Transforms
@@ -6332,17 +6332,17 @@
           const s = Math.sin(angle);
           const t = 1 - c;
           const x = axis.x, y = axis.y, z = axis.z;
-          const tx = t * x, ty = t * y;
+          const tx2 = t * x, ty = t * y;
           this.set(
-            tx * x + c,
-            tx * y - s * z,
-            tx * z + s * y,
+            tx2 * x + c,
+            tx2 * y - s * z,
+            tx2 * z + s * y,
             0,
-            tx * y + s * z,
+            tx2 * y + s * z,
             ty * y + c,
             ty * z - s * x,
             0,
-            tx * z - s * y,
+            tx2 * z - s * y,
             ty * z + s * x,
             t * z * z + c,
             0,
@@ -8462,11 +8462,11 @@
          * @param {string} [colorSpace=SRGBColorSpace] - The color space.
          * @return {Color} A reference to this color.
          */
-        setHex(hex, colorSpace = SRGBColorSpace) {
-          hex = Math.floor(hex);
-          this.r = (hex >> 16 & 255) / 255;
-          this.g = (hex >> 8 & 255) / 255;
-          this.b = (hex & 255) / 255;
+        setHex(hex2, colorSpace = SRGBColorSpace) {
+          hex2 = Math.floor(hex2);
+          this.r = (hex2 >> 16 & 255) / 255;
+          this.g = (hex2 >> 8 & 255) / 255;
+          this.b = (hex2 & 255) / 255;
           ColorManagement.colorSpaceToWorking(this, colorSpace);
           return this;
         }
@@ -8571,17 +8571,17 @@
                 warn("Color: Unknown color model " + style);
             }
           } else if (m = /^\#([A-Fa-f\d]+)$/.exec(style)) {
-            const hex = m[1];
-            const size = hex.length;
+            const hex2 = m[1];
+            const size = hex2.length;
             if (size === 3) {
               return this.setRGB(
-                parseInt(hex.charAt(0), 16) / 15,
-                parseInt(hex.charAt(1), 16) / 15,
-                parseInt(hex.charAt(2), 16) / 15,
+                parseInt(hex2.charAt(0), 16) / 15,
+                parseInt(hex2.charAt(1), 16) / 15,
+                parseInt(hex2.charAt(2), 16) / 15,
                 colorSpace
               );
             } else if (size === 6) {
-              return this.setHex(parseInt(hex, 16), colorSpace);
+              return this.setHex(parseInt(hex2, 16), colorSpace);
             } else {
               warn("Color: Invalid hex color " + style);
             }
@@ -8604,9 +8604,9 @@
          * @return {Color} A reference to this color.
          */
         setColorName(style, colorSpace = SRGBColorSpace) {
-          const hex = _colorKeywords[style.toLowerCase()];
-          if (hex !== void 0) {
-            this.setHex(hex, colorSpace);
+          const hex2 = _colorKeywords[style.toLowerCase()];
+          if (hex2 !== void 0) {
+            this.setHex(hex2, colorSpace);
           } else {
             warn("Color: Unknown color " + style);
           }
@@ -37345,6 +37345,173 @@ void main() {
     }
   };
 
+  // src/game/story.js
+  var WHO = {
+    nar: { name: "\uC774\uC57C\uAE30", role: "\uC5D0\uB974\uD558\uC784 \uC5F0\uB300\uAE30", portrait: "ui/key_art.jpg" },
+    me: { name: "@", role: "\uC740\uC0AC\uC790 \uACAC\uC2B5 \uAE30\uC0AC", portrait: "ui/portrait_hero.jpg" },
+    liena: { name: "\uB9AC\uC5D0\uB098", role: "\uC740\uC0AC\uC790 \uBD80\uBB38\uC8FC", portrait: "ui/portrait_elf.jpg" },
+    brom: { name: "\uB300\uC7A5\uC7A5\uC774 \uBE0C\uB86C", role: "\uBCA8\uB85C\uC2A4 \uB300\uC7A5\uAC04", portrait: "ui/portrait_blacksmith.jpg" },
+    orben: { name: "\uD604\uC790 \uC624\uB974\uBCA4", role: "\uC131\uCC44 \uAE30\uB85D\uAD00", portrait: "ui/portrait_mage.jpg" },
+    valkar: { name: "\uBC1C\uCE74\uB974", role: "\uC5FC\uC625\uC758 \uAD70\uC8FC", portrait: "ui/portrait_demon.jpg" }
+  };
+  var PROLOGUE = [
+    ["nar", "\uBC31 \uB144 \uC804, \uC5FC\uC625\uC758 \uAD70\uC8FC \uBC1C\uCE74\uB974\uAC00 \uC5D0\uB974\uD558\uC784\uC744 \uBD88\uD0DC\uC6E0\uB2E4. \uCD08\uB300 \uC0AC\uC790\uC655\uC740 \uBAA9\uC228\uC744 \uAC78\uACE0 \uADF8\uB97C \uC7BF\uBD88 \uC81C\uB2E8\uC5D0 \uBB36\uC5C8\uACE0, \uAE30\uC0AC\uB4E4\uC740 \uD55C \uAC00\uC9C0\uB97C \uB9F9\uC138\uD588\uB2E4."],
+    ["nar", '"\uBD88\uC774 \uB2E4\uC2DC \uAE68\uC5B4\uB098\uB294 \uB0A0, \uC0AC\uC790\uB294 \uB2E4\uC2DC \uC77C\uC5B4\uC120\uB2E4." \uC0AC\uB78C\uB4E4\uC740 \uADF8\uAC83\uC744 \uC0AC\uC790\uC758 \uB9F9\uC138\uB77C \uBD88\uB800\uB2E4.'],
+    ["nar", "\uADF8\uB9AC\uACE0 \uC624\uB298. \uC232\uC758 \uC9D0\uC2B9\uC774 \uC774\uC720 \uC5C6\uC774 \uC0AC\uB098\uC6CC\uC9C0\uACE0, \uBC24\uB9C8\uB2E4 \uBD81\uCABD \uD558\uB298\uC774 \uBD89\uAC8C \uBB3C\uB4E0\uB2E4. \uBCA8\uB85C\uC2A4 \uC131\uCC44\uC5D0 \uACAC\uC2B5 \uAE30\uC0AC \uD55C \uBA85\uC774 \uB3C4\uCC29\uD588\uB2E4."],
+    ["liena", "\uB124\uAC00 @\uAD6C\uB098. \uC740\uC0AC\uC790 \uBB38\uD30C\uC5D0 \uC628 \uAC78 \uD658\uC601\uD574. \uB098\uB294 \uBD80\uBB38\uC8FC \uB9AC\uC5D0\uB098\uC57C."],
+    ["liena", "\uC778\uC0AC\uB294 \uC9E7\uAC8C \uD558\uC790. \uC694\uC998 \uC131\uCC44 \uBC16\uC774 \uC2EC\uC0C1\uCE58 \uC54A\uAC70\uB4E0. \uBA3C\uC800 \uB300\uC7A5\uC7A5\uC774 \uBE0C\uB86C \uC601\uAC10\uC744 \uCC3E\uC544\uAC00. \uC2E0\uCC38 \uAC80\uC740 \uAF2D \uD55C \uBC88 \uBD10 \uC8FC\uC2DC\uB294 \uBD84\uC774\uC57C."],
+    ["liena", "\uD654\uBA74 \uC624\uB978\uCABD \uC758\uB8B0\uCC3D\uC758 [\uC774\uC57C\uAE30]\uB97C \uB204\uB974\uBA74 \uC54C\uC544\uC11C \uCC3E\uC544\uAC00\uB2C8\uAE4C, \uAE38 \uC783\uC744 \uAC71\uC815\uC740 \uD558\uC9C0 \uB9D0\uACE0."]
+  ];
+  var CHAPTERS = [
+    {
+      title: "\uC131\uCC44\uC758 \uC2E0\uCC38",
+      obj: { type: "talk", npc: "brom", text: "\uB300\uC7A5\uC7A5\uC774 \uBE0C\uB86C\uACFC \uB300\uD654" },
+      done: [
+        ["brom", "\uC624, \uC0C8 \uC5BC\uAD74\uC774\uAD70. \uB9AC\uC5D0\uB098\uAC00 \uB9D0\uD55C \uC2E0\uCC38\uC774 \uC790\uB128\uAC00? \uC5B4\uB514 \uAC80 \uC880 \uBCF4\uC138."],
+        ["brom", "\u2026\uD5C8, \uB0A1\uC558\uAD6C\uBA3C. \uB0A0\uC740 \uBB34\uB38C\uB3C4 \uC954 \uC190\uC740 \uB098\uC058\uC9C0 \uC54A\uC544. \uC1E0\uB294 \uC815\uC9C1\uD558\uB2E4\uB124. \uD718\uB450\uB978 \uB9CC\uD07C\uB9CC \uB3CC\uB824\uC8FC\uC9C0."],
+        ["brom", "\uC774 \uBB3C\uC57D \uBC1B\uAC8C. \uC232\uC5D0 \uB098\uAC00\uBA74 \uB291\uB300\uC778\uAC04\uBD80\uD130 \uC870\uC2EC\uD558\uACE0. \uC694\uC998 \uADF8\uB188\uB4E4 \uB208\uBE5B\uC774 \uC608\uC804 \uAC19\uC9C0 \uC54A\uC544."],
+        ["me", "\uB208\uBE5B\uC774\uC694?"],
+        ["brom", "\uBD88\uC5D0 \uB374 \uAC83\uCC98\uB7FC \uBD89\uC5B4. \uB0B4 \uD3C9\uC0DD \uADF8\uB7F0 \uC9D0\uC2B9\uC740 \uCC98\uC74C \uBD24\uB124."]
+      ],
+      reward: { gold: 200, potions: { hp: 10, mp: 5 }, exp: 40 }
+    },
+    {
+      title: "\uBBF8\uCCD0\uAC00\uB294 \uC232",
+      obj: { type: "kill", tag: "werewolf", max: 8, text: "\uB291\uB300\uC778\uAC04 \uCC98\uCE58" },
+      start: [
+        ["liena", "@, \uB4E4\uB824? \uC18D\uC0AD\uC774\uB294 \uC232\uC5D0\uC11C \uB291\uB300\uC778\uAC04 \uBB34\uB9AC\uAC00 \uC0C1\uB2E8\uC744 \uB36E\uCCE4\uC5B4. \uC131\uBB38 \uBC16\uC73C\uB85C \uB098\uAC00\uC11C \uC22B\uC790\uB97C \uC904\uC5EC \uC918."],
+        ["liena", "\uBB34\uB9AC\uD558\uC9C0\uB294 \uB9C8. R \uD0A4\uB97C \uB204\uB974\uBA74 \uC790\uB3D9\uC73C\uB85C \uC0AC\uB0E5\uD558\uACE0, \uCCB4\uB825\uC774 \uB5A8\uC5B4\uC9C0\uBA74 \uBB3C\uC57D\uB3C4 \uC54C\uC544\uC11C \uB9C8\uC154."]
+      ],
+      done: [
+        ["nar", "\uC4F0\uB7EC\uC9C4 \uB291\uB300\uC778\uAC04\uC758 \uBAA9\uB35C\uBBF8\uC5D0 \uB0AF\uC120 \uC790\uAD6D\uC774 \uC788\uB2E4. \uBD88\uB85C \uC9C0\uC9C4 \uB4EF\uD55C, \uC0AC\uC790\uC758 \uBC1C\uD1B1\uC744 \uB4A4\uC9D1\uC5B4 \uB193\uC740 \uBAA8\uC591\uC758 \uB099\uC778\uC774\uB2E4."],
+        ["me", "\uC774\uAC74\u2026 \uC9D0\uC2B9\uC774 \uC2A4\uC2A4\uB85C \uB0BC \uC218 \uC788\uB294 \uC0C1\uCC98\uAC00 \uC544\uB2C8\uC57C."],
+        ["liena", "\uB099\uC778\uC774\uB77C\uACE0? \uADF8 \uC598\uAE30\uB294 \uC624\uB974\uBCA4 \uD604\uC790\uAED8 \uAC00\uC838\uAC00 \uBD10. \uC131\uCC44 \uAD11\uC7A5\uC5D0 \uACC4\uC154."]
+      ],
+      reward: { exp: 150, scrolls: 2, gold: 150 }
+    },
+    {
+      title: "\uB099\uC778\uC758 \uC815\uCCB4",
+      obj: { type: "talk", npc: "orben", text: "\uD604\uC790 \uC624\uB974\uBCA4\uACFC \uB300\uD654" },
+      done: [
+        ["orben", "\uB4A4\uC9D1\uD78C \uC0AC\uC790\uC758 \uBC1C\uD1B1\uC774\uB77C\u2026 \uADF8 \uBAA8\uC591\uC744 \uB2E4\uC2DC \uB4E3\uAC8C \uB420 \uC904\uC740 \uBAB0\uB790\uB124."],
+        ["orben", "\uC7BF\uBD88\uC758 \uB099\uC778\uC77C\uC138. \uBC1C\uCE74\uB974\uAC00 \uC81C \uBD80\uD558\uC5D0\uAC8C \uCC0D\uB358 \uD45C\uC2DD\uC774\uC9C0. \uBC31 \uB144 \uB3D9\uC548 \uD55C \uBC88\uB3C4 \uB098\uD0C0\uB098\uC9C0 \uC54A\uC558\uC5B4."],
+        ["me", "\uBD09\uC778\uB41C \uAD70\uC8FC\uAC00 \uC5B4\uB5BB\uAC8C \uB099\uC778\uC744 \uCC0D\uC2B5\uB2C8\uAE4C?"],
+        ["orben", "\uBD09\uC778\uC774 \uB2F3\uACE0 \uC788\uB2E4\uB294 \uB73B\uC774\uC9C0. \uBD88\uC740 \uBB36\uC5EC \uC788\uC5B4\uB3C4 \uC5F0\uAE30\uB294 \uC0C8\uC5B4 \uB098\uC624\uB294 \uBC95\uC774\uC57C."],
+        ["orben", "\uBE0C\uB86C\uC5D0\uAC8C \uAC00 \uBCF4\uAC8C. \uADF8 \uC601\uAC10, \uCD08\uB300 \uC0AC\uC790\uC655\uC758 \uAC80\uC744 \uBCBC\uB9B0 \uB300\uC7A5\uC7A5\uC774 \uAC00\uBB38\uC758 \uB9C8\uC9C0\uB9C9 \uD6C4\uC190\uC774\uB124. \uC790\uB124\uC5D0\uAC8C \uC904 \uAC83\uC774 \uC788\uC744 \uAC78\uC138."]
+      ],
+      reward: { exp: 80, gold: 300 }
+    },
+    {
+      title: "\uC5EC\uBA85\uC758 \uC7A5\uAC80",
+      obj: { type: "talk", npc: "brom", text: "\uB300\uC7A5\uC7A5\uC774 \uBE0C\uB86C\uC5D0\uAC8C \uB3CC\uC544\uAC00\uAE30" },
+      done: [
+        ["brom", "\uB099\uC778\uC744 \uBD24\uB2E4\uACE0? \u2026\uADF8\uB7FC \uB54C\uAC00 \uB41C \uAC8C\uB85C\uAD70."],
+        ["brom", "\uC774 \uAC80\uC744 \uBC1B\uAC8C. \uC5EC\uBA85\uC758 \uC7A5\uAC80. \uC6B0\uB9AC \uAC00\uBB38\uC774 \uBC31 \uB144 \uB3D9\uC548 \uB0A0\uB9CC \uAC08\uBA70 \uC8FC\uC778\uC744 \uAE30\uB2E4\uB9B0 \uBB3C\uAC74\uC77C\uC138."],
+        ["me", "\uC774\uB7F0 \uAC78 \uACAC\uC2B5\uC778 \uC81C\uAC00 \uBC1B\uC544\uB3C4 \uB429\uB2C8\uAE4C."],
+        ["brom", "\uAC80\uC740 \uC2E0\uBD84\uC744 \uC548 \uBCF4\uB124. \uB099\uC778\uC744 \uC81C \uB208\uC73C\uB85C \uBCF4\uACE0\uB3C4 \uB3C4\uB9DD\uCE58\uC9C0 \uC54A\uC740 \uB188\uC744 \uACE0\uB97C \uBFD0\uC774\uC9C0."],
+        ["brom", "\uB2E4\uB9CC \uC544\uC9C1 \uC7A0\uB4E4\uC5B4 \uC788\uC5B4. \uAC15\uD654 \uC8FC\uBB38\uC11C\uB85C \uAE68\uC6CC\uC57C \uD558\uB124. +3\uAE4C\uC9C0\uB294 \uC808\uB300 \uC2E4\uD328\uD558\uC9C0 \uC54A\uC73C\uB2C8 \uAC81\uBA39\uC9C0 \uB9D0\uAC8C."]
+      ],
+      reward: { weapon: "\uC5EC\uBA85\uC758 \uC7A5\uAC80", scrolls: 6, exp: 100 }
+    },
+    {
+      title: "\uBCBC\uB824\uC9C4 \uB9F9\uC138",
+      obj: { type: "enh", max: 3, text: "\uC5EC\uBA85\uC758 \uC7A5\uAC80 +3 \uAC15\uD654" },
+      start: [
+        ["brom", "\uC790, \uBAA8\uB8E8 \uC55E\uC5D0 \uC11C\uAC8C. \uB0B4\uAC00 \uB9DD\uCE58\uB97C \uB4E4 \uD14C\uB2C8 \uC790\uB124\uB294 \uC8FC\uBB38\uC11C\uB9CC \uC62C\uB9AC\uBA74 \uB418\uB124."]
+      ],
+      done: [
+        ["brom", "\uC88B\uC544, \uB0A0\uC5D0 \uBE5B\uC774 \uB3CC\uAE30 \uC2DC\uC791\uD588\uAD70. \uC5EC\uAE30\uC11C\uBD80\uD130\uB294 \uC6B4\uC77C\uC138. \uC695\uC2EC\uC740 \uCC9C\uCC9C\uD788 \uBD80\uB9AC\uAC8C."],
+        ["liena", "@, \uAE09\uD55C \uC18C\uC2DD\uC774\uC57C. \uC232 \uB3D9\uCABD \uC624\uD06C \uC57C\uC601\uC9C0\uC5D0\uC11C \uBC24\uC0C8 \uBD81\uC18C\uB9AC\uAC00 \uC6B8\uB838\uB300. \uC624\uD06C\uB294 \uC6D0\uB798 \uC774 \uACC4\uC808\uC5D0 \uC6C0\uC9C1\uC774\uC9C0 \uC54A\uC544."]
+      ],
+      reward: { exp: 200, potions: { hp: 10, mp: 5 } }
+    },
+    {
+      title: "\uC624\uD06C\uC758 \uBD81\uC18C\uB9AC",
+      obj: { type: "kill", tag: "orc_warrior", max: 8, text: "\uC624\uD06C \uC804\uC0AC \uCC98\uCE58" },
+      done: [
+        ["nar", "\uC624\uD06C \uC804\uC0AC\uC758 \uD5C8\uB9AC\uCDA4\uC5D0\uC11C \uADF8\uC744\uB9B0 \uAC00\uC8FD \uC870\uAC01\uC774 \uB5A8\uC5B4\uC84C\uB2E4. \uC11C\uD230 \uAE00\uC528\uB85C \uAC19\uC740 \uBB38\uC7A5\uC774 \uBA87 \uBC88\uC774\uACE0 \uC801\uD600 \uC788\uB2E4."],
+        ["nar", '"\uBD89\uC740 \uB2EC\uC774 \uB728\uBA74 \uC81C\uB2E8\uC73C\uB85C. \uAD70\uC8FC\uAED8\uC11C \uAE68\uC5B4\uB098\uC2E0\uB2E4."'],
+        ["me", "\uC624\uD06C\uB4E4\uAE4C\uC9C0 \uB099\uC778\uC774 \uCC0D\uD614\uC5B4. \uC232 \uC804\uCCB4\uAC00 \uC81C\uB2E8\uC744 \uD5A5\uD574 \uC6C0\uC9C1\uC774\uACE0 \uC788\uB2E4."],
+        ["liena", "\uD558\uB098 \uB354 \uC788\uC5B4. \uC11C\uCABD \uC78A\uD600\uC9C4 \uBB18\uC9C0\uC5D0\uC11C \uAC11\uC637 \uC785\uC740 \uD574\uACE8\uC774 \uAC78\uC5B4 \uB2E4\uB2CC\uB300. \uAC00\uC11C \uD655\uC778\uD574 \uC904\uB798? \uC870\uC2EC\uD574, \uAC70\uAE34 \uC624\uD06C\uBCF4\uB2E4 \uD6E8\uC52C \uC138."]
+      ],
+      reward: { exp: 400, scrolls: 3, gold: 600 }
+    },
+    {
+      title: "\uC7A0\uB4E4\uC9C0 \uBABB\uD55C \uAE30\uC0AC\uB4E4",
+      obj: { type: "kill", tag: "skeleton_knight", max: 8, text: "\uD574\uACE8 \uAE30\uC0AC \uCC98\uCE58" },
+      done: [
+        ["nar", "\uD574\uACE8 \uAE30\uC0AC\uAC00 \uBB34\uB108\uC9C0\uBA70 \uAC00\uC2B4\uBC1B\uC774\uAC00 \uAD74\uB7EC \uB5A8\uC5B4\uC84C\uB2E4. \uB179\uC2A8 \uC1E0 \uC704\uC5D0 \uC0AC\uC790 \uBB38\uC7A5\uC774 \uC0C8\uACA8\uC838 \uC788\uB2E4. \uC740\uC0AC\uC790 \uBB38\uD30C\uC758 \uBB38\uC7A5\uACFC \uAC19\uB2E4."],
+        ["me", "\uC774 \uC0AC\uB78C\uB4E4\uC740\u2026 \uCD08\uB300 \uC0AC\uC790\uC655\uC758 \uAE30\uC0AC\uB2E8\uC774\uC57C."],
+        ["nar", '\uAC11\uC637 \uD2C8\uC5D0\uC11C \uBC18\uC73C\uB85C \uCABC\uAC1C\uC9C4 \uC778\uC7A5\uC774 \uBE5B\uB09C\uB2E4. \uC190\uC5D0 \uC950\uC790 \uD76C\uBBF8\uD55C \uBAA9\uC18C\uB9AC\uAC00 \uB4E4\uB9B0\uB2E4. "\u2026\uB9F9\uC138\uB97C\u2026 \uC774\uC5B4\uB2E4\uC624."'],
+        ["liena", "\uB9F9\uC138\uC758 \uC778\uC7A5\uC774\uC57C. \uBD09\uC778\uC744 \uB2E4\uC2DC \uC7A0\uAE00 \uC5F4\uC1E0. \uADF8\uAC78 \uC624\uB974\uBCA4 \uD604\uC790\uAED8 \uAC00\uC838\uAC00."]
+      ],
+      reward: { exp: 700, scrolls: 3, potions: { hp: 15, mp: 8 } }
+    },
+    {
+      title: "\uB9F9\uC138\uC758 \uACC4\uC2B9",
+      obj: { type: "talk", npc: "orben", text: "\uD604\uC790 \uC624\uB974\uBCA4\uC5D0\uAC8C \uC778\uC7A5 \uC804\uB2EC" },
+      done: [
+        ["orben", "\uB9F9\uC138\uC758 \uC778\uC7A5\u2026 \uAE30\uC0AC\uB2E8\uC774 \uC8FD\uC5B4\uC11C\uB3C4 \uC9C0\uD0A4\uACE0 \uC788\uC5C8\uAD70."],
+        ["orben", "\uC774 \uC778\uC7A5\uC73C\uB85C \uBD09\uC778\uC744 \uB2E4\uC2DC \uC7A0\uAE00 \uC218 \uC788\uB124. \uB2E4\uB9CC \uBC1C\uCE74\uB974\uAC00 \uB0A0\uB6F0\uB294 \uB3D9\uC548\uC5D0\uB294 \uBD88\uAC00\uB2A5\uD574. \uB204\uAD70\uAC00 \uBA3C\uC800 \uADF8\uB97C \uC4F0\uB7EC\uB728\uB824\uC57C \uD558\uC9C0."],
+        ["liena", "\uADF8 \uB204\uAD70\uAC00\uAC00 \uC6B0\uB9AC\uC57C. \uC740\uC0AC\uC790 \uC804\uC6D0\uC774 \uC81C\uB2E8\uC73C\uB85C \uAC04\uB2E4."],
+        ["liena", "@, \uC624\uB298\uBD80\uB85C \uB108\uB294 \uACAC\uC2B5\uC774 \uC544\uB2C8\uC57C. \uC740\uC0AC\uC790\uC758 \uC815\uC2DD \uAE30\uC0AC\uB2E4. \uC120\uBD09\uC5D0 \uC11C \uC918."],
+        ["me", "\uB9F9\uC138\uB97C \uC787\uACA0\uC2B5\uB2C8\uB2E4."],
+        ["orben", "\uC11C\uB450\uB974\uC9C0\uB294 \uB9D0\uAC8C. \uC9C0\uAE08 \uC2E4\uB825\uC73C\uB85C\uB294 \uC81C\uB2E8\uC758 \uC5F4\uAE30\uB3C4 \uBABB \uBC84\uD168. \uC870\uAE08 \uB354 \uB2E8\uB828\uD558\uACE0 \uC624\uAC8C."]
+      ],
+      reward: { exp: 300, gold: 1e3, scrolls: 2 }
+    },
+    {
+      title: "\uACB0\uC804 \uC900\uBE44",
+      obj: { type: "level", max: 12, text: "\uB808\uBCA8 12 \uB2EC\uC131" },
+      start: [
+        ["liena", "\uBB38\uD30C\uC6D0\uB4E4\uC774 \uBAA8\uC774\uB294 \uB3D9\uC548 \uC2E4\uB825\uC744 \uC62C\uB824 \uB46C. \uB808\uBCA8 12\uBA74 \uC120\uBD09\uC744 \uB9E1\uAE38 \uC218 \uC788\uC5B4. \uBB18\uC9C0\uC758 \uD574\uACE8 \uAE30\uC0AC\uAC00 \uB2E8\uB828 \uC0C1\uB300\uB85C \uC88B\uC544. \uAC80 \uAC15\uD654\uB3C4 \uC78A\uC9C0 \uB9D0\uACE0."]
+      ],
+      done: [
+        ["liena", "\uC88B\uC544, \uC774\uC81C \uB208\uBE5B\uC774 \uB2E4\uB974\uB124. \uC804\uC6D0 \uC9D1\uACB0\uD588\uC5B4. \uC7BF\uBD88 \uC81C\uB2E8\uC73C\uB85C \uC640."],
+        ["valkar", "\u2026\uB4E4\uB9B0\uB2E4. \uC0AC\uC790 \uC0C8\uB07C\uB4E4\uC758 \uBC1C\uC18C\uB9AC\uAC00. \uBC31 \uB144\uC744 \uAE30\uB2E4\uB838\uB2E4. \uC774\uBC88\uC5D0\uB294 \uB9F9\uC138\uC9F8\uB85C \uD0DC\uC6CC \uC8FC\uB9C8."]
+      ],
+      reward: { potions: { hp: 20, mp: 10 }, scrolls: 2 }
+    },
+    {
+      title: "\uC5FC\uC625\uC758 \uAD70\uC8FC",
+      obj: { type: "raid", text: "\uC7BF\uBD88 \uC81C\uB2E8\uC5D0\uC11C \uBC1C\uCE74\uB974 \uD1A0\uBC8C" },
+      done: [
+        ["nar", "\uBC1C\uCE74\uB974\uAC00 \uBB34\uB108\uC9C0\uC790 \uC81C\uB2E8\uC758 \uBD88\uAE38\uC774 \uD55C\uC21C\uAC04\uC5D0 \uC7A6\uC544\uB4E4\uC5C8\uB2E4. @\uC758 \uC190\uC5D0\uC11C \uB9F9\uC138\uC758 \uC778\uC7A5\uC774 \uD558\uB098\uB85C \uBD99\uC73C\uBA70 \uBD09\uC778\uC758 \uBB38\uC591\uC774 \uB2E4\uC2DC \uBE5B\uB09C\uB2E4."],
+        ["valkar", "\uC0AC\uC790\uC758\u2026 \uB9F9\uC138\uB77C\u2026 \uBC31 \uB144 \uB4A4\uC5D0\u2026 \uB2E4\uC2DC \uBCF4\uC790\u2026"],
+        ["liena", "\uD574\uB0C8\uC5B4, @! \uBD10, \uBD81\uCABD \uD558\uB298\uC774 \uC6D0\uB798 \uC0C9\uC73C\uB85C \uB3CC\uC544\uC624\uACE0 \uC788\uC5B4."],
+        ["brom", "\uD5C8\uD5C8, \uADF8 \uAC80\uC774 \uC8FC\uC778\uC744 \uC81C\uB300\uB85C \uACE8\uB790\uAD6C\uBA3C. \uB3CC\uC544\uC624\uBA74 \uB0A0\uBD80\uD130 \uAC08\uC544 \uC8FC\uC9C0."],
+        ["orben", "\uAE30\uB85D\uD574 \uB450\uACA0\uB124. \uBCA8\uB85C\uC2A4 \uC131\uCC44\uC758 \uC2E0\uCC38\uC774 \uC0AC\uC790\uC758 \uB9F9\uC138\uB97C \uC774\uC5C8\uB2E4\uACE0."],
+        ["nar", "\uC5D0\uB974\uD558\uC784\uC5D0 \uB2E4\uC2DC \uC544\uCE68\uC774 \uC654\uB2E4. \uADF8\uB7EC\uB098 \uB9F9\uC138\uB294 \uB05D\uB098\uC9C0 \uC54A\uB294\uB2E4. \uBD88\uC774 \uB2E4\uC2DC \uAE68\uC5B4\uB098\uB294 \uB0A0, \uC0AC\uC790\uB294 \uB2E4\uC2DC \uC77C\uC5B4\uC124 \uAC83\uC774\uB2E4. \u2014 \u3008\uC0AC\uC790\uC758 \uB9F9\uC138\u3009 \uB05D"]
+      ],
+      reward: { gold: 5e4, exp: 1e3, title: "\uB9F9\uC138\uB97C \uC787\uB294 \uC790" }
+    }
+  ];
+  var STORY_MON = {
+    werewolf: { level: 2, hp: 170, atk: 13, exp: 24, gold: [6, 14] },
+    orc_warrior: { level: 6, hp: 420, atk: 27, exp: 52, gold: [14, 30] },
+    skeleton_knight: { level: 10, hp: 700, atk: 36, exp: 96, gold: [26, 52] }
+  };
+  function newCharacter(name) {
+    return {
+      v: 1,
+      name,
+      level: 1,
+      exp: 0,
+      gold: 100,
+      plus: 0,
+      weapon: "\uB0A1\uC740 \uC7A5\uAC80",
+      scrolls: 0,
+      potions: { hp: 10, mp: 5 },
+      kills: 0,
+      story: { ch: 0, n: 0, seen: false, started: false },
+      daily: { werewolf: 0, orc_warrior: 0 },
+      raidDone: false,
+      title: null,
+      created: Date.now(),
+      played: 0
+    };
+  }
+
   // src/game/game.js
   var V = (x, z) => new Vector3(x, 0, z);
   var rand = (a, b) => a + Math.random() * (b - a);
@@ -37359,10 +37526,10 @@ void main() {
   var RATES = [1, 1, 1, 0.9, 0.8, 0.65, 0.5, 0.4, 0.3, 0.2, 0.12];
   var EXPREQ = (lv) => Math.round(260 + (lv - 14) * 90);
   var SKILLS = [
-    { id: "spin", name: "\uD68C\uC804 \uBCA0\uAE30", icon: 2, key: "1", cd: 6, mp: 18, clip: "skill1" },
-    { id: "slam", name: "\uB3C4\uC57D \uAC15\uD0C0", icon: 3, key: "2", cd: 10, mp: 30, clip: "skill2" },
-    { id: "roar", name: "\uC0AC\uC790\uD6C4", icon: 6, key: "3", cd: 24, mp: 25, clip: "skill3" },
-    { id: "recall", name: "\uADC0\uD658", icon: 7, key: "4", cd: 30, mp: 10, clip: null }
+    { id: "spin", name: "\uD68C\uC804 \uBCA0\uAE30", icon: 2, key: "1", cd: 6, mp: 18, clip: "skill1", lv: 1 },
+    { id: "slam", name: "\uB3C4\uC57D \uAC15\uD0C0", icon: 3, key: "2", cd: 10, mp: 30, clip: "skill2", lv: 3 },
+    { id: "roar", name: "\uC0AC\uC790\uD6C4", icon: 6, key: "3", cd: 24, mp: 25, clip: "skill3", lv: 5 },
+    { id: "recall", name: "\uADC0\uD658", icon: 7, key: "4", cd: 30, mp: 10, clip: null, lv: 1 }
   ];
   async function createGame({ engine, world, ui, vfx, sound, names, chat }) {
     const scene = engine.scene;
@@ -37382,7 +37549,11 @@ void main() {
         console.warn("\uBAA8\uB378 \uC5C6\uC74C", t);
       }
     }
-    const G = { ents: [], time: 0, timeScale: 1, hitstop: 0, auto: false, demo: false, boss: null, raid: null, events: [], paused: false };
+    const G = { ents: [], time: 0, timeScale: 1, hitstop: 0, auto: false, demo: false, boss: null, raid: null, events: [], paused: false, story: false, talk: false };
+    const ST = { ch: 0, n: 0, seen: false, started: false, raidOk: false, autoNext: false };
+    const md = (tag) => G.story ? { ...MON[tag], ...STORY_MON[tag] } : MON[tag];
+    const expReq = (lv) => G.story ? 90 + lv * 55 : EXPREQ(lv);
+    const unlocked = (sk) => !G.story || P2.level >= (sk.lv || 1);
     let nextId = 1;
     const sp = new Vector3(), sp2 = new Vector3(), scr = { x: 0, y: 0, z: 0 };
     function spawn2(kind, tag, pos, o = {}) {
@@ -37479,23 +37650,38 @@ void main() {
       hud.setPlayer({ name: P2.name, level: P2.level, guild: GUILDS[0], crest: 0, hp: Math.ceil(P2.hp), hpMax: P2.hpMax, mp: Math.ceil(P2.mp), mpMax: P2.mpMax, exp: P2.exp, gold: P2.gold, power: Math.round(atkPower() * 31 + P2.hpMax * 2.2) });
     }
     function skillState() {
-      return SKILLS.map((s) => ({ id: s.id, name: s.name, icon: s.icon, key: s.key, cd: s.cd, cdLeft: Math.max(0, P2.cds[s.id] || 0), mp: s.mp, enabled: P2.mp >= s.mp }));
+      return SKILLS.map((s) => ({ id: s.id, name: s.name, icon: s.icon, key: s.key, cd: s.cd, cdLeft: Math.max(0, P2.cds[s.id] || 0), mp: s.mp, enabled: P2.mp >= s.mp && unlocked(s) }));
+    }
+    function recalc() {
+      const L = P2.level - 1;
+      P2.hpMax = 380 + 80 * L;
+      P2.mpMax = 140 + 14 * L;
+      P2.atk = 34 + 6 * L;
     }
     hud.setSkills(skillState());
     hud.setPotions(P2.potions);
     refreshPlayerUI();
     function gainExp(x) {
-      P2.exp += x / EXPREQ(P2.level);
+      P2.exp += x / expReq(P2.level);
       const s = screenOf(P2, 2.3);
-      hud.damage(s.x + 40, s.y, "+" + x + " EXP", { kind: "exp" });
+      hud.damage(s.x + 40, s.y, x, { kind: "exp" });
       while (P2.exp >= 1) {
         P2.exp -= 1;
         P2.level++;
-        P2.hpMax += 90;
-        P2.mpMax += 20;
-        P2.atk += 7;
+        if (G.story) recalc();
+        else {
+          P2.hpMax += 90;
+          P2.mpMax += 20;
+          P2.atk += 7;
+        }
         P2.hp = P2.hpMax;
         P2.mp = P2.mpMax;
+        if (G.story) {
+          for (const sk of SKILLS) if (sk.lv === P2.level && sk.lv > 1) {
+            hud.notice(`\uC0C8 \uAE30\uC220 [${sk.name}]\uC744 \uC775\uD614\uC2B5\uB2C8\uB2E4! (\uB2E8\uCD95\uD0A4 ${sk.key})`, "info");
+            hud.setSkills(skillState());
+          }
+        }
         hud.levelUp(P2.level);
         try {
           vfx.levelUp(P2.ch.root);
@@ -37511,7 +37697,7 @@ void main() {
       refreshPlayerUI();
     }
     function hurtPlayer(d, src) {
-      if (P2.dead) return;
+      if (P2.dead || G.talk) return;
       if (G.demo) d = Math.min(d, Math.max(0, P2.hp - P2.hpMax * 0.22));
       if (!G.demo && src && src.kind === "boss") d *= 0.5;
       d = Math.round(d);
@@ -37617,8 +37803,13 @@ void main() {
       m.ch.play("death", { loop: false, fade: 0.08 });
       S2("monster_die", { pos: m.pos, volume: 0.7 });
       if (m.kind === "monster") {
-        const d = MON[m.tag];
+        const d = md(m.tag);
         if (src === P2 || dist2(m.pos, P2.pos) < 8) {
+          if (G.story && Math.random() < 0.18) {
+            P2.potions.hp += 1;
+            hud.setPotions(P2.potions);
+            hud.loot({ icon: 9, name: "\uBE68\uAC04 \uBB3C\uC57D", count: 1, rarity: "common" });
+          }
           P2.kills++;
           gainExp(d.exp);
           const gold = Math.round(rand(d.gold[0], d.gold[1]));
@@ -37653,6 +37844,14 @@ void main() {
     const quest = {
       n: { werewolf: 0, orc_warrior: 0 },
       kill(t) {
+        if (G.story && ST.ch < CHAPTERS.length) {
+          const o = CHAPTERS[ST.ch].obj;
+          if (o.type === "kill" && o.tag === t && ST.n < o.max) {
+            ST.n++;
+            this.show();
+          }
+          return;
+        }
         if (this.n[t] !== void 0) {
           this.n[t]++;
           this.show();
@@ -37660,6 +37859,12 @@ void main() {
       },
       show() {
         const act = (id) => !!(qrun && qrun.id === id);
+        if (G.story && ST.ch < CHAPTERS.length) {
+          const c = CHAPTERS[ST.ch], o = c.obj, max = o.max || 1;
+          const cur = o.type === "kill" ? ST.n : o.type === "enh" ? Math.min(P2.plus, max) : o.type === "level" ? Math.min(P2.level, max) : 0;
+          hud.setQuest([{ id: "story", active: act("story"), title: `[\uC774\uC57C\uAE30 ${ST.ch + 1}\uC7A5] ${c.title}`, lines: [{ text: o.text, cur, max, done: cur >= max }] }]);
+          return;
+        }
         hud.setQuest([{ id: "hunt", active: act("hunt"), title: "[\uC77C\uC77C] \uC232\uC758 \uC704\uD611", lines: [{ text: "\uB291\uB300\uC778\uAC04 \uCC98\uCE58", cur: Math.min(this.n.werewolf, 20), max: 20, done: this.n.werewolf >= 20 }, { text: "\uC624\uD06C \uC804\uC0AC \uCC98\uCE58", cur: Math.min(this.n.orc_warrior, 10), max: 10, done: this.n.orc_warrior >= 10 }] }, { id: "raid", active: act("raid"), title: "[\uBB38\uD30C] \uBC1C\uCE74\uB974 \uD1A0\uBC8C\uC804", lines: [{ text: "\uC7BF\uBD88 \uC81C\uB2E8\uC758 \uB808\uC774\uB4DC\uC5D0 \uCC38\uAC00", cur: G.raid && G.raid.done ? 1 : 0, max: 1, done: !!(G.raid && G.raid.done) }] }, { id: "enh", active: act("enh"), title: "[\uC131\uC7A5] \uC5EC\uBA85\uC758 \uC7A5\uAC80 +7 \uB2EC\uC131", lines: [{ text: "\uB300\uC7A5\uC7A5\uC774 \uBE0C\uB86C\uC5D0\uAC8C \uAC15\uD654", cur: Math.min(P2.plus, 7), max: 7, done: P2.plus >= 7 }] }]);
       }
     };
@@ -37801,6 +38006,11 @@ void main() {
     } catch (e) {
       console.warn("merchant", e);
     }
+    const liena = spawn2("npc", "elf_archer", V(7, 10), { name: "\uB9AC\uC5D0\uB098", yaw: -2.6, level: 58, hp: 9999 });
+    if (liena) liena.title = "\uC740\uC0AC\uC790 \uBD80\uBB38\uC8FC";
+    const orben = spawn2("npc", "mage", V(-8, 10.5), { name: "\uD604\uC790 \uC624\uB974\uBCA4", yaw: 2.6, level: 60, hp: 9999 });
+    if (orben) orben.title = "\uC131\uCC44 \uAE30\uB85D\uAD00";
+    const NPCS = { brom: { ent: smith, stand: POI.smithStand }, liena: { ent: liena, stand: V(5.6, 8.2) }, orben: { ent: orben, stand: V(-6.5, 8.6) } };
     const guards = [];
     for (const [x, z, yaw] of [[-5.5, -41, 0], [5.5, -41, 0], [-4, -53, 3.14], [4, -53, 3.14]]) {
       const g2 = spawn2("npc", "hero", V(x, z), { lod: true, name: "\uC131\uCC44 \uACBD\uBE44\uBCD1", yaw, tint: 14200992, level: 50, hp: 9999 });
@@ -38015,9 +38225,14 @@ void main() {
       setTrail(true);
       S2(Math.random() < 0.5 ? "sword_swing1" : "sword_swing2", { volume: 0.7 });
     }
-    function castSkill(id) {
+    function castSkill(id, quiet) {
       const s = SKILLS.find((x) => x.id === id);
-      if (!s || P2.dead || P2.state === "skill" || (P2.cds[id] || 0) > 0 || P2.mp < s.mp) return false;
+      if (!s || P2.dead || G.talk) return false;
+      if (!unlocked(s)) {
+        if (!quiet) hud.toast(`[${s.name}]\uC740 Lv.${s.lv}\uC5D0 \uC775\uD799\uB2C8\uB2E4.`, "info");
+        return false;
+      }
+      if (P2.state === "skill" || (P2.cds[id] || 0) > 0 || P2.mp < s.mp) return false;
       if (id === "recall") {
         if (G.raid && G.raid.active) return false;
         P2.cds[id] = s.cd;
@@ -38237,16 +38452,31 @@ void main() {
     function autoHunt(dt) {
       if (P2.mp < 60 && P2.potions.mp > 0) usePotion("mp");
       let tg = P2.target && !P2.target.dead ? P2.target : null;
+      if (tg && tg.kind === "monster") {
+        if (P2.huntTg !== tg || tg.hp !== P2.huntHp) {
+          P2.huntTg = tg;
+          P2.huntHp = tg.hp;
+          P2.huntT = 0;
+        } else if ((P2.huntT += dt) > 6) {
+          tg.skipUntil = G.time + 15;
+          if (tg.target === P2) tg.target = null;
+          P2.target = null;
+          hud.setTarget(null);
+          tg = null;
+          P2.huntTg = null;
+        }
+      }
+      const okT = (m) => !(m.skipUntil > G.time);
       if (!tg) {
-        tg = G.boss && !G.boss.dead && dist2(G.boss.pos, P2.pos) < 60 ? G.boss : qrun && qrun.tag && nearestMonster(P2.pos, 38, (m) => m.tag === qrun.tag && dist2(m.pos, P2.huntAnchor) < 60) || nearestMonster(P2.pos, qrun && qrun.tag ? 7 : 38, (m) => dist2(m.pos, P2.huntAnchor) < 60);
+        tg = G.boss && !G.boss.dead && dist2(G.boss.pos, P2.pos) < 60 ? G.boss : qrun && qrun.tag && nearestMonster(P2.pos, 38, (m) => okT(m) && m.tag === qrun.tag && dist2(m.pos, P2.huntAnchor) < 60) || nearestMonster(P2.pos, qrun && qrun.tag ? 7 : 38, (m) => okT(m) && dist2(m.pos, P2.huntAnchor) < 60);
         if (tg) setTarget(tg);
         else if (dist2(P2.pos, P2.huntAnchor) > 6) P2.moveTo = P2.huntAnchor;
       }
       if (!tg) return;
       const d = dist2(tg.pos, P2.pos) - (tg.kind === "boss" ? 4 : 0);
-      if (P2.buffT <= 0 && d < 12 && castSkill("roar")) return;
-      if (d < 9 && d > 3 && castSkill("slam")) return;
-      if (d < 3.4 && (near(P2.pos, 4.6).length >= 2 || tg.kind === "boss") && castSkill("spin")) return;
+      if (P2.buffT <= 0 && d < 12 && castSkill("roar", true)) return;
+      if (d < 9 && d > 3 && castSkill("slam", true)) return;
+      if (d < 3.4 && (near(P2.pos, 4.6).length >= 2 || tg.kind === "boss") && castSkill("spin", true)) return;
     }
     const enh = {
       busy: false,
@@ -38291,7 +38521,7 @@ void main() {
             if (smith && smith.ch.has("sad")) smith.ch.play("sad", { loop: false, restart: true });
             if (destroy) {
               P2.plus = 0;
-              P2.weaponName = "\uB0A1\uC740 \uC7A5\uAC80";
+              if (!G.story) P2.weaponName = "\uB0A1\uC740 \uC7A5\uAC80";
               try {
                 glow && glow.setLevel(0);
               } catch (e) {
@@ -38304,13 +38534,13 @@ void main() {
         if (ok2) {
           hud.chat.add({ channel: "system", text: `${P2.weaponName} +${P2.plus} \uAC15\uD654\uC5D0 \uC131\uACF5\uD588\uC2B5\uB2C8\uB2E4!` });
           if (P2.plus >= 6) {
-            hud.notice(`[\uC740\uC0AC\uC790] \uCE74\uC77C \uB2D8\uC774 +${P2.plus} ${P2.weaponName} \uAC15\uD654\uC5D0 \uC131\uACF5\uD588\uC2B5\uB2C8\uB2E4!`, "enhance");
+            hud.notice(`[\uC740\uC0AC\uC790] ${P2.name} \uB2D8\uC774 +${P2.plus} ${P2.weaponName} \uAC15\uD654\uC5D0 \uC131\uACF5\uD588\uC2B5\uB2C8\uB2E4!`, "enhance");
             chat && chat.event("enhanceSuccess", { name: P2.name, item: P2.weaponName, plus: P2.plus });
           }
         } else {
-          hud.chat.add({ channel: "system", text: destroy ? `\uAC15\uD654 \uC2E4\uD328! +${from} \uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uC99D\uBC1C\uD588\uC2B5\uB2C8\uB2E4\u2026` : `\uAC15\uD654\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. (+${from} \uC720\uC9C0)` });
+          hud.chat.add({ channel: "system", text: destroy ? G.story ? `\uAC15\uD654 \uC2E4\uD328! +${from} ${P2.weaponName}\uC758 \uAC15\uD654 \uC218\uCE58\uAC00 \uBAA8\uB450 \uC0AC\uB77C\uC84C\uC2B5\uB2C8\uB2E4\u2026` : `\uAC15\uD654 \uC2E4\uD328! +${from} \uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uC99D\uBC1C\uD588\uC2B5\uB2C8\uB2E4\u2026` : `\uAC15\uD654\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. (+${from} \uC720\uC9C0)` });
           if (destroy) {
-            hud.notice(`[\uC740\uC0AC\uC790] \uCE74\uC77C \uB2D8\uC758 +${from} \uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uAC15\uD654 \uC911 \uC99D\uBC1C\uD588\uC2B5\uB2C8\uB2E4\u2026`, "enhance");
+            hud.notice(`[\uC740\uC0AC\uC790] ${P2.name} \uB2D8\uC758 +${from} \uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uAC15\uD654 \uC911 \uC99D\uBC1C\uD588\uC2B5\uB2C8\uB2E4\u2026`, "enhance");
           }
           chat && chat.event("enhanceFail", { name: P2.name, item: "\uC5EC\uBA85\uC758 \uC7A5\uAC80", plus: from });
         }
@@ -38325,6 +38555,10 @@ void main() {
     function startRaid() {
       if (G.raid && G.raid.active) return;
       const A = POI.altar;
+      if (G.story && !G.demo && ST.ch < RAID_CH) {
+        hud.toast("\uC544\uC9C1 \uC81C\uB2E8\uC758 \uBD09\uC778\uC774 \uD480\uB9AC\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uC774\uC57C\uAE30\uB97C \uBA3C\uC800 \uC9C4\uD589\uD558\uC138\uC694.", "info");
+        return;
+      }
       const B = spawn2("boss", "demon_lord", A.clone(), { scale: 2.6, name: "\uC5FC\uC625\uC758 \uAD70\uC8FC \uBC1C\uCE74\uB974", level: 60, hp: G.demo ? 26e4 : 95e3, atk: 150, speed: 3.2, r: 2.6, range: 7.5, yaw: 0 });
       if (!B) return;
       B.threat = /* @__PURE__ */ new Map();
@@ -38340,9 +38574,12 @@ void main() {
       } catch (e) {
       }
       S2("boss_roar");
+      S2("raid_horn", { delay: 0.5 });
+      S2("battle_cry", { delay: 1.8, volume: 0.7 });
       engine.shake(0.9, 1.2);
       engine.flash(16728080, 0.4);
       sound && sound.bgm && sound.bgm("bgm_boss", { fade: 1.5 });
+      sound && sound.ambient && sound.ambient("amb_altar", { fade: 1.5, volume: 0.7 });
       hud.notice("\uC7BF\uBD88 \uC81C\uB2E8\uC5D0 \uC5FC\uC625\uC758 \uAD70\uC8FC \uBC1C\uCE74\uB974\uAC00 \uAC15\uB9BC\uD588\uC2B5\uB2C8\uB2E4! \uBB38\uD30C\uC6D0\uB4E4\uC740 \uC9D1\uACB0\uD558\uC2ED\uC2DC\uC624!", "boss");
       hud.setBoss({ name: B.name, title: "\uC5FC\uC625\uC758 \uAD70\uC8FC", hp: B.hp, hpMax: B.hpMax, phase: 1, phases: 3 });
       chat && chat.event("bossSpawn", { boss: "\uBC1C\uCE74\uB974", zone: "\uC7BF\uBD88 \uC81C\uB2E8" });
@@ -38412,6 +38649,8 @@ void main() {
       if (ph !== B.phase) {
         B.phase = ph;
         S2("boss_roar");
+        S2("raid_horn", { delay: 0.8, volume: 0.7, rate: 0.9 });
+        S2("battle_cry", { delay: 1.6, volume: 0.5 });
         engine.shake(0.8, 1);
         engine.flash(16723984, 0.35);
         hud.notice(ph === 2 ? "\uBC1C\uCE74\uB974\uAC00 \uBD84\uB178\uD569\uB2C8\uB2E4! \uD654\uC5FC\uC774 \uAC70\uC138\uC9D1\uB2C8\uB2E4!" : "\uBC1C\uCE74\uB974\uAC00 \uAD11\uD3ED\uD574\uC84C\uC2B5\uB2C8\uB2E4! \uBAA8\uB450 \uBC84\uD168\uB77C!", "boss");
@@ -38452,6 +38691,10 @@ void main() {
       if (d > B.range) {
         stepTo(B, tg.pos, dt, B.speed, B.range * 0.8);
         B.ch.play("walk");
+        if ((B.stepT = (B.stepT || 0) - dt) <= 0) {
+          B.stepT = 0.66;
+          S2("boss_step", { pos: B.pos, volume: 0.75 });
+        }
         return;
       }
       face(B, tg.pos, dt, 3);
@@ -38475,6 +38718,7 @@ void main() {
                 vfx.meteor(pos.clone().setY(0.62), { delay: 1.3, radius: 2.6 });
               } catch (e) {
               }
+              S2("meteor_fall", { pos, volume: 0.8 });
               bossTelegraph(B, pos, 2.8, 1.3, 240, "meteor");
             }, i * 160);
           }
@@ -38499,6 +38743,7 @@ void main() {
           }
         };
       }
+      if (c !== "skill2") S2("boss_swing", { pos: B.pos, rate: c === "skill1" ? 0.55 : 0.8, delay: c === "skill1" ? 0.35 : 0.15 });
       B.atkDur = B.ch.play(c, { loop: false, restart: true, fade: 0.15 });
       B.hitAt = B.ch.event(c, "hit") ?? B.ch.event(c, "cast") ?? B.atkDur * 0.5;
       B.hitDone = false;
@@ -38516,8 +38761,11 @@ void main() {
       }, 1600);
       engine.flash(16777215, 0.7);
       engine.shake(1.2, 1.6);
-      S2("boss_roar");
-      S2("levelup");
+      S2("boss_death");
+      S2("boss_slam", { delay: 0.9 });
+      S2("raid_victory", { delay: 1.6 });
+      S2("cheer", { delay: 2.6, volume: 0.9 });
+      S2("battle_cry", { delay: 3, volume: 0.45 });
       for (let i = 0; i < 9; i++) setTimeout(() => {
         const p = V(B.pos.x + rand(-7, 7), B.pos.z + rand(-7, 7));
         try {
@@ -38547,6 +38795,9 @@ void main() {
         gainExp(1800);
         G.events.push("raidDone");
         sound && sound.bgm && sound.bgm("bgm_field", { fade: 2 });
+        setTimeout(() => {
+          ST.raidOk = true;
+        }, 9e3);
       }, 3200);
       setTimeout(() => {
         for (const b of bots) if (b.role === "raid") {
@@ -38633,7 +38884,7 @@ void main() {
         if (G.time > 1) hud.zoneBanner(z.name, z.sub);
         if (sound && sound.bgm && !(G.raid && G.raid.active)) {
           sound.bgm(z.id === "town" ? "bgm_town" : z.id === "altar" ? "bgm_boss" : "bgm_field", { fade: 2 });
-          sound.ambient && sound.ambient(z.id === "town" ? "amb_town" : z.id === "altar" ? null : "amb_forest", { fade: 2, volume: 0.5 });
+          sound.ambient && sound.ambient(z.id === "town" ? "amb_town" : z.id === "altar" ? "amb_altar" : z.id === "grave" ? "amb_grave" : "amb_forest", { fade: 2, volume: z.id === "altar" ? 0.45 : z.id === "grave" ? 0.7 : 0.5 });
         }
       }
     }
@@ -38657,7 +38908,7 @@ void main() {
       P2.target = null;
       hud.setTarget(null);
       P2.chase = false;
-      P2.wantSmith = false;
+      P2.wantNpc = null;
       clickMove = null;
       P2.moveTo = q.route.shift();
       P2.speed = 9;
@@ -38670,46 +38921,82 @@ void main() {
       if (msg) hud.toast(msg, "info");
       quest.show();
     }
+    const HUNT = { werewolf: POI.forest, orc_warrior: POI.orcCamp, skeleton_knight: POI.grave };
+    const RAID_CH = CHAPTERS.findIndex((c) => c.obj.type === "raid");
+    const raidSpot = () => new Vector3(POI.altar.x + 3, 0, POI.altar.z + 24);
+    function questPlan(id) {
+      if (id === "story") {
+        if (!G.story || ST.ch >= CHAPTERS.length) return null;
+        const c = CHAPTERS[ST.ch], o = c.obj, name2 = c.title;
+        if (o.type === "talk") return { kind: "talk", npc: o.npc, dest: NPCS[o.npc].stand, name: name2 };
+        if (o.type === "kill") return { kind: "hunt", tag: o.tag, dest: HUNT[o.tag], name: name2 };
+        if (o.type === "level") {
+          const tag = P2.level < 4 ? "werewolf" : P2.level < 8 ? "orc_warrior" : "skeleton_knight";
+          return { kind: "hunt", tag, dest: HUNT[tag], name: name2 };
+        }
+        if (o.type === "enh") {
+          if (P2.scrolls <= 0) return { err: "\uAC15\uD654 \uC8FC\uBB38\uC11C\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4. \uC0AC\uB0E5\uC73C\uB85C \uC8FC\uBB38\uC11C\uB97C \uBAA8\uC73C\uC138\uC694." };
+          return { kind: "enh", target: o.max, dest: POI.smithStand, name: name2 };
+        }
+        if (o.type === "raid") {
+          if (G.raid && G.raid.done) {
+            ST.raidOk = true;
+            return null;
+          }
+          return { kind: "raid", dest: raidSpot(), name: name2 };
+        }
+        return null;
+      }
+      if (!QN[id]) return null;
+      const name = QN[id];
+      if (id === "hunt") {
+        if (quest.n.werewolf >= 20 && quest.n.orc_warrior >= 10) return { err: "\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4." };
+        const tag = quest.n.werewolf < 20 ? "werewolf" : "orc_warrior";
+        return { kind: "hunt", daily: true, tag, dest: HUNT[tag], name };
+      }
+      if (id === "raid") {
+        if (G.raid && G.raid.done) return { err: "\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4." };
+        return { kind: "raid", dest: raidSpot(), name };
+      }
+      if (P2.plus >= 7) return { err: "\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4." };
+      if (P2.weaponName !== "\uC5EC\uBA85\uC758 \uC7A5\uAC80") return { err: "\uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." };
+      if (P2.scrolls <= 0) return { err: "\uAC15\uD654 \uC8FC\uBB38\uC11C\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4. \uC0AC\uB0E5\uC73C\uB85C \uC8FC\uBB38\uC11C\uB97C \uBAA8\uC73C\uC138\uC694." };
+      return { kind: "enh", target: 7, needDawn: true, dest: POI.smithStand, name };
+    }
     function questStart(id) {
-      if (G.demo || P2.dead || !QN[id]) return;
+      if (G.demo || P2.dead || dlgQ) return;
       if (qrun && qrun.id === id) {
         questStop("\uC758\uB8B0 \uC790\uB3D9 \uC9C4\uD589\uC744 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4.");
         if (G.auto) api.setAuto(false);
         P2.moveTo = null;
         return;
       }
-      let dest, tag = null;
-      if (id === "hunt") {
-        if (quest.n.werewolf >= 20 && quest.n.orc_warrior >= 10) return hud.toast("\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4.", "info");
-        tag = quest.n.werewolf < 20 ? "werewolf" : "orc_warrior";
-        dest = tag === "werewolf" ? POI.forest : POI.orcCamp;
-      } else if (id === "raid") {
-        if (G.raid && G.raid.done) return hud.toast("\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4.", "info");
-        dest = new Vector3(POI.altar.x + 3, 0, POI.altar.z + 24);
-      } else {
-        if (P2.plus >= 7) return hud.toast("\uC774\uBBF8 \uC644\uB8CC\uD55C \uC758\uB8B0\uC785\uB2C8\uB2E4.", "info");
-        if (P2.weaponName !== "\uC5EC\uBA85\uC758 \uC7A5\uAC80") return hud.toast("\uC5EC\uBA85\uC758 \uC7A5\uAC80\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.", "info");
-        if (P2.scrolls <= 0) return hud.toast("\uAC15\uD654 \uC8FC\uBB38\uC11C\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4. \uC0AC\uB0E5\uC73C\uB85C \uC8FC\uBB38\uC11C\uB97C \uBAA8\uC73C\uC138\uC694.", "info");
-        dest = POI.smithStand;
-      }
+      const pl = questPlan(id);
+      if (!pl) return;
+      if (pl.err) return hud.toast(pl.err, "info");
       if (qrun) questStop();
       win.close("enhance");
-      qrun = { id, tag, t: 0 };
-      questGo(qrun, dest);
-      hud.toast(`\uC758\uB8B0 [${QN[id]}] \uC790\uB3D9 \uC9C4\uD589 \u2014 \uBAA9\uC801\uC9C0\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.`, "info");
+      qrun = { id, t: 0, ...pl };
+      questGo(qrun, pl.dest);
+      hud.toast(`[${pl.name}] \uC790\uB3D9 \uC9C4\uD589 \u2014 \uBAA9\uC801\uC9C0\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.`, "info");
       quest.show();
     }
     function questArrive(q) {
       P2.speed = 6.4;
       q.phase = "do";
-      if (q.id === "hunt") {
+      if (q.kind === "hunt") {
         api.setAuto(true);
         P2.huntAnchor = q.dest.clone();
-      } else if (q.id === "raid") {
+      } else if (q.kind === "raid") {
         if (!(G.raid && G.raid.active)) startRaid();
         api.setAuto(true);
         P2.huntAnchor = POI.altar.clone();
         engine.cam.zoomTarget = 28;
+      } else if (q.kind === "talk") {
+        const id = q.npc;
+        ST.autoNext = true;
+        questStop();
+        talkTo(id);
       } else {
         face(P2, smith.pos, 1, 100);
         enh.open();
@@ -38737,35 +39024,252 @@ void main() {
         }
         return;
       }
-      if (q.id === "hunt") {
+      if (q.kind === "hunt") {
         if (!G.auto) return questStop("\uC758\uB8B0 \uC790\uB3D9 \uC9C4\uD589\uC744 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4.");
+        if (!q.daily) return;
         const max = q.tag === "werewolf" ? 20 : 10;
         if (quest.n[q.tag] >= max) {
           if (q.tag === "werewolf" && quest.n.orc_warrior < 10) {
             q.tag = "orc_warrior";
             questGo(q, POI.orcCamp);
             hud.toast("\uB291\uB300\uC778\uAC04 \uCC98\uCE58 \uC644\uB8CC \u2014 \uC624\uD06C \uC57C\uC601\uC9C0\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.", "info");
-          } else questStop("\uC758\uB8B0 [\uC232\uC758 \uC704\uD611] \uC644\uB8CC! \uC790\uB3D9\uC0AC\uB0E5\uC740 \uACC4\uC18D\uD569\uB2C8\uB2E4.");
+          } else {
+            S2("quest_done");
+            questStop("\uC758\uB8B0 [\uC232\uC758 \uC704\uD611] \uC644\uB8CC! \uC790\uB3D9\uC0AC\uB0E5\uC740 \uACC4\uC18D\uD569\uB2C8\uB2E4.");
+          }
         }
-      } else if (q.id === "raid") {
+      } else if (q.kind === "raid") {
         if (G.raid && G.raid.done) {
-          questStop("\uC758\uB8B0 [\uBC1C\uCE74\uB974 \uD1A0\uBC8C\uC804] \uC644\uB8CC!");
+          const st = q.id === "story";
+          questStop(st ? null : "\uC758\uB8B0 [\uBC1C\uCE74\uB974 \uD1A0\uBC8C\uC804] \uC644\uB8CC!");
           if (G.auto) api.setAuto(false);
+          if (st) ST.autoNext = true;
         } else if (!G.auto) questStop("\uC758\uB8B0 \uC790\uB3D9 \uC9C4\uD589\uC744 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4.");
-      } else {
-        if (P2.plus >= 7) return questStop("\uC758\uB8B0 [\uC5EC\uBA85\uC758 \uC7A5\uAC80 +7 \uB2EC\uC131] \uC644\uB8CC!");
+      } else if (q.kind === "enh") {
+        if (P2.plus >= q.target) {
+          if (q.id === "story") {
+            ST.autoNext = true;
+            return questStop();
+          }
+          S2("quest_done");
+          return questStop(`\uC758\uB8B0 [${q.name}] \uC644\uB8CC!`);
+        }
         if (enh.busy) return;
         q.t -= dt;
         if (q.t > 0) return;
-        if (P2.weaponName !== "\uC5EC\uBA85\uC758 \uC7A5\uAC80") return questStop("\uAC80\uC774 \uC99D\uBC1C\uD574 \uAC15\uD654 \uC758\uB8B0\uB97C \uACC4\uC18D\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4\u2026");
+        if (q.needDawn && P2.weaponName !== "\uC5EC\uBA85\uC758 \uC7A5\uAC80") return questStop("\uAC80\uC774 \uC99D\uBC1C\uD574 \uAC15\uD654 \uC758\uB8B0\uB97C \uACC4\uC18D\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4\u2026");
         if (P2.scrolls <= 0) return questStop("\uAC15\uD654 \uC8FC\uBB38\uC11C\uAC00 \uB5A8\uC5B4\uC84C\uC2B5\uB2C8\uB2E4. \uC0AC\uB0E5\uC73C\uB85C \uC8FC\uBB38\uC11C\uB97C \uBAA8\uC73C\uC138\uC694.");
         enh.run();
         q.t = 1;
       }
     }
+    let dlgQ = null;
+    function say(lines, done) {
+      dlgQ = { lines, i: 0, done };
+      G.talk = true;
+      P2.moveTo = null;
+      clickMove = null;
+      P2.chase = false;
+      nextLine();
+    }
+    function nextLine() {
+      const q = dlgQ;
+      if (!q) return;
+      if (q.i >= q.lines.length) {
+        dlgQ = null;
+        G.talk = false;
+        win.dialog.hide();
+        q.done && q.done();
+        return;
+      }
+      const l = q.lines[q.i++], w = WHO[l[0]] || WHO.nar, last = q.i >= q.lines.length;
+      S2("page", { volume: 0.7 });
+      win.dialog.show({
+        name: w.name === "@" ? P2.name : w.name,
+        role: w.name === "@" && P2.title ? P2.title : w.role,
+        portrait: w.portrait,
+        text: l[1].replace(/@/g, P2.name),
+        options: last ? [{ label: "\uD655\uC778", id: "next" }] : [{ label: "\uB2E4\uC74C", id: "next" }, { label: "\uAC74\uB108\uB6F0\uAE30", id: "skip" }],
+        escId: "skip"
+      });
+    }
+    ui.on("dialog", (id) => {
+      if (!dlgQ) return;
+      if (id === "skip") dlgQ.i = dlgQ.lines.length;
+      nextLine();
+    });
+    const IDLE = { liena: "\uC81C\uB2E8 \uCABD \uD558\uB298\uC5D0\uC11C \uB208\uC744 \uB5BC\uC9C0 \uB9C8. \uD544\uC694\uD55C \uAC8C \uC788\uC73C\uBA74 \uC758\uB8B0\uCC3D\uC744 \uD655\uC778\uD558\uACE0.", orben: "\uAE30\uB85D\uC740 \uAC70\uC9D3\uB9D0\uC744 \uD558\uC9C0 \uC54A\uB124. \uC0AC\uB78C\uC774 \uC78A\uC744 \uBFD0\uC774\uC9C0.", brom: "\uC1E0\uB294 \uC815\uC9C1\uD558\uB2E4\uB124. \uC6B4\uC740 \uADF8\uB807\uC9C0 \uC54A\uC9C0\uB9CC." };
+    function talkTo(id) {
+      const n = NPCS[id];
+      if (!n || dlgQ || G.demo) return;
+      if (n.ent) face(P2, n.ent.pos, 1, 100);
+      const c = G.story && CHAPTERS[ST.ch];
+      if (c && c.obj.type === "talk" && c.obj.npc === id) return finishChapter();
+      if (id === "brom") return enh.open();
+      say([[id, IDLE[id]]]);
+    }
+    function grant(r) {
+      if (!r) return;
+      if (r.weapon) {
+        P2.weaponName = r.weapon;
+        P2.plus = 0;
+        try {
+          glow && glow.setLevel(0);
+        } catch (e) {
+        }
+        hud.loot({ icon: 0, name: r.weapon, count: 1, rarity: "epic" });
+        try {
+          vfx.buff(P2.ch.root, { color: 10473727, duration: 2.5 });
+        } catch (e) {
+        }
+      }
+      if (r.gold) {
+        P2.gold += r.gold;
+        hud.loot({ icon: 14, name: "\uAE08\uD654", count: r.gold, rarity: "common" });
+      }
+      if (r.scrolls) {
+        P2.scrolls += r.scrolls;
+        hud.loot({ icon: 11, name: "\uBB34\uAE30 \uAC15\uD654 \uC8FC\uBB38\uC11C", count: r.scrolls, rarity: "rare" });
+      }
+      if (r.potions) {
+        P2.potions.hp += r.potions.hp || 0;
+        P2.potions.mp += r.potions.mp || 0;
+        hud.setPotions(P2.potions);
+        hud.loot({ icon: 9, name: "\uBE68\uAC04 \uBB3C\uC57D", count: r.potions.hp || 0, rarity: "common" });
+      }
+      if (r.title) {
+        P2.title = r.title;
+        hud.notice(`\uCE6D\uD638 [${r.title}]\uC744 \uC5BB\uC5C8\uC2B5\uB2C8\uB2E4!`, "info");
+      }
+      if (r.exp) gainExp(r.exp);
+      refreshPlayerUI();
+      refreshWindows();
+    }
+    function finishChapter() {
+      const c = CHAPTERS[ST.ch];
+      if (!c || dlgQ) return;
+      if (qrun && qrun.id === "story") {
+        ST.autoNext = true;
+        questStop();
+      }
+      if (G.auto) api.setAuto(false);
+      P2.target = null;
+      hud.setTarget(null);
+      say(c.done || [], () => {
+        const no = ST.ch + 1;
+        ST.ch++;
+        ST.n = 0;
+        ST.started = false;
+        ST.raidOk = false;
+        S2("quest_done");
+        engine.flash(16773824, 0.25);
+        hud.notice(`\uC774\uC57C\uAE30 ${no}\uC7A5 \u300C${c.title}\u300D \uC644\uB8CC!`, "info");
+        hud.chat.add({ channel: "system", text: `\uC774\uC57C\uAE30 ${no}\uC7A5 \u300C${c.title}\u300D\uC744 \uB9C8\uCCE4\uC2B5\uB2C8\uB2E4.` });
+        grant(c.reward);
+        quest.show();
+        G.events.push("story:" + ST.ch);
+        if (ST.ch >= CHAPTERS.length) {
+          ST.autoNext = false;
+          hud.notice("\u3008\uC0AC\uC790\uC758 \uB9F9\uC138\u3009 \uC644\uACB0! \uC774\uC81C \uC77C\uC77C\xB7\uBB38\uD30C \uC758\uB8B0\uB97C \uC790\uC720\uB86D\uAC8C \uC990\uAE30\uC138\uC694.", "info");
+        }
+      });
+    }
+    let stT = 0;
+    function storyCheck(dt) {
+      if (!G.story || G.demo || (stT -= dt) > 0) return;
+      stT = 0.4;
+      if (dlgQ || P2.dead || enh.busy || ST.ch >= CHAPTERS.length) return;
+      if (!ST.seen) return say(PROLOGUE, () => {
+        ST.seen = true;
+        G.events.push("story:prologue");
+      });
+      const c = CHAPTERS[ST.ch], o = c.obj;
+      if (!ST.started) {
+        const go = () => {
+          ST.started = true;
+          if (ST.autoNext) {
+            ST.autoNext = false;
+            questStart("story");
+          }
+        };
+        if (c.start && c.start.length) return say(c.start, go);
+        go();
+      }
+      const ok2 = o.type === "kill" ? ST.n >= o.max : o.type === "enh" ? P2.plus >= o.max : o.type === "level" ? P2.level >= o.max : o.type === "raid" ? ST.raidOk : false;
+      if (ok2) finishChapter();
+    }
+    ui.on("raidResultClose", () => {
+      if (G.raid && G.raid.done) ST.raidOk = true;
+    });
+    function loadProfile(d) {
+      G.story = true;
+      P2.name = d.name || P2.name;
+      P2.level = Math.max(1, d.level | 0);
+      P2.exp = +d.exp || 0;
+      P2.gold = d.gold | 0;
+      P2.plus = d.plus | 0;
+      P2.weaponName = d.weapon || "\uB0A1\uC740 \uC7A5\uAC80";
+      P2.scrolls = d.scrolls | 0;
+      P2.potions = { hp: (d.potions && d.potions.hp) | 0, mp: (d.potions && d.potions.mp) | 0 };
+      P2.kills = d.kills | 0;
+      P2.title = d.title || null;
+      P2.played = d.played || 0;
+      recalc();
+      P2.hp = P2.hpMax;
+      P2.mp = P2.mpMax;
+      P2.buffT = 0;
+      const st = d.story || {};
+      ST.ch = Math.min(CHAPTERS.length, st.ch | 0);
+      ST.n = st.n | 0;
+      ST.seen = !!st.seen;
+      ST.started = !!st.started;
+      ST.raidOk = false;
+      ST.autoNext = false;
+      quest.n = { werewolf: (d.daily && d.daily.werewolf) | 0, orc_warrior: (d.daily && d.daily.orc_warrior) | 0 };
+      for (const m of spawnPts) {
+        const v = STORY_MON[m.tag];
+        if (v) {
+          m.level = v.level;
+          m.hpMax = m.hp = v.hp;
+          m.atk = v.atk;
+        }
+      }
+      for (const z of ZONES) {
+        if (z.id === "forest") z.sub = "\uAD8C\uC7A5 \uB808\uBCA8 1~8";
+        if (z.id === "grave") z.sub = "\uAD8C\uC7A5 \uB808\uBCA8 8~12";
+        if (z.id === "altar") z.sub = "\uB808\uC774\uB4DC \uAD6C\uC5ED \xB7 \uAD8C\uC7A5 \uB808\uBCA8 12";
+      }
+      try {
+        glow && glow.setLevel(P2.plus);
+      } catch (e) {
+      }
+      hud.setSkills(skillState());
+      hud.setPotions(P2.potions);
+      refreshPlayerUI();
+      refreshWindows();
+      quest.show();
+    }
+    function snapshot() {
+      return {
+        v: 1,
+        name: P2.name,
+        level: P2.level,
+        exp: P2.exp,
+        gold: P2.gold,
+        plus: P2.plus,
+        weapon: P2.weaponName,
+        scrolls: P2.scrolls,
+        potions: { hp: P2.potions.hp, mp: P2.potions.mp },
+        kills: P2.kills,
+        story: { ch: ST.ch, n: ST.n, seen: ST.seen, started: ST.started },
+        daily: { ...quest.n },
+        title: P2.title || null,
+        played: (P2.played || 0) + G.time
+      };
+    }
     const ray = new Raycaster(), ndc = new Vector2(), plane = new Plane(new Vector3(0, 1, 0), 0);
     function onDown(ev) {
-      if (G.demo || ev.target !== engine.renderer.domElement) return;
+      if (G.demo || G.talk || ev.target !== engine.renderer.domElement) return;
       const rc = engine.renderer.domElement.getBoundingClientRect();
       ndc.set((ev.clientX - rc.left) / rc.width * 2 - 1, -((ev.clientY - rc.top) / rc.height * 2 - 1));
       ray.setFromCamera(ndc, engine.camera);
@@ -38785,9 +39289,11 @@ void main() {
         setTarget(best);
         P2.chase = true;
         clickMove = null;
-      } else if (best && best === smith) {
-        P2.moveTo = POI.smithStand.clone();
-        P2.wantSmith = true;
+      } else if (best && Object.values(NPCS).some((v) => v.ent === best)) {
+        const id = Object.keys(NPCS).find((k) => NPCS[k].ent === best);
+        P2.moveTo = NPCS[id].stand.clone();
+        P2.wantNpc = id;
+        clickMove = null;
       } else {
         clickMove = hit2;
         P2.chase = false;
@@ -38824,7 +39330,7 @@ void main() {
     addEventListener("keyup", (e) => {
       keys[e.code] = false;
     });
-    ui.on("skill", castSkill);
+    ui.on("skill", (id) => castSkill(id));
     ui.on("attack", () => {
       const t = P2.target && !P2.target.dead ? P2.target : nearestMonster(P2.pos, 8);
       if (t) {
@@ -38855,10 +39361,16 @@ void main() {
     const api = {
       G,
       P: P2,
+      ST,
       POI,
       bots,
       smith,
       enh,
+      loadProfile,
+      snapshot,
+      questStart,
+      talkTo,
+      finishChapter,
       startRaid,
       castSkill,
       teleport: teleport2,
@@ -38889,11 +39401,12 @@ void main() {
         G.time += dt;
         updPlayer(dt);
         updQuest(dt);
-        if (P2.wantSmith && dist2(P2.pos, POI.smithStand) < 1.2) {
-          P2.wantSmith = false;
-          face(P2, smith.pos, 1, 100);
-          enh.open();
+        if (P2.wantNpc && dist2(P2.pos, NPCS[P2.wantNpc].stand) < 1.3) {
+          const id = P2.wantNpc;
+          P2.wantNpc = null;
+          talkTo(id);
         }
+        storyCheck(rawDt);
         for (const e of G.ents) {
           if (e.flashT > 0) {
             e.flashT -= rawDt;
@@ -38930,7 +39443,7 @@ void main() {
         if ((mmT -= rawDt) <= 0) {
           mmT = 0.12;
           drawMinimap();
-          for (const s of SKILLS) hud.updateSkill(s.id, { cdLeft: Math.max(0, P2.cds[s.id] || 0), enabled: P2.mp >= s.mp, active: P2.state === "skill" && P2.skill === s.id });
+          for (const s of SKILLS) hud.updateSkill(s.id, { cdLeft: Math.max(0, P2.cds[s.id] || 0), enabled: P2.mp >= s.mp && unlocked(s), active: P2.state === "skill" && P2.skill === s.id });
           if (P2.buffT > 0) hud.setBuffs([{ id: "roar", icon: 6, name: "\uC0AC\uC790\uD6C4", remain: P2.buffT, total: 15 }]);
           else if (P2.hadBuff) hud.setBuffs([]);
           P2.hadBuff = P2.buffT > 0;
@@ -39586,6 +40099,7 @@ void main() {
     ["skills", "\uC2A4\uD0AC", '<path d="M12 3l2.6 5.7 6.1.7-4.5 4.2 1.2 6.1-5.4-3.1-5.4 3.1 1.2-6.1L3.3 9.4l6.1-.7z"/>'],
     ["guild", "\uBB38\uD30C", '<path d="M6 21V3.5"/><path d="M6 4.5h12l-2.8 3.8L18 12H6"/>'],
     ["fullscreen", "\uC804\uCCB4\uD654\uBA74", '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>'],
+    ["logout", "\uB098\uAC00\uAE30", '<path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/>'],
     ["settings", "\uC124\uC815", '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/>']
   ];
   var BOSS_COL = [
@@ -40760,7 +41274,7 @@ void main() {
         }
       }
     }
-    function open(name) {
+    function open2(name) {
       const w = wins[name];
       if (!w) return false;
       clearTimeout(w.timer);
@@ -40798,7 +41312,7 @@ void main() {
       return true;
     }
     const isOpen = (name) => !!(wins[name] && wins[name].open);
-    const toggle = (name) => isOpen(name) ? close(name) : open(name);
+    const toggle = (name) => isOpen(name) ? close(name) : open2(name);
     function closeAll() {
       for (const n of openOrder.slice()) close(n);
     }
@@ -41156,34 +41670,34 @@ void main() {
           b.addEventListener("click", () => emit("dialog", o.id));
           box.appendChild(b);
         });
-        const tx = dlgEl.querySelector(".w-dlg-text"), full = String(d.text || "");
+        const tx2 = dlgEl.querySelector(".w-dlg-text"), full = String(d.text || "");
         let n = 0;
         const done = () => {
           clearInterval(dlgTimer);
-          tx.textContent = full;
+          tx2.textContent = full;
         };
-        if (d.instant) tx.textContent = full;
+        if (d.instant) tx2.textContent = full;
         else dlgTimer = setInterval(() => {
           n += 2;
           if (n >= full.length) done();
           else {
-            tx.textContent = full.slice(0, n);
-            tx.scrollTop = tx.scrollHeight;
+            tx2.textContent = full.slice(0, n);
+            tx2.scrollTop = tx2.scrollHeight;
           }
         }, 24);
-        tx.addEventListener("click", done);
+        tx2.addEventListener("click", done);
         L["dlg-layer"].appendChild(dlgEl);
         liftWins();
         const more = (el) => el.classList.toggle("more", el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2);
-        for (const el of [tx, box]) {
+        for (const el of [tx2, box]) {
           more(el);
           el.addEventListener("scroll", () => more(el));
         }
         if (!d.instant) {
           const t0 = dlgTimer, iv = setInterval(() => {
-            if (!dlgEl || dlgTimer !== t0 || tx.textContent.length >= full.length) {
+            if (!dlgEl || dlgTimer !== t0 || tx2.textContent.length >= full.length) {
               clearInterval(iv);
-              if (dlgEl && dlgTimer === t0) more(tx);
+              if (dlgEl && dlgTimer === t0) more(tx2);
             }
           }, 200);
         }
@@ -41511,11 +42025,11 @@ void main() {
             el.style.cssText = `background-image:${bg.replace(/"/g, "'")};background-size:${bs};background-position:${bp};clip-path:polygon(${a[0].toFixed(1)}px ${a[1].toFixed(1)}px,${b[0].toFixed(1)}px ${b[1].toFixed(1)}px,${d2[0].toFixed(1)}px ${d2[1].toFixed(1)}px);transform-origin:${mx.toFixed(1)}px ${my.toFixed(1)}px`;
             box.appendChild(el);
             const dx = mx - S2 / 2, dy = my - S2 / 2, dl = Math.hypot(dx, dy) || 1, sp = rnd3(90, 330) * (0.7 + dl / 96 * 0.6), ang = Math.atan2(dy, dx) + rnd3(-0.35, 0.35);
-            const tx = Math.cos(ang) * sp, ty = Math.sin(ang) * sp, rot = rnd3(-720, 720), ax = `${rnd3(-1, 1).toFixed(2)},${rnd3(-1, 1).toFixed(2)},${rnd3(0.2, 1).toFixed(2)}`;
+            const tx2 = Math.cos(ang) * sp, ty = Math.sin(ang) * sp, rot = rnd3(-720, 720), ax = `${rnd3(-1, 1).toFixed(2)},${rnd3(-1, 1).toFixed(2)},${rnd3(0.2, 1).toFixed(2)}`;
             A(el, [
               { transform: "translate(0,0) rotate3d(0,0,1,0deg) scale(1)", opacity: 1, easing: "cubic-bezier(.05,.75,.3,1)" },
-              { transform: `translate(${(tx * 0.82).toFixed(0)}px,${(ty * 0.82 - 16).toFixed(0)}px) rotate3d(${ax},${(rot * 0.7).toFixed(0)}deg) scale(1.05)`, opacity: 1, offset: 0.5, easing: "ease-in" },
-              { transform: `translate(${tx.toFixed(0)}px,${(ty + rnd3(160, 380)).toFixed(0)}px) rotate3d(${ax},${rot.toFixed(0)}deg) scale(.7)`, opacity: 0 }
+              { transform: `translate(${(tx2 * 0.82).toFixed(0)}px,${(ty * 0.82 - 16).toFixed(0)}px) rotate3d(${ax},${(rot * 0.7).toFixed(0)}deg) scale(1.05)`, opacity: 1, offset: 0.5, easing: "ease-in" },
+              { transform: `translate(${tx2.toFixed(0)}px,${(ty + rnd3(160, 380)).toFixed(0)}px) rotate3d(${ax},${rot.toFixed(0)}deg) scale(.7)`, opacity: 0 }
             ], { duration: rnd3(1e3, 1500), easing: "linear" });
           };
           for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
@@ -41738,7 +42252,7 @@ void main() {
     return {
       loading: loading3,
       title,
-      open,
+      open: open2,
       close,
       toggle,
       isOpen,
@@ -42331,14 +42845,14 @@ void main() {
     return P;
   }
   var _c = new Color();
-  function pcol(hex, mul = 1) {
-    _c.setHex(hex);
+  function pcol(hex2, mul = 1) {
+    _c.setHex(hex2);
     P.r = _c.r * mul;
     P.g = _c.g * mul;
     P.b = _c.b * mul;
   }
-  function pcol1(hex, mul = 1) {
-    _c.setHex(hex);
+  function pcol1(hex2, mul = 1) {
+    _c.setHex(hex2);
     P.r1 = _c.r * mul;
     P.g1 = _c.g * mul;
     P.b1 = _c.b * mul;
@@ -43201,11 +43715,11 @@ void main() {
       u2.uRot.value = -t * 0.8;
       u1.uOpacity.value = env;
       u2.uOpacity.value = env * 0.7;
-      const pulse = 0.85 + 0.15 * Math.sin(t * 18), open = easeOut3(clamp012(t / 0.25)), bo = clamp012((2.3 - t) / 0.9);
-      b1.scale.set(1.25 * open * (0.75 + 0.25 * bo), 10, 1.25 * open * (0.75 + 0.25 * bo));
+      const pulse = 0.85 + 0.15 * Math.sin(t * 18), open2 = easeOut3(clamp012(t / 0.25)), bo = clamp012((2.3 - t) / 0.9);
+      b1.scale.set(1.25 * open2 * (0.75 + 0.25 * bo), 10, 1.25 * open2 * (0.75 + 0.25 * bo));
       b1.material.uniforms.uOpacity.value = bo * pulse * 0.6;
       b1.material.uniforms.uTime.value += dt;
-      b2.scale.set(0.45 * open * bo + 0.02, 12, 0.45 * open * bo + 0.02);
+      b2.scale.set(0.45 * open2 * bo + 0.02, 12, 0.45 * open2 * bo + 0.02);
       b2.material.uniforms.uOpacity.value = bo * 0.8;
       b2.material.uniforms.uTime.value += dt;
       b3.material.uniforms.uOpacity.value = env * 0.7;
@@ -43448,8 +43962,8 @@ void main() {
     let acc = 0;
     const e = run(dur, (k, dt, e2) => {
       const t = e2.t, env = clamp012(t / 0.25) * clamp012((e2.dur - t) / 0.6), pulse = 0.8 + 0.2 * Math.sin(t * 5);
-      const open = easeOut3(clamp012(t / 0.3));
-      b1.scale.set(0.16 * open, 8, 0.16 * open);
+      const open2 = easeOut3(clamp012(t / 0.3));
+      b1.scale.set(0.16 * open2, 8, 0.16 * open2);
       b1.material.uniforms.uOpacity.value = env * pulse;
       b2.material.uniforms.uOpacity.value = env * 0.4;
       b1.material.uniforms.uTime.value += dt;
@@ -43878,8 +44392,8 @@ void main() {
     });
     return { setActive(on) {
       active = !!on;
-    }, setColor(hex) {
-      mat.uniforms.uColor.value.setHex(hex);
+    }, setColor(hex2) {
+      mat.uniforms.uColor.value.setHex(hex2);
     }, dispose() {
       e.dead = true;
     } };
@@ -47150,6 +47664,123 @@ void main() {
       artist: "Bjorn Lynne",
       url: "https://artlist.io/sfx/track/its-magical---blast-shimmer-sparkling/103413",
       songId: "103413"
+    },
+    raid_horn: {
+      file: "assets/audio/raid_horn.mp3",
+      kind: "sfx",
+      duration: 4.93,
+      title: "Warfare Transitions - Bugle Phrase, War Horn",
+      artist: "Ni Sound",
+      url: "https://artlist.io/sfx/track/warfare-transitions---bugle-phrase-war-horn-/71850",
+      songId: "71850"
+    },
+    meteor_fall: {
+      file: "assets/audio/meteor_fall.mp3",
+      kind: "sfx",
+      duration: 1.86,
+      title: "RPG Game - Incoming Fireball",
+      artist: "Alberto Sueri",
+      url: "https://artlist.io/sfx/track/rpg-game---incoming-fireball-/94330",
+      songId: "94330"
+    },
+    boss_step: {
+      file: "assets/audio/boss_step.mp3",
+      kind: "sfx",
+      duration: 3.3,
+      title: "Mythical Creatures - Impact, Giant, Heavy Stomp",
+      artist: "Silence+Other Sounds",
+      url: "https://artlist.io/sfx/track/mythical-creatures---impact-giant-heavy-stomp-/64094",
+      songId: "64094"
+    },
+    boss_death: {
+      file: "assets/audio/boss_death.mp3",
+      kind: "sfx",
+      duration: 2.46,
+      title: "Monster Mash - Minotaur Moan, Long",
+      artist: "SoundBits",
+      url: "https://artlist.io/sfx/track/monster-mash---minotaur-moan-long/91163",
+      songId: "91163"
+    },
+    raid_victory: {
+      file: "assets/audio/raid_victory.mp3",
+      kind: "sfx",
+      duration: 5.35,
+      title: "Cinematic Logos - Trumpet Phrase, Victory Fanfare",
+      artist: "Tomas Herudek",
+      url: "https://artlist.io/sfx/track/cinematic-logos---trumpet-phrase-victory-fanfare-/36879",
+      songId: "36879"
+    },
+    amb_altar: {
+      file: "assets/audio/amb_altar.mp3",
+      kind: "amb",
+      duration: 20,
+      title: "Designed Fire - Blazing Inferno, Rumbling, Crackling",
+      artist: "Gregor Quendel",
+      url: "https://artlist.io/sfx/track/designed-fire---blazing-inferno-rumbling-crackling/74221",
+      songId: "74221"
+    },
+    boss_swing: {
+      file: "assets/audio/boss_swing.mp3",
+      kind: "sfx",
+      duration: 0.74,
+      title: "Cinematic Transitions - Light Airy Whoosh, Swift",
+      artist: "Krotos",
+      url: "https://artlist.io/sfx/track/cinematic-transitions---light-airy-whoosh-swift/68217",
+      songId: "68217"
+    },
+    battle_cry: {
+      file: "assets/audio/battle_cry.mp3",
+      kind: "sfx",
+      duration: 8.51,
+      title: "Energetic Crowds - Battle Cry, Attack Screams, Cheering Aggressively",
+      artist: "BOOM Library",
+      url: "https://artlist.io/sfx/track/energetic-crowds---battle-cry-attack-screams-cheering-aggressively/69850",
+      songId: "69850"
+    },
+    cheer: {
+      file: "assets/audio/cheer.mp3",
+      kind: "sfx",
+      duration: 2.5,
+      title: "Crowd, joyfully cheering, 01",
+      artist: "Clap Studios",
+      url: "https://artlist.io/sfx/track/crowd-joyfully-cheering-01/19765",
+      songId: "19765"
+    },
+    quest_done: {
+      file: "assets/audio/quest_done.mp3",
+      kind: "sfx",
+      duration: 3.62,
+      title: "Heartwarming Transitions - Pizzicato Strings, Sparkly Chimes, Positive",
+      artist: "Ni Sound",
+      url: "https://artlist.io/sfx/track/heartwarming-transitions---pizzicato-strings-sparkly-chimes-positive-/71627",
+      songId: "71627"
+    },
+    ui_open: {
+      file: "assets/audio/ui_open.mp3",
+      kind: "sfx",
+      duration: 0.62,
+      title: "RPG Game - Close Menu Interface",
+      artist: "Alberto Sueri",
+      url: "https://artlist.io/sfx/track/rpg-game---close-menu-interface/94361",
+      songId: "94361"
+    },
+    page: {
+      file: "assets/audio/page.mp3",
+      kind: "sfx",
+      duration: 1.4,
+      title: "Magical Game UI - Menu, Old Book Scroll",
+      artist: "Unrealsfx",
+      url: "https://artlist.io/sfx/track/magical-game-ui---menu-old-book-scroll/63351",
+      songId: "63351"
+    },
+    amb_grave: {
+      file: "assets/audio/amb_grave.mp3",
+      kind: "amb",
+      duration: 20,
+      title: "Fantasy Soundscapes - Spooky Graveyard, Howling Wind, Crows, Rumble",
+      artist: "Alberto Sueri",
+      url: "https://artlist.io/sfx/track/fantasy-soundscapes---spooky-graveyard-howling-wind-crows-rumble/94285",
+      songId: "94285"
     }
   };
 
@@ -47184,7 +47815,18 @@ void main() {
     footstep: { v: 0.3, max: 3, gap: 0.08, jit: 0.12 },
     magic_cast: { v: 0.75, max: 3, gap: 0.08, jit: 0.05 },
     arrow_shot: { v: 0.7, max: 4, gap: 0.05, jit: 0.06 },
-    teleport: { v: 0.8, max: 2, gap: 0.2, jit: 0.02 }
+    teleport: { v: 0.8, max: 2, gap: 0.2, jit: 0.02 },
+    raid_horn: { v: 0.9, max: 1, gap: 1, jit: 0 },
+    battle_cry: { v: 0.8, max: 1, gap: 2, jit: 0.03 },
+    meteor_fall: { v: 0.75, max: 3, gap: 0.12, jit: 0.08 },
+    boss_step: { v: 0.8, max: 2, gap: 0.3, jit: 0.08 },
+    boss_swing: { v: 1, max: 2, gap: 0.2, jit: 0.06 },
+    boss_death: { v: 1, max: 1, gap: 1, jit: 0 },
+    raid_victory: { v: 0.95, max: 1, gap: 2, jit: 0 },
+    cheer: { v: 0.8, max: 1, gap: 1, jit: 0.03 },
+    quest_done: { v: 0.8, max: 1, gap: 0.5, jit: 0 },
+    ui_open: { v: 0.55, max: 2, gap: 0.08, jit: 0.02 },
+    page: { v: 0.7, max: 2, gap: 0.1, jit: 0.05 }
   };
   var MAX_VOICES = 28;
   var REF_DIST = 7;
@@ -47639,6 +48281,300 @@ void main() {
     }
   };
 
+  // src/core/db.js
+  var DB_NAME = "erheim_db";
+  var DB_VER = 1;
+  var dbp = null;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((resolve, reject) => {
+      let rq;
+      try {
+        rq = indexedDB.open(DB_NAME, DB_VER);
+      } catch (e) {
+        reject(e);
+        return;
+      }
+      rq.onupgradeneeded = () => {
+        const db = rq.result;
+        if (!db.objectStoreNames.contains("accounts")) db.createObjectStore("accounts", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("characters")) db.createObjectStore("characters", { keyPath: "account" });
+      };
+      rq.onsuccess = () => resolve(rq.result);
+      rq.onerror = () => reject(rq.error || new Error("\uB370\uC774\uD130\uBCA0\uC774\uC2A4\uB97C \uC5F4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."));
+      rq.onblocked = () => reject(new Error("\uB370\uC774\uD130\uBCA0\uC774\uC2A4\uAC00 \uB2E4\uB978 \uD0ED\uC5D0\uC11C \uC0AC\uC6A9 \uC911\uC785\uB2C8\uB2E4."));
+    });
+    dbp.catch(() => {
+      dbp = null;
+    });
+    return dbp;
+  }
+  function tx(store, mode, fn) {
+    return open().then((db) => new Promise((resolve, reject) => {
+      const t = db.transaction(store, mode);
+      let out;
+      const rq = fn(t.objectStore(store));
+      if (rq) rq.onsuccess = () => {
+        out = rq.result;
+      };
+      t.oncomplete = () => resolve(out);
+      t.onerror = t.onabort = () => reject(t.error || new Error("\uC800\uC7A5\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4."));
+    }));
+  }
+  var hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  function randomSalt() {
+    const a = new Uint8Array(16);
+    (globalThis.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : a.forEach((_, i) => {
+      a[i] = Math.random() * 256 | 0;
+    });
+    return hex(a);
+  }
+  function sha256(bytes) {
+    const K = [];
+    let n = 0;
+    for (let c = 2; n < 64; c++) {
+      let p = true;
+      for (let i = 2; i * i <= c; i++) if (c % i === 0) {
+        p = false;
+        break;
+      }
+      if (p) K[n++] = Math.pow(c, 1 / 3) * 4294967296 | 0;
+    }
+    const H = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225];
+    const l = bytes.length, total = l + 9 + 63 >> 6 << 6, m = new Uint8Array(total);
+    m.set(bytes);
+    m[l] = 128;
+    const dv = new DataView(m.buffer);
+    dv.setUint32(total - 4, l * 8);
+    dv.setUint32(total - 8, Math.floor(l / 536870912));
+    const w = new Int32Array(64), r = (x, k) => x >>> k | x << 32 - k;
+    for (let o = 0; o < total; o += 64) {
+      for (let i = 0; i < 16; i++) w[i] = dv.getInt32(o + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const a2 = w[i - 15], b2 = w[i - 2];
+        w[i] = w[i - 16] + (r(a2, 7) ^ r(a2, 18) ^ a2 >>> 3) + w[i - 7] + (r(b2, 17) ^ r(b2, 19) ^ b2 >>> 10) | 0;
+      }
+      let [a, b, c, d, e, f, g, h3] = H;
+      for (let i = 0; i < 64; i++) {
+        const t1 = h3 + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + (e & f ^ ~e & g) + K[i] + w[i] | 0;
+        const t2 = (r(a, 2) ^ r(a, 13) ^ r(a, 22)) + (a & b ^ a & c ^ b & c) | 0;
+        h3 = g;
+        g = f;
+        f = e;
+        e = d + t1 | 0;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2 | 0;
+      }
+      H[0] = H[0] + a | 0;
+      H[1] = H[1] + b | 0;
+      H[2] = H[2] + c | 0;
+      H[3] = H[3] + d | 0;
+      H[4] = H[4] + e | 0;
+      H[5] = H[5] + f | 0;
+      H[6] = H[6] + g | 0;
+      H[7] = H[7] + h3 | 0;
+    }
+    const out = new Uint8Array(32), ov = new DataView(out.buffer);
+    H.forEach((v, i) => ov.setInt32(i * 4, v));
+    return out;
+  }
+  async function derive(password, salt, algo, iter) {
+    const enc = new TextEncoder();
+    if (algo === "pbkdf2") {
+      const key = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
+      return hex(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc.encode(salt), iterations: iter }, key, 256));
+    }
+    let h3 = sha256(enc.encode(salt + ":" + password));
+    for (let i = 0; i < iter; i++) {
+      const b = new Uint8Array(h3.length + 4);
+      b.set(h3);
+      b[h3.length] = i & 255;
+      b[h3.length + 1] = i >> 8 & 255;
+      h3 = sha256(b);
+    }
+    return hex(h3);
+  }
+  var canSubtle = () => !!(globalThis.crypto && crypto.subtle && crypto.subtle.deriveBits);
+  var RULES = {
+    id: (s) => /^[A-Za-z0-9_]{4,16}$/.test(s) ? null : "\uC544\uC774\uB514\uB294 \uC601\uBB38\xB7\uC22B\uC790\xB7\uBC11\uC904 4~16\uC790\uC785\uB2C8\uB2E4.",
+    password: (s) => typeof s === "string" && s.length >= 6 && s.length <= 64 ? null : "\uBE44\uBC00\uBC88\uD638\uB294 6\uC790 \uC774\uC0C1\uC785\uB2C8\uB2E4.",
+    name: (s) => /^[가-힣A-Za-z0-9]{2,8}$/.test(s) ? null : "\uCE90\uB9AD\uD130 \uC774\uB984\uC740 \uD55C\uAE00\xB7\uC601\uBB38\xB7\uC22B\uC790 2~8\uC790\uC785\uB2C8\uB2E4."
+  };
+  var DB = {
+    available() {
+      return typeof indexedDB !== "undefined";
+    },
+    /** 계정 만들기. character 는 처음 저장할 캐릭터 내용. 성공하면 { account, data } */
+    async signup(id, password, character) {
+      const err = RULES.id(id) || RULES.password(password);
+      if (err) throw new Error(err);
+      const key = id.toLowerCase();
+      if (await tx("accounts", "readonly", (s) => s.get(key))) throw new Error("\uC774\uBBF8 \uC788\uB294 \uC544\uC774\uB514\uC785\uB2C8\uB2E4.");
+      const algo = canSubtle() ? "pbkdf2" : "sha256x", iter = algo === "pbkdf2" ? 12e4 : 3e3, salt = randomSalt();
+      const hash = await derive(password, salt, algo, iter), now = Date.now();
+      await tx("accounts", "readwrite", (s) => {
+        s.add({ id: key, name: id, salt, hash, iter, algo, created: now, lastLogin: now });
+      });
+      await tx("characters", "readwrite", (s) => {
+        s.put({ account: key, data: character, updated: now });
+      });
+      return { account: key, data: character };
+    },
+    /** 로그인. 성공하면 { account, data } */
+    async login(id, password) {
+      const key = String(id || "").toLowerCase();
+      const acc = key ? await tx("accounts", "readonly", (s) => s.get(key)) : null;
+      if (!acc) throw new Error("\uC5C6\uB294 \uC544\uC774\uB514\uC785\uB2C8\uB2E4. \uD68C\uC6D0\uAC00\uC785\uC744 \uBA3C\uC800 \uD574 \uC8FC\uC138\uC694.");
+      if (acc.algo === "pbkdf2" && !canSubtle()) throw new Error("\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C\uB294 \uC774 \uACC4\uC815\uC758 \uBE44\uBC00\uBC88\uD638\uB97C \uD655\uC778\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+      const hash = await derive(String(password || ""), acc.salt, acc.algo, acc.iter);
+      if (hash !== acc.hash) throw new Error("\uBE44\uBC00\uBC88\uD638\uAC00 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.");
+      acc.lastLogin = Date.now();
+      await tx("accounts", "readwrite", (s) => {
+        s.put(acc);
+      });
+      const row = await tx("characters", "readonly", (s) => s.get(key));
+      return { account: key, data: row ? row.data : null };
+    },
+    /** 캐릭터 저장 */
+    save(account, data) {
+      return tx("characters", "readwrite", (s) => {
+        s.put({ account, data, updated: Date.now() });
+      });
+    },
+    load(account) {
+      return tx("characters", "readonly", (s) => s.get(account)).then((r) => r ? r.data : null);
+    },
+    /** 이 브라우저에 있는 계정 수 */
+    count() {
+      return tx("accounts", "readonly", (s) => s.count());
+    }
+  };
+
+  // src/ui/auth.js
+  var CSS = `
+#ui .a-layer { position: absolute; inset: 0; z-index: 120; pointer-events: auto; background: radial-gradient(900px 700px at 1420px 520px, rgba(0,0,0,.72), rgba(0,0,0,.28) 70%, transparent); animation: a-in .3s both; }
+@keyframes a-in { from { opacity: 0; } to { opacity: 1; } }
+#ui .a-box { position: absolute; left: 1090px; top: 170px; width: 660px; padding: 34px 44px 30px; box-sizing: border-box; background: linear-gradient(180deg, rgba(24,28,40,.97), rgba(10,12,18,.97)); border: 1px solid var(--gold-line); border-radius: 6px; box-shadow: 0 20px 70px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.04); color: var(--ink); animation: a-up .35s cubic-bezier(.2,.9,.3,1.1) both; }
+@keyframes a-up { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+#ui .a-box::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(216,181,106,.18); border-radius: 4px; pointer-events: none; }
+#ui .a-tabs { display: flex; gap: 0; margin-bottom: 22px; border-bottom: 1px solid rgba(216,181,106,.3); }
+#ui .a-tab { flex: 1; height: 58px; display: flex; align-items: center; justify-content: center; font-family: 'GameSerif', serif; font-size: 26px; letter-spacing: .2em; color: var(--ink-faint); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s; }
+#ui .a-tab:hover { color: var(--ink); }
+#ui .a-tab.on { color: var(--gold-hi); border-bottom-color: var(--gold); text-shadow: 0 0 14px rgba(255,210,120,.45); }
+#ui .a-f { display: block; margin-top: 16px; }
+#ui .a-f span { display: flex; justify-content: space-between; font-size: 17px; color: var(--ink-dim); margin-bottom: 7px; letter-spacing: .05em; }
+#ui .a-f span i { font-style: normal; font-size: 14px; color: var(--ink-faint); }
+#ui .a-f input { width: 100%; height: 56px; box-sizing: border-box; padding: 0 18px; font: inherit; font-size: 22px; color: #fff6dc; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.14); border-radius: 4px; outline: none; transition: border-color .15s, box-shadow .15s; }
+#ui .a-f input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(216,181,106,.18); }
+#ui .a-f.hide { display: none; }
+#ui .a-msg { min-height: 28px; margin-top: 16px; font-size: 17px; line-height: 28px; color: #ff8a70; text-align: center; }
+#ui .a-msg.ok { color: #8fe0a0; }
+#ui .a-go { width: 100%; height: 68px; margin-top: 8px; font-size: 26px !important; letter-spacing: .3em !important; }
+#ui .a-go[disabled] { filter: grayscale(.7) brightness(.7); pointer-events: none; }
+#ui .a-row { display: flex; justify-content: space-between; margin-top: 16px; font-size: 16px; color: var(--ink-faint); }
+#ui .a-row a { color: var(--ink-dim); cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+#ui .a-row a:hover { color: var(--gold-hi); }
+#ui .a-note { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.07); font-size: 14px; line-height: 22px; color: var(--ink-faint); }
+`;
+  var styled = false;
+  function showAuth(o) {
+    if (!styled) {
+      styled = true;
+      const st = document.createElement("style");
+      st.textContent = CSS;
+      document.head.appendChild(st);
+    }
+    const lay = document.createElement("div");
+    lay.className = "a-layer";
+    lay.innerHTML = `<form class="a-box" autocomplete="off" novalidate>
+    <div class="a-tabs"><div class="a-tab on" data-m="login">\uB85C\uADF8\uC778</div><div class="a-tab" data-m="signup">\uD68C\uC6D0\uAC00\uC785</div></div>
+    <label class="a-f"><span>\uC544\uC774\uB514<i>\uC601\uBB38\xB7\uC22B\uC790 4~16\uC790</i></span><input name="id" type="text" maxlength="16" spellcheck="false" autocapitalize="off"></label>
+    <label class="a-f"><span>\uBE44\uBC00\uBC88\uD638<i>6\uC790 \uC774\uC0C1</i></span><input name="pw" type="password" maxlength="64"></label>
+    <label class="a-f s hide"><span>\uBE44\uBC00\uBC88\uD638 \uD655\uC778</span><input name="pw2" type="password" maxlength="64"></label>
+    <label class="a-f s hide"><span>\uCE90\uB9AD\uD130 \uC774\uB984<i>\uD55C\uAE00\xB7\uC601\uBB38\xB7\uC22B\uC790 2~8\uC790</i></span><input name="nm" type="text" maxlength="8" spellcheck="false"></label>
+    <div class="a-msg"></div>
+    <button type="submit" class="btn primary a-go">\uB85C\uADF8\uC778</button>
+    <div class="a-row"><a data-a="back">\u2190 \uCC98\uC74C \uD654\uBA74</a><a data-a="guest">\uACC4\uC815 \uC5C6\uC774 \uCCB4\uD5D8\uD558\uAE30</a></div>
+    <div class="a-note">\uACC4\uC815\uACFC \uCE90\uB9AD\uD130\uB294 \uC774 \uAE30\uAE30, \uC774 \uBE0C\uB77C\uC6B0\uC800\uC758 \uB370\uC774\uD130\uBCA0\uC774\uC2A4(IndexedDB)\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4. \uB2E4\uB978 \uAE30\uAE30\uB098 \uB2E4\uB978 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C\uB294 \uBCF4\uC774\uC9C0 \uC54A\uC73C\uBA70, \uBE0C\uB77C\uC6B0\uC800\uC758 \uC0AC\uC774\uD2B8 \uB370\uC774\uD130\uB97C \uC9C0\uC6B0\uBA74 \uD568\uAED8 \uC9C0\uC6CC\uC9D1\uB2C8\uB2E4.</div>
+  </form>`;
+    const $ = (s) => lay.querySelector(s), f = $("form"), msg = $(".a-msg"), go = $(".a-go");
+    const inp = { id: f.elements.id, pw: f.elements.pw, pw2: f.elements.pw2, nm: f.elements.nm };
+    let mode = "login", busy = false;
+    const say = (t, ok2) => {
+      msg.textContent = t || "";
+      msg.classList.toggle("ok", !!ok2);
+    };
+    const setMode = (m) => {
+      mode = m;
+      lay.querySelectorAll(".a-tab").forEach((t) => t.classList.toggle("on", t.dataset.m === m));
+      lay.querySelectorAll(".a-f.s").forEach((e) => e.classList.toggle("hide", m !== "signup"));
+      go.textContent = m === "login" ? "\uB85C\uADF8\uC778" : "\uAC00\uC785\uD558\uACE0 \uC2DC\uC791";
+      say("");
+      (inp.id.value ? inp.pw : inp.id).focus();
+    };
+    lay.querySelectorAll(".a-tab").forEach((t) => t.addEventListener("click", () => {
+      o.sfx && o.sfx("ui_click");
+      setMode(t.dataset.m);
+    }));
+    $("[data-a=back]").addEventListener("click", () => {
+      api.hide();
+      o.onCancel && o.onCancel();
+    });
+    $("[data-a=guest]").addEventListener("click", () => {
+      api.hide();
+      o.onGuest && o.onGuest();
+    });
+    for (const ev of ["keydown", "keyup", "keypress"]) lay.addEventListener(ev, (e) => e.stopPropagation());
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (busy) return;
+      const id = inp.id.value.trim(), pw = inp.pw.value;
+      let err = RULES.id(id) || RULES.password(pw);
+      if (!err && mode === "signup") err = (pw !== inp.pw2.value ? "\uBE44\uBC00\uBC88\uD638 \uD655\uC778\uC774 \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." : null) || RULES.name(inp.nm.value.trim());
+      if (err) {
+        say(err);
+        return;
+      }
+      busy = true;
+      go.disabled = true;
+      say(mode === "login" ? "\uD655\uC778\uD558\uB294 \uC911\u2026" : "\uACC4\uC815\uC744 \uB9CC\uB4DC\uB294 \uC911\u2026", true);
+      try {
+        const res = mode === "login" ? await DB.login(id, pw) : await DB.signup(id, pw, newCharacter(inp.nm.value.trim()));
+        if (!res.data) res.data = newCharacter(id.slice(0, 8));
+        try {
+          localStorage.setItem("erheim_last_id", id);
+        } catch (e2) {
+        }
+        inp.pw.value = "";
+        inp.pw2.value = "";
+        api.hide();
+        o.onDone && o.onDone(res);
+      } catch (e2) {
+        say(e2 && e2.message || "\uBB38\uC81C\uAC00 \uC0DD\uACBC\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+        busy = false;
+        go.disabled = false;
+      }
+    });
+    const api = { hide() {
+      lay.remove();
+    } };
+    o.root.appendChild(lay);
+    let last = "";
+    try {
+      last = localStorage.getItem("erheim_last_id") || "";
+    } catch (e) {
+    }
+    if (!DB.available()) say('\uC774 \uBE0C\uB77C\uC6B0\uC800\uB294 \uB370\uC774\uD130\uBCA0\uC774\uC2A4\uB97C \uC4F8 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. "\uACC4\uC815 \uC5C6\uC774 \uCCB4\uD5D8\uD558\uAE30"\uB97C \uC774\uC6A9\uD574 \uC8FC\uC138\uC694.');
+    inp.id.value = last;
+    DB.available() && DB.count().then((n) => {
+      if (!n && !last) setMode("signup");
+      else setMode("login");
+    }).catch(() => setMode("login"));
+    return api;
+  }
+
   // src/main.js
   function safe(obj, path = "") {
     const noop = () => void 0;
@@ -47712,6 +48648,7 @@ void main() {
     const sound = safe(Sound, "sound.");
     try {
       await sound.init(Assets);
+      sound.preload();
     } catch (e) {
     }
     let game = null;
@@ -47758,9 +48695,23 @@ void main() {
       }
       if (e.code === "KeyF" && !e.repeat && !(e.target && e.target.tagName === "INPUT")) toggleFs();
     }, true);
-    let started = false;
+    let started = false, leaving = false;
+    let account = null, saving = false;
+    const saveNow = () => {
+      if (!account || saving) return Promise.resolve();
+      saving = true;
+      return DB.save(account, game.snapshot()).catch((e) => console.warn("[save]", e)).then(() => {
+        saving = false;
+      });
+    };
+    setInterval(saveNow, 5e3);
+    addEventListener("pagehide", saveNow);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) saveNow();
+    });
     addEventListener("beforeunload", (e) => {
-      if (started && !q.get("demo") && !q.get("play")) {
+      saveNow();
+      if (started && !leaving && !q.get("demo") && !q.get("play")) {
         e.preventDefault();
         e.returnValue = "";
       }
@@ -47768,13 +48719,23 @@ void main() {
     ui.on("menu", (n) => {
       if (n === "fullscreen") toggleFs();
       else if (n === "enhance") game.enh.open();
-      else {
+      else if (n === "logout") {
+        hud.toast(account ? "\uC800\uC7A5\uD558\uACE0 \uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC11\uB2C8\uB2E4\u2026" : "\uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC11\uB2C8\uB2E4\u2026", "info");
+        saveNow().then(() => {
+          leaving = true;
+          location.reload();
+        });
+      } else {
         game.refreshWindows();
         win.toggle(n);
       }
     });
+    ui.on("windowOpen", () => sound.sfx("ui_open", { volume: 0.7 }));
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.closest && e.target.closest("#ui button, #ui .btn, #ui .interactive, #ui .w-opt, #ui .a-tab")) sound.sfx("ui_click");
+    }, true);
     const demo = createDemo({ engine, world, game, ui, vfx: safe(vfx, "vfx."), sound, chat });
-    window.__GAME__ = { game, engine, demo, hud, win, vfx };
+    window.__GAME__ = { game, engine, demo, hud, win, vfx, sound, DB };
     win.loading.set(1, "\uC785\uC7A5 \uC900\uBE44 \uC644\uB8CC");
     const clock = new Clock();
     let acc = 0;
@@ -47798,8 +48759,9 @@ void main() {
       engine.render();
       if (acc > 0.5) window.__READY__ = true;
     });
-    const start = (isDemo) => {
+    const start = (isDemo, profile) => {
       started = true;
+      if (profile) game.loadProfile(profile);
       win.title.hide();
       hud.setVisible(true);
       try {
@@ -47812,8 +48774,11 @@ void main() {
     setTimeout(() => {
       win.loading.hide();
       if (q.get("demo") || q.get("auto")) start(true);
-      else if (q.get("play")) start(false);
-      else win.title.show({ onStart: () => start(false), onDemo: () => start(true) });
+      else if (q.get("play")) start(false, q.get("story") ? newCharacter("\uC2DC\uD5D8\uAE30\uC0AC") : null);
+      else win.title.show({ onStart: () => showAuth({ root: uiRoot, sfx: (n) => sound.sfx(n), onDone: (res) => {
+        account = res.account;
+        start(false, res.data);
+      }, onGuest: () => start(false) }), onDemo: () => start(true) });
     }, 300);
   }
   boot().catch((e) => {
