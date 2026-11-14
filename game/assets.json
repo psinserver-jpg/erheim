@@ -56,44 +56,120 @@
   "file": "assets/models/werewolf_lod.glb"
  },
  {
+  "key": "env/barrels2.glb",
+  "file": "assets/models/env/barrels2.glb"
+ },
+ {
+  "key": "env/brazier2.glb",
+  "file": "assets/models/env/brazier2.glb"
+ },
+ {
   "key": "env/campfire.glb",
   "file": "assets/models/env/campfire.glb"
+ },
+ {
+  "key": "env/campfire2.glb",
+  "file": "assets/models/env/campfire2.glb"
+ },
+ {
+  "key": "env/cart2.glb",
+  "file": "assets/models/env/cart2.glb"
  },
  {
   "key": "env/crates.glb",
   "file": "assets/models/env/crates.glb"
  },
  {
+  "key": "env/crates2.glb",
+  "file": "assets/models/env/crates2.glb"
+ },
+ {
   "key": "env/dead_tree.glb",
   "file": "assets/models/env/dead_tree.glb"
+ },
+ {
+  "key": "env/dead_tree2.glb",
+  "file": "assets/models/env/dead_tree2.glb"
+ },
+ {
+  "key": "env/dead_tree2b.glb",
+  "file": "assets/models/env/dead_tree2b.glb"
+ },
+ {
+  "key": "env/fence2.glb",
+  "file": "assets/models/env/fence2.glb"
  },
  {
   "key": "env/forge.glb",
   "file": "assets/models/env/forge.glb"
  },
  {
+  "key": "env/forge2.glb",
+  "file": "assets/models/env/forge2.glb"
+ },
+ {
   "key": "env/fountain.glb",
   "file": "assets/models/env/fountain.glb"
+ },
+ {
+  "key": "env/fountain2.glb",
+  "file": "assets/models/env/fountain2.glb"
  },
  {
   "key": "env/gatehouse.glb",
   "file": "assets/models/env/gatehouse.glb"
  },
  {
+  "key": "env/gatehouse2.glb",
+  "file": "assets/models/env/gatehouse2.glb"
+ },
+ {
   "key": "env/gravestones.glb",
   "file": "assets/models/env/gravestones.glb"
+ },
+ {
+  "key": "env/gravestones2.glb",
+  "file": "assets/models/env/gravestones2.glb"
+ },
+ {
+  "key": "env/gravestones2b.glb",
+  "file": "assets/models/env/gravestones2b.glb"
+ },
+ {
+  "key": "env/gravestones2c.glb",
+  "file": "assets/models/env/gravestones2c.glb"
+ },
+ {
+  "key": "env/haystack2.glb",
+  "file": "assets/models/env/haystack2.glb"
  },
  {
   "key": "env/house.glb",
   "file": "assets/models/env/house.glb"
  },
  {
+  "key": "env/house2.glb",
+  "file": "assets/models/env/house2.glb"
+ },
+ {
   "key": "env/lamp_post.glb",
   "file": "assets/models/env/lamp_post.glb"
  },
  {
+  "key": "env/lamp_post2.glb",
+  "file": "assets/models/env/lamp_post2.glb"
+ },
+ {
   "key": "env/market_stall.glb",
   "file": "assets/models/env/market_stall.glb"
+ },
+ {
+  "key": "env/market_stall2.glb",
+  "file": "assets/models/env/market_stall2.glb"
+ },
+ {
+  "key": "env/market_stall2b.glb",
+  "file": "assets/models/env/market_stall2b.glb"
  },
  {
   "key": "env/merchant.glb",
@@ -104,28 +180,296 @@
   "file": "assets/models/env/oak_tree.glb"
  },
  {
+  "key": "env/oak_tree2.glb",
+  "file": "assets/models/env/oak_tree2.glb"
+ },
+ {
+  "key": "env/oak_tree2b.glb",
+  "file": "assets/models/env/oak_tree2b.glb"
+ },
+ {
+  "key": "env/orc_tent2.glb",
+  "file": "assets/models/env/orc_tent2.glb"
+ },
+ {
   "key": "env/pine_tree.glb",
   "file": "assets/models/env/pine_tree.glb"
+ },
+ {
+  "key": "env/pine_tree2.glb",
+  "file": "assets/models/env/pine_tree2.glb"
+ },
+ {
+  "key": "env/pine_tree2b.glb",
+  "file": "assets/models/env/pine_tree2b.glb"
+ },
+ {
+  "key": "env/rock2_a.glb",
+  "file": "assets/models/env/rock2_a.glb"
+ },
+ {
+  "key": "env/rock2_a_moss.glb",
+  "file": "assets/models/env/rock2_a_moss.glb"
+ },
+ {
+  "key": "env/rock2_b.glb",
+  "file": "assets/models/env/rock2_b.glb"
+ },
+ {
+  "key": "env/rock2_b_moss.glb",
+  "file": "assets/models/env/rock2_b_moss.glb"
+ },
+ {
+  "key": "env/rock2_c.glb",
+  "file": "assets/models/env/rock2_c.glb"
+ },
+ {
+  "key": "env/rock2_c_moss.glb",
+  "file": "assets/models/env/rock2_c_moss.glb"
  },
  {
   "key": "env/rocks.glb",
   "file": "assets/models/env/rocks.glb"
  },
  {
+  "key": "env/sacks2.glb",
+  "file": "assets/models/env/sacks2.glb"
+ },
+ {
   "key": "env/tavern.glb",
   "file": "assets/models/env/tavern.glb"
+ },
+ {
+  "key": "env/tavern2.glb",
+  "file": "assets/models/env/tavern2.glb"
+ },
+ {
+  "key": "env/woodpile2.glb",
+  "file": "assets/models/env/woodpile2.glb"
+ },
+ {
+  "key": "tex/ash_ground_c.jpg",
+  "file": "assets/tex/ash_ground_c.jpg"
+ },
+ {
+  "key": "tex/ash_ground_n.jpg",
+  "file": "assets/tex/ash_ground_n.jpg"
+ },
+ {
+  "key": "tex/ash_ground_orm.jpg",
+  "file": "assets/tex/ash_ground_orm.jpg"
+ },
+ {
+  "key": "tex/castle_wall_c.jpg",
+  "file": "assets/tex/castle_wall_c.jpg"
+ },
+ {
+  "key": "tex/castle_wall_n.jpg",
+  "file": "assets/tex/castle_wall_n.jpg"
+ },
+ {
+  "key": "tex/castle_wall_orm.jpg",
+  "file": "assets/tex/castle_wall_orm.jpg"
+ },
+ {
+  "key": "tex/char_blacksmith_n.jpg",
+  "file": "assets/tex/char_blacksmith_n.jpg"
+ },
+ {
+  "key": "tex/char_blacksmith_orm.jpg",
+  "file": "assets/tex/char_blacksmith_orm.jpg"
+ },
+ {
+  "key": "tex/char_demon_lord_n.jpg",
+  "file": "assets/tex/char_demon_lord_n.jpg"
+ },
+ {
+  "key": "tex/char_demon_lord_orm.jpg",
+  "file": "assets/tex/char_demon_lord_orm.jpg"
+ },
+ {
+  "key": "tex/char_elf_archer_n.jpg",
+  "file": "assets/tex/char_elf_archer_n.jpg"
+ },
+ {
+  "key": "tex/char_elf_archer_orm.jpg",
+  "file": "assets/tex/char_elf_archer_orm.jpg"
+ },
+ {
+  "key": "tex/char_hero_n.jpg",
+  "file": "assets/tex/char_hero_n.jpg"
+ },
+ {
+  "key": "tex/char_hero_orm.jpg",
+  "file": "assets/tex/char_hero_orm.jpg"
+ },
+ {
+  "key": "tex/char_mage_n.jpg",
+  "file": "assets/tex/char_mage_n.jpg"
+ },
+ {
+  "key": "tex/char_mage_orm.jpg",
+  "file": "assets/tex/char_mage_orm.jpg"
+ },
+ {
+  "key": "tex/char_orc_warrior_n.jpg",
+  "file": "assets/tex/char_orc_warrior_n.jpg"
+ },
+ {
+  "key": "tex/char_orc_warrior_orm.jpg",
+  "file": "assets/tex/char_orc_warrior_orm.jpg"
+ },
+ {
+  "key": "tex/char_skeleton_knight_n.jpg",
+  "file": "assets/tex/char_skeleton_knight_n.jpg"
+ },
+ {
+  "key": "tex/char_skeleton_knight_orm.jpg",
+  "file": "assets/tex/char_skeleton_knight_orm.jpg"
+ },
+ {
+  "key": "tex/char_werewolf_n.jpg",
+  "file": "assets/tex/char_werewolf_n.jpg"
+ },
+ {
+  "key": "tex/char_werewolf_orm.jpg",
+  "file": "assets/tex/char_werewolf_orm.jpg"
  },
  {
   "key": "tex/cobble.jpg",
   "file": "assets/tex/cobble.jpg"
  },
  {
+  "key": "tex/dead_branch.png",
+  "file": "assets/tex/dead_branch.png"
+ },
+ {
+  "key": "tex/decal_cracks.png",
+  "file": "assets/tex/decal_cracks.png"
+ },
+ {
+  "key": "tex/decal_debris.png",
+  "file": "assets/tex/decal_debris.png"
+ },
+ {
+  "key": "tex/decal_puddle.png",
+  "file": "assets/tex/decal_puddle.png"
+ },
+ {
+  "key": "tex/decal_stains.png",
+  "file": "assets/tex/decal_stains.png"
+ },
+ {
   "key": "tex/dirt.jpg",
   "file": "assets/tex/dirt.jpg"
  },
  {
+  "key": "tex/dirt_path_c.jpg",
+  "file": "assets/tex/dirt_path_c.jpg"
+ },
+ {
+  "key": "tex/dirt_path_n.jpg",
+  "file": "assets/tex/dirt_path_n.jpg"
+ },
+ {
+  "key": "tex/dirt_path_orm.jpg",
+  "file": "assets/tex/dirt_path_orm.jpg"
+ },
+ {
+  "key": "tex/fern_weeds.png",
+  "file": "assets/tex/fern_weeds.png"
+ },
+ {
+  "key": "tex/forest_floor_c.jpg",
+  "file": "assets/tex/forest_floor_c.jpg"
+ },
+ {
+  "key": "tex/forest_floor_n.jpg",
+  "file": "assets/tex/forest_floor_n.jpg"
+ },
+ {
+  "key": "tex/forest_floor_orm.jpg",
+  "file": "assets/tex/forest_floor_orm.jpg"
+ },
+ {
   "key": "tex/grass.jpg",
   "file": "assets/tex/grass.jpg"
+ },
+ {
+  "key": "tex/grass_blades.png",
+  "file": "assets/tex/grass_blades.png"
+ },
+ {
+  "key": "tex/grass_meadow_c.jpg",
+  "file": "assets/tex/grass_meadow_c.jpg"
+ },
+ {
+  "key": "tex/grass_meadow_n.jpg",
+  "file": "assets/tex/grass_meadow_n.jpg"
+ },
+ {
+  "key": "tex/grass_meadow_orm.jpg",
+  "file": "assets/tex/grass_meadow_orm.jpg"
+ },
+ {
+  "key": "tex/grave_soil_c.jpg",
+  "file": "assets/tex/grave_soil_c.jpg"
+ },
+ {
+  "key": "tex/grave_soil_n.jpg",
+  "file": "assets/tex/grave_soil_n.jpg"
+ },
+ {
+  "key": "tex/grave_soil_orm.jpg",
+  "file": "assets/tex/grave_soil_orm.jpg"
+ },
+ {
+  "key": "tex/ivy_moss.png",
+  "file": "assets/tex/ivy_moss.png"
+ },
+ {
+  "key": "tex/leaf_cluster_oak.png",
+  "file": "assets/tex/leaf_cluster_oak.png"
+ },
+ {
+  "key": "tex/mud_camp_c.jpg",
+  "file": "assets/tex/mud_camp_c.jpg"
+ },
+ {
+  "key": "tex/mud_camp_n.jpg",
+  "file": "assets/tex/mud_camp_n.jpg"
+ },
+ {
+  "key": "tex/mud_camp_orm.jpg",
+  "file": "assets/tex/mud_camp_orm.jpg"
+ },
+ {
+  "key": "tex/needle_branch_pine.png",
+  "file": "assets/tex/needle_branch_pine.png"
+ },
+ {
+  "key": "tex/plaster_wall_c.jpg",
+  "file": "assets/tex/plaster_wall_c.jpg"
+ },
+ {
+  "key": "tex/plaster_wall_n.jpg",
+  "file": "assets/tex/plaster_wall_n.jpg"
+ },
+ {
+  "key": "tex/plaster_wall_orm.jpg",
+  "file": "assets/tex/plaster_wall_orm.jpg"
+ },
+ {
+  "key": "tex/roof_tile_c.jpg",
+  "file": "assets/tex/roof_tile_c.jpg"
+ },
+ {
+  "key": "tex/roof_tile_n.jpg",
+  "file": "assets/tex/roof_tile_n.jpg"
+ },
+ {
+  "key": "tex/roof_tile_orm.jpg",
+  "file": "assets/tex/roof_tile_orm.jpg"
  },
  {
   "key": "tex/scorched.jpg",
@@ -134,6 +478,58 @@
  {
   "key": "tex/stonewall.jpg",
   "file": "assets/tex/stonewall.jpg"
+ },
+ {
+  "key": "tex/town_cobble_c.jpg",
+  "file": "assets/tex/town_cobble_c.jpg"
+ },
+ {
+  "key": "tex/town_cobble_n.jpg",
+  "file": "assets/tex/town_cobble_n.jpg"
+ },
+ {
+  "key": "tex/town_cobble_orm.jpg",
+  "file": "assets/tex/town_cobble_orm.jpg"
+ },
+ {
+  "key": "tex/town_flagstone_c.jpg",
+  "file": "assets/tex/town_flagstone_c.jpg"
+ },
+ {
+  "key": "tex/town_flagstone_n.jpg",
+  "file": "assets/tex/town_flagstone_n.jpg"
+ },
+ {
+  "key": "tex/town_flagstone_orm.jpg",
+  "file": "assets/tex/town_flagstone_orm.jpg"
+ },
+ {
+  "key": "tex/volcanic_rock_c.jpg",
+  "file": "assets/tex/volcanic_rock_c.jpg"
+ },
+ {
+  "key": "tex/volcanic_rock_e.jpg",
+  "file": "assets/tex/volcanic_rock_e.jpg"
+ },
+ {
+  "key": "tex/volcanic_rock_n.jpg",
+  "file": "assets/tex/volcanic_rock_n.jpg"
+ },
+ {
+  "key": "tex/volcanic_rock_orm.jpg",
+  "file": "assets/tex/volcanic_rock_orm.jpg"
+ },
+ {
+  "key": "tex/wood_planks_c.jpg",
+  "file": "assets/tex/wood_planks_c.jpg"
+ },
+ {
+  "key": "tex/wood_planks_n.jpg",
+  "file": "assets/tex/wood_planks_n.jpg"
+ },
+ {
+  "key": "tex/wood_planks_orm.jpg",
+  "file": "assets/tex/wood_planks_orm.jpg"
  },
  {
   "key": "ui/guild_crests.png",
@@ -160,12 +556,20 @@
   "file": "assets/ui/portrait_elf.jpg"
  },
  {
+  "key": "ui/portrait_hallen.jpg",
+  "file": "assets/ui/portrait_hallen.jpg"
+ },
+ {
   "key": "ui/portrait_hero.jpg",
   "file": "assets/ui/portrait_hero.jpg"
  },
  {
   "key": "ui/portrait_mage.jpg",
   "file": "assets/ui/portrait_mage.jpg"
+ },
+ {
+  "key": "ui/portrait_merchant.jpg",
+  "file": "assets/ui/portrait_merchant.jpg"
  },
  {
   "key": "ui/portrait_orc.jpg",
@@ -182,6 +586,10 @@
  {
   "key": "ui/skill_icons.png",
   "file": "assets/ui/skill_icons.png"
+ },
+ {
+  "key": "ui/skill_icons2.png",
+  "file": "assets/ui/skill_icons2.png"
  },
  {
   "key": "audio/amb_altar.mp3",

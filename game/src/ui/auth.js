@@ -1,6 +1,6 @@
 // 로그인·회원가입 창. 타이틀 화면 위에 뜬다. 계정은 core/db.js(IndexedDB)에 저장된다.
 import { DB, RULES } from '../core/db.js';
-import { newCharacter } from '../game/story.js';
+import { newCharacter } from '../game/saga.js';
 
 const CSS = `
 #ui .a-layer { position: absolute; inset: 0; z-index: 120; pointer-events: auto; background: radial-gradient(900px 700px at 1420px 520px, rgba(0,0,0,.72), rgba(0,0,0,.28) 70%, transparent); animation: a-in .3s both; }

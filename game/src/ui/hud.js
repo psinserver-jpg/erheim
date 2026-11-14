@@ -4,6 +4,7 @@ import css from './hud.css';
 
 const SHEETS = {
   skill: { key: 'ui/skill_icons.png', cols: 3, rows: 3, full: 0.292, circ: 0.268 },
+  skill2: { key: 'ui/skill_icons2.png', cols: 3, rows: 3, full: 0.3, circ: 0.278 },   // 기술 아이콘 시트 1(선봉 돌파·단죄·출혈·여명·전문화 3종 …)
   item: { key: 'ui/item_icons.png', cols: 4, rows: 4, full: 0.214, circ: 0.2 },
 };
 const CREST = { key: 'ui/guild_crests.png', cols: 3, cell: 512, sw: 1536, sh: 1024, bw: 397, bh: 485, cx: 256, cy: 247 };
@@ -11,17 +12,21 @@ const CH_LABEL = { world: '월드', local: '일반', guild: '문파', party: '�
 const TABS = [['all', '전체'], ['local', '일반'], ['guild', '문파'], ['party', '파티'], ['trade', '거래'], ['system', '시스템']];
 const TAB_ALIAS = { all: 'all', '전체': 'all', world: 'local', '월드': 'local', local: 'local', '일반': 'local', guild: 'guild', '문파': 'guild',
   party: 'party', '파티': 'party', trade: 'trade', '거래': 'trade', system: 'system', '시스템': 'system' };
-const KIND_LABEL = { monster: '일반', elite: '정예', boss: '보스', player: '플레이어', npc: 'NPC' };
-const NOTICE_TAG = { enhance: '강화', boss: '레이드', drop: '획득', info: '안내' };
+const KIND_LABEL = { monster: '일반', elite: '정예', boss: '보스', player: '플레이어', npc: 'NPC', enemy: '적대' };
+const SKILL_KIND = { builder: '투지 쌓기', spender: '투지 소모', area: '광역', buff: '강화', defense: '방어', heal: '회복', interrupt: '차단', move: '돌진', utility: '이동', spec: '전문화' };
+const BAR_ROW = 12;   // 행동 단축 바 한 줄에 놓는 기술 수(넘으면 두 줄로 나눈다)
+const NOTICE_TAG = { enhance: '강화', boss: '레이드', drop: '획득', info: '안내', war: '분쟁' };
+// [이름, 표시 글, 24×24 선 그림, 작은 단추 여부] — 창 단추 6개는 윗줄, 작은 단추(전체화면·나가기·설정)는 금화 옆 아랫줄에 놓인다
 const MENU = [
   ['character', '캐릭터', '<circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.5c.7-4.2 3.5-6.3 7.2-6.3s6.5 2.1 7.2 6.3"/>'],
   ['inventory', '가방', '<path d="M5.5 9h13l1.3 9.6a2 2 0 0 1-2 2.4H6.2a2 2 0 0 1-2-2.4z"/><path d="M9 9V7.2a3 3 0 0 1 6 0V9"/><path d="M9.5 13.5h5"/>'],
   ['enhance', '강화', '<path d="M12 2.8l2.2 3.4v8.3H9.8V6.2z"/><path d="M7.5 14.5h9"/><path d="M12 14.5v6.2"/><path d="M18.6 3.4v4M16.6 5.4h4"/>'],
   ['skills', '스킬', '<path d="M12 3l2.6 5.7 6.1.7-4.5 4.2 1.2 6.1-5.4-3.1-5.4 3.1 1.2-6.1L3.3 9.4l6.1-.7z"/>'],
   ['guild', '문파', '<path d="M6 21V3.5"/><path d="M6 4.5h12l-2.8 3.8L18 12H6"/>'],
-  ['fullscreen', '전체화면', '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>'],
-  ['logout', '나가기', '<path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/>'],
-  ['settings', '설정', '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/>'],
+  ['codex', '도감', '<path d="M12 6.3C10.1 4.9 7.4 4.4 3.8 4.6v13.7c3.6-.2 6.3.3 8.2 1.7 1.9-1.4 4.6-1.9 8.2-1.7V4.6c-3.6-.2-6.3.3-8.2 1.7z"/><path d="M12 6.3V20"/><path d="M6.6 8.6c1.2 0 2.2.2 3.1.6M6.6 12c1.2 0 2.2.2 3.1.6"/>'],
+  ['fullscreen', '전체화면', '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>', true],
+  ['logout', '나가기', '<path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/>', true],
+  ['settings', '설정', '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/>', true],
 ];
 const BOSS_COL = [
   'linear-gradient(180deg,#ff8a6a 0%,#e8341e 34%,#a3140c 66%,#5e0808 100%)',
@@ -62,7 +67,7 @@ export function create(ctx) {
   function setIcon(el, icon, defSheet, size, round) {
     let sheet = defSheet, i = 0, url = null;
     if (typeof icon === 'number') i = icon;
-    else if (typeof icon === 'string') { const m = /^(skill|item):(\d+)$/.exec(icon); if (m) { sheet = m[1]; i = +m[2]; } else if (/^\d+$/.test(icon)) i = +icon; else url = resolveUrl(icon); }
+    else if (typeof icon === 'string') { const m = /^(skill2?|item):(\d+)$/.exec(icon); if (m) { sheet = m[1]; i = +m[2]; } else if (/^\d+$/.test(icon)) i = +icon; else url = resolveUrl(icon); }
     else if (icon && typeof icon === 'object') { sheet = icon.sheet || defSheet; i = icon.i | 0; }
     const s = el.style;
     if (url) { s.backgroundImage = 'url("' + url + '")'; s.backgroundSize = 'cover'; s.backgroundPosition = 'center'; return; }
@@ -73,6 +78,8 @@ export function create(ctx) {
     s.backgroundSize = bs + 'px ' + bs + 'px';
     s.backgroundPosition = (size / 2 - (col + 0.5) / sh.cols * bs) + 'px ' + (size / 2 - (row + 0.5) / sh.rows * bs) + 'px';
   }
+  // 기술 아이콘 시트: 0(기본) → 'skill', 1 → 'skill2'
+  const skSheet = (d) => (d && (d.sheet === 1 || d.sheet === '1' || d.sheet === 'skill2') ? 'skill2' : 'skill');
   function setCrest(el, idx, w) {
     const s = el.style;
     if (idx == null || idx < 0) { s.display = 'none'; return; }
@@ -117,12 +124,14 @@ export function create(ctx) {
       <div class="bg"></div><div class="pic"></div>
       <div class="info"><div class="line"><span class="lv"></span><span class="name"></span><span class="kind"></span><span class="pct"></span></div>
         <div class="h-bar hp"><i class="lag"></i><i class="fill"></i><i class="ticks"></i><i class="gloss"></i><span class="txt"></span></div></div>
+      <div class="dbs"></div>
     </div>
+    <div class="h-cast"><span class="tag"></span><div class="h-bar"><i class="fill"></i><i class="gloss"></i><span class="txt"></span><span class="rt"></span></div></div>
     <div class="h-notice"><div class="bg"></div><div class="rowx"><span class="tag"></span><div class="clip"><div class="msg h-serif"><span class="tx"></span></div></div></div></div>
   </div>
   <div class="h-zoneb"><div class="t gold-text"></div><div class="orn"></div><div class="s h-serif"></div></div>
   <div class="h-menu"></div>
-  <div class="h-gold"><div class="h-chip"><i class="h-ico"></i><span class="gv">0</span></div></div>
+  <div class="h-gold"><div class="h-sys"></div><div class="h-chip"><i class="h-ico"></i><span class="gv">0</span></div></div>
   <div class="h-mini">
     <div class="frame"><canvas width="220" height="220"></canvas><div class="shade"></div><div class="ring"></div><div class="n">N</div></div>
     <div class="zone"><div class="zname h-serif"></div><div class="zsub"><span class="sub"></span><span class="xy"></span></div></div>
@@ -131,12 +140,19 @@ export function create(ctx) {
   <div class="h-chat" data-tab="all"><div class="tabs"></div><div class="body"></div>
     <div class="in"><span class="chn">일반</span><input type="text" maxlength="80" placeholder="Enter 키를 눌러 대화를 입력하세요" spellcheck="false" autocomplete="off"></div></div>
   <div class="h-loot"></div>
-  <div class="h-autopill">자동사냥 중</div>
-  <div class="h-quick">
-    <button class="h-slot" data-p="hp"><i class="h-ico"></i><span class="k">F1</span><span class="n">0</span></button>
-    <button class="h-slot" data-p="mp"><i class="h-ico"></i><span class="k">F2</span><span class="n">0</span></button>
-  </div>
   <div class="h-toasts"></div>
+  <div class="h-dock">
+    <div class="h-autopill">자동사냥 중</div>
+    <div class="h-rage"><span class="lb h-serif">투지</span><div class="h-bar"><i class="fill"></i><i class="ticks"></i><i class="gloss"></i><span class="txt"></span></div></div>
+    <div class="h-abar">
+      <div class="h-abtns"></div><i class="sep"></i>
+      <div class="h-quick">
+        <button class="h-slot" data-p="hp"><i class="h-ico"></i><span class="k">F1</span><span class="n">0</span></button>
+        <button class="h-slot" data-p="mp"><i class="h-ico"></i><span class="k">F2</span><span class="n">0</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="h-tip"></div>
   <div class="h-skills"><button class="h-auto"><i class="spin"></i><span class="a">AUTO</span><span class="s">자동사냥</span></button></div>
   <div class="h-exp"><i class="fill"></i><i class="ticks"></i><span class="txt h-out"></span></div>
   <div class="h-lvup"><div class="rays"></div><div class="glow"></div><div class="big gold-text">LEVEL UP</div><div class="line"></div>
@@ -144,6 +160,9 @@ export function create(ctx) {
 </div>
 <div class="h-cine t"></div><div class="h-cine b"></div>
 <div class="h-caption h-serif"></div>
+<div class="h-cinehit"></div>
+<div class="h-cinecap h-serif"><span class="tx"></span></div>
+<div class="h-cinehint"><kbd>Space</kbd><i>·</i><kbd>클릭</kbd><span>넘기기</span></div>
 <div class="h-fade"></div>`;
   root.appendChild(el);
   const q = (s, r) => (r || el).querySelector(s);
@@ -192,10 +211,12 @@ export function create(ctx) {
       if (!b) {
         const e = h('div', 'h-buff'); const ic = h('div', 'ic'); const pic = h('i', 'h-ico'); const cd = h('i', 'cd'); const t = h('div', 't h-out');
         ic.append(pic, cd); e.append(ic, t); buffBox.appendChild(e);
-        b = { e, pic, cd, t, icon: undefined, txt: '', p: -1, warn: false, name: '' }; buffs.set(d.id, b);
+        b = { e, pic, cd, t, icon: undefined, txt: '', p: -1, warn: false, name: '', debuff: false }; buffs.set(d.id, b);
       }
       b.seen = true;
-      if (b.icon !== d.icon) { b.icon = d.icon; setIcon(b.pic, d.icon, 'skill', 38, false); }
+      const ik = d.icon + '/' + skSheet(d);
+      if (b.icon !== ik) { b.icon = ik; setIcon(b.pic, d.icon, skSheet(d), 38, false); }
+      const deb = !!d.debuff; if (deb !== b.debuff) { b.debuff = deb; b.e.classList.toggle('debuff', deb); }
       if (b.name !== d.name) { b.name = d.name; b.e.title = d.name || ''; }
       const inf = d.remain == null || d.remain === Infinity;
       const txt = inf ? '' : fmtRemain(d.remain); if (txt !== b.txt) { b.txt = txt; b.t.textContent = txt; }
@@ -211,15 +232,30 @@ export function create(ctx) {
   const tEl = q('.h-target');
   const tr = { pic: q('.pic', tEl), lv: q('.lv', tEl), name: q('.name', tEl), kind: q('.kind', tEl), pct: q('.pct', tEl), f: q('.fill', tEl), l: q('.lag', tEl), t: q('.txt', tEl) };
   const T = { on: false, name: null, level: null, kind: null, portrait: null, hp: -1, hpMax: -1 };
+  // 대상에게 걸린 약화 효과: 대상 창 오른쪽의 작은 아이콘 줄 [{ icon, sheet, name, remain, total }]
+  const dbBox = q('.dbs', tEl), dbs = [];
+  function setDebuffs(list) {
+    list = list || [];
+    while (dbs.length > list.length) dbs.pop().e.remove();
+    for (let i = 0; i < list.length; i++) {
+      const d = list[i]; let b = dbs[i];
+      if (!b) { const e = h('div', 'db'), pic = h('i', 'h-ico'), cd = h('i', 'cd'), t = h('span', 't h-out'); e.append(pic, cd, t); dbBox.appendChild(e); b = dbs[i] = { e, pic, cd, t, icon: null, txt: null, p: -1, name: null }; }
+      const ik = d.icon + '/' + skSheet(d); if (ik !== b.icon) { b.icon = ik; setIcon(b.pic, d.icon, skSheet(d), 28, false); }
+      if (d.name !== b.name) { b.name = d.name; b.e.title = d.name || ''; }
+      const inf = d.remain == null || d.remain === Infinity, txt = inf ? '' : '' + Math.max(0, Math.ceil(d.remain)); if (txt !== b.txt) { b.txt = txt; b.t.textContent = txt; }
+      const p = inf || !d.total ? 0 : Math.round(clamp01(1 - d.remain / d.total) * 50) / 50; if (p !== b.p) { b.p = p; b.cd.style.setProperty('--p', p); }
+    }
+  }
   function setTarget(d) {
-    if (!d) { if (T.on) { T.on = false; T.name = null; tEl.classList.remove('on'); } return; }
+    if (!d) { if (T.on) { T.on = false; T.name = null; tEl.classList.remove('on'); setDebuffs(null); syncCastBy(); } return; }
     const kind = d.kind || 'monster';
     const fresh = !T.on || T.name !== d.name || T.kind !== kind;
     if (fresh) {
-      T.on = true; T.name = d.name; T.kind = kind; T.level = null; T.portrait = undefined; T.hp = -1;
+      T.on = true; T.name = d.name; T.kind = kind; T.level = null; T.portrait = 0; T.hp = -1; // 0: 초상이 없는 대상으로 바뀌어도 앞 대상의 그림이 남지 않게 반드시 다시 그린다
       tEl.className = 'h-target k-' + kind; void tEl.offsetWidth; tEl.classList.add('on');
-      tr.name.textContent = d.name || ''; tr.kind.textContent = KIND_LABEL[kind] || kind;
+      tr.name.textContent = d.name || ''; tr.kind.textContent = KIND_LABEL[kind] || kind; syncCastBy();
     }
+    if (d.debuffs !== undefined || dbs.length) setDebuffs(d.debuffs);
     if (T.level !== d.level) { T.level = d.level; tr.lv.textContent = d.level != null ? 'Lv.' + d.level : ''; }
     if (T.portrait !== d.portrait) { T.portrait = d.portrait; tr.pic.style.backgroundImage = d.portrait ? 'url("' + resolveUrl(d.portrait) + '")' : ''; tr.pic.style.display = d.portrait ? '' : 'none'; }
     if (T.hp !== d.hp || T.hpMax !== d.hpMax) {
@@ -227,6 +263,25 @@ export function create(ctx) {
       setBar(tr.f, tr.l, v, fresh);
       tr.t.textContent = num(Math.max(0, d.hp)) + ' / ' + num(d.hpMax); tr.pct.textContent = (clamp01(v) * 100).toFixed(1) + '%';
     }
+  }
+
+  // ── 시전 막대(대상 창 아래) ───────────────────────────────────
+  // setCast({ name, t, total, canInterrupt, by } | null) — 시전 중 매 프레임. 차단할 수 있으면 금색 테 + "차단 가능", 아니면 회색
+  const cEl_ = q('.h-cast'), cr = { tag: q('.tag', cEl_), f: q('.fill', cEl_), t: q('.txt', cEl_), rt: q('.rt', cEl_) };
+  const C = { on: false, name: null, by: null, can: null, rt: '', label: '' };
+  function syncCastBy() {   // 시전자가 지금 대상이 아니면 누구의 시전인지 이름을 앞에 붙인다
+    if (!C.on) return; const label = C.by && !(T.on && T.name === C.by) ? C.by + ' — ' + C.name : C.name;
+    if (label !== C.label) { C.label = label; cr.t.textContent = label; }
+  }
+  function setCast(d) {
+    if (!d) { if (C.on) { C.on = false; C.name = null; C.can = null; cEl_.classList.remove('on'); } return; }
+    const can = d.canInterrupt !== false, name = d.name || '', by = d.by || null;
+    if (!C.on) { C.on = true; C.label = null; restart(cEl_, 'on'); }
+    if (can !== C.can) { C.can = can; cEl_.classList.toggle('can', can); cEl_.classList.toggle('no', !can); cr.tag.textContent = can ? '차단 가능' : '차단 불가'; }
+    if (name !== C.name || by !== C.by) { C.name = name; C.by = by; syncCastBy(); }
+    const total = d.total > 0 ? d.total : 1, t = Math.max(0, Math.min(total, d.t || 0));
+    cr.f.style.transform = 'scaleX(' + (t / total).toFixed(4) + ')';
+    const rt = (total - t).toFixed(1) + '초'; if (rt !== C.rt) { C.rt = rt; cr.rt.textContent = rt; }
   }
 
   // ── 보스 ─────────────────────────────────────────────────────
@@ -263,24 +318,47 @@ export function create(ctx) {
     }
   }
 
-  // ── 스킬 · 자동사냥 ───────────────────────────────────────────
-  const skBox = q('.h-skills'); const autoBtn = q('.h-auto');
-  const ATK = { x: 442, y: 300, size: 132 };
-  const skills = new Map(); let atk = null;
+  // ── 스킬(행동 단축 바) · 기본 공격 · 자동사냥 ──────────────────
+  // 기술 단추는 화면 아래 가운데의 단축 바에 한 줄(BAR_ROW 개를 넘으면 두 줄)로 놓고, 기본 공격·AUTO 만 오른쪽 아래에 둔다.
+  const skBox = q('.h-skills'); const autoBtn = q('.h-auto'); const barBox = q('.h-abtns'); const tipEl = q('.h-tip');
+  const SLOT = 54, ATK = { x: 236, y: 96, size: 124 };
+  const skills = new Map(); let atk = null, tipFor = null;
   function place(b, cx, cy, size) { const s = b.style; s.width = s.height = size + 'px'; s.left = (cx - size / 2) + 'px'; s.top = (cy - size / 2) + 'px'; }
-  place(autoBtn, ATK.x - 312, ATK.y + 70, 92);
+  place(autoBtn, ATK.x - 132, ATK.y + 30, 84);
+  // 풍선 도움말: 이름·단축키·분류 / 대기·소모(내력·투지)·얻는 투지 / 설명 / 잠김 안내
+  function tipShow(s) {
+    const d = s.d; tipFor = s; tipEl.textContent = '';
+    const hd = h('div', 'tn'); hd.appendChild(h('b', 'h-serif', d.name || '')); if (d.key) hd.appendChild(h('kbd', null, d.key)); if (SKILL_KIND[d.kind]) hd.appendChild(h('em', null, SKILL_KIND[d.kind])); tipEl.appendChild(hd);
+    const m = h('div', 'tm');
+    m.appendChild(h('span', null, '대기 ' + (s.cdMax > 0 ? s.cdMax + '초' : '없음')));
+    if (d.mp) m.appendChild(h('span', 'mp', '내력 ' + d.mp)); if (d.rage) m.appendChild(h('span', 'rg', '투지 ' + d.rage));
+    if (!d.mp && !d.rage) m.appendChild(h('span', null, '소모 없음'));
+    if (d.gain) m.appendChild(h('span', 'gn', '투지 +' + d.gain));
+    tipEl.appendChild(m);
+    if (d.desc) tipEl.appendChild(h('div', 'td', d.desc));
+    if (d.locked) tipEl.appendChild(h('div', 'tl', d.lv ? 'Lv.' + d.lv + '에 익힙니다' : '아직 익히지 못했습니다'));
+    tipEl.classList.add('on');
+    const k = (el.getBoundingClientRect().width / 1920) || 1, r0 = el.getBoundingClientRect(), r = s.b.getBoundingClientRect();
+    const w = tipEl.offsetWidth, hh = tipEl.offsetHeight, cx = ((r.left + r.right) / 2 - r0.left) / k, top = (r.top - r0.top) / k;
+    tipEl.style.left = Math.max(8, Math.min(1912 - w, cx - w / 2)) + 'px'; tipEl.style.top = Math.max(8, top - hh - 12) + 'px';
+  }
+  function tipHide(s) { if (s && tipFor !== s) return; tipFor = null; tipEl.classList.remove('on'); }
   function makeSkill(d, size, isAtk) {
-    const b = h('button', 'h-skill' + (isAtk ? ' atk' : '')); b.type = 'button';
-    const pic = h('i', 'h-ico'), sh = h('i', 'sh'), cd = h('i', 'cd'), sec = h('span', 'sec'), k = h('span', 'k'), nm = h('span', 'nm');
-    b.append(pic, cd, sh, sec, k, nm);
-    let mp = null; if (!isAtk && d.mp) { mp = h('span', 'mp', d.mp); b.appendChild(mp); }
-    if (isAtk) b.appendChild(h('span', 'lbl', '공격'));
-    setIcon(pic, d.icon != null ? d.icon : 0, 'skill', size, true);
+    const b = h('button', 'h-skill ' + (isAtk ? 'atk' : 'sl')); b.type = 'button'; b.dataset.skill = d.id;
+    const pic = h('i', 'h-ico'), sh = h('i', 'sh'), cd = h('i', 'cd'), gc = h('i', 'gc'), sec = h('span', 'sec'), k = h('span', 'k'), nm = h('span', 'nm');
+    b.append(pic, cd, gc, sh, sec, k);
+    if (isAtk) { b.append(nm, h('span', 'lbl', '공격')); nm.textContent = d.name || ''; }
+    else {
+      if (d.mp || d.rage) b.appendChild(h('span', 'cost ' + (d.rage ? 'rg' : 'mp'), d.rage || d.mp));
+      if (d.locked) { b.classList.add('lock'); b.appendChild(h('span', 'lk', d.lv ? 'Lv.' + d.lv : '잠김')); }
+      b.appendChild(h('i', 'pr'));
+    }
+    setIcon(pic, d.icon != null ? d.icon : 0, skSheet(d), size, isAtk);
     k.textContent = d.key || ''; if (!d.key) k.style.display = 'none';
-    nm.textContent = d.name || '';
-    const s = { id: d.id, b, cd, sec, cdMax: d.cd || 0, cdLeft: 0, p: -1, secTxt: '', cool: false, enabled: true, active: false, isAtk };
-    b.addEventListener('click', () => { if (!s.enabled) return; if (isAtk) emit('attack'); else emit('skill', s.id); });
-    skBox.appendChild(b);
+    const s = { id: d.id, d, b, cd, gc, sec, cdMax: d.cd || 0, cdLeft: 0, p: -1, g: 0, secTxt: '', cool: false, enabled: true, active: false, proc: false, locked: !!d.locked, isAtk };
+    b.addEventListener('click', () => { if (!s.enabled || s.locked) return; if (isAtk) emit('attack'); else emit('skill', s.id); });
+    if (!isAtk) { b.addEventListener('mouseenter', () => tipShow(s)); b.addEventListener('mouseleave', () => tipHide(s)); }
+    (isAtk ? skBox : barBox).appendChild(b);
     return s;
   }
   function applySkill(s, d) {
@@ -298,9 +376,14 @@ export function create(ctx) {
     }
     if (d.enabled !== undefined) { const en = d.enabled !== false; if (en !== s.enabled) { s.enabled = en; s.b.classList.toggle('off', !en); } }
     if (d.active !== undefined) { const a = !!d.active; if (a !== s.active) { s.active = a; s.b.classList.toggle('act', a); } }
+    if (d.proc !== undefined) { const v = !!d.proc; if (v !== s.proc) { s.proc = v; s.b.classList.toggle('proc', v); } }   // 발동 효과: 금빛 테가 빛난다
+    if (d.gcd !== undefined || (s.g && s.cool)) {   // 공용 대기(0~1): 위에서 아래로 걷히는 어두운 막. 제 대기가 도는 동안에는 그쪽만 보인다
+      const g = s.cool || s.locked ? 0 : Math.round(clamp01(d.gcd || 0) * 100) / 100;
+      if (g !== s.g) { s.b.classList.toggle('gcd', g > 0); s.gc.style.transition = g > s.g ? 'none' : ''; s.g = g; s.gc.style.transform = 'scaleY(' + g + ')'; }
+    }
   }
   function setSkills(list) {
-    for (const s of skills.values()) s.b.remove(); skills.clear();
+    for (const s of skills.values()) s.b.remove(); skills.clear(); tipHide();
     if (atk) { atk.b.remove(); atk = null; }
     list = list || [];
     let basic = null; const rest = [];
@@ -308,19 +391,25 @@ export function create(ctx) {
     atk = makeSkill(basic || { id: 'attack', name: '기본 공격', icon: 0 }, ATK.size, true);
     place(atk.b, ATK.x, ATK.y, ATK.size);
     if (basic) { skills.set(basic.id, atk); applySkill(atk, basic); }
-    const nIn = Math.min(5, rest.length);
-    for (let i = 0; i < rest.length; i++) {
-      const d = rest[i]; let a, r, size;
-      if (i < 5) { r = 192; size = 76; a = nIn === 1 ? 225 : 169 + (112 / (nIn - 1)) * i; }
-      else { const j = i - 5, n = rest.length - 5; r = 292; size = 62; a = n === 1 ? 225 : 207 + (46 / (n - 1)) * j; }
-      const rad = a * Math.PI / 180;
-      const s = makeSkill(d, size, false);
-      place(s.b, ATK.x + Math.cos(rad) * r, ATK.y + Math.sin(rad) * r, size);
-      skills.set(d.id, s); applySkill(s, d);
-    }
+    barBox.style.setProperty('--cols', rest.length > BAR_ROW ? Math.ceil(rest.length / 2) : Math.max(1, rest.length));
+    barBox.parentNode.classList.toggle('none', !rest.length);
+    for (const d of rest) { const s = makeSkill(d, SLOT, false); skills.set(d.id, s); applySkill(s, d); }
   }
   function updateSkill(id, d) { const s = skills.get(id); if (s && d) applySkill(s, d); }
   setSkills([]);
+
+  // ── 투지 막대(단축 바 위). setResource 가 한 번도 불리지 않으면(자동 모드) 보이지 않는다 ──
+  const rgEl = q('.h-rage'), rgF = q('.fill', rgEl), rgT = q('.txt', rgEl); const R = { on: false, rage: -1, max: -1 };
+  function setResource(d) {
+    if (!d || d.rage === undefined) return;
+    if (!R.on) { R.on = true; rgEl.classList.add('on'); }
+    const max = d.rageMax > 0 ? d.rageMax : R.max > 0 ? R.max : 100, v = Math.max(0, Math.min(max, +d.rage || 0));
+    if (v === R.rage && max === R.max) return;
+    const up = v > R.rage; R.rage = v; R.max = max;
+    rgF.style.transform = 'scaleX(' + (v / max).toFixed(4) + ')'; rgT.textContent = Math.round(v) + ' / ' + max;
+    rgEl.classList.toggle('full', v >= max); rgEl.classList.toggle('zero', v <= 0);
+    if (up) restart(rgEl, 'gain');
+  }
   let autoOn = false; const autoPill = q('.h-autopill'); const autoSub = q('.s', autoBtn);
   function setAuto(on) { on = !!on; if (on === autoOn) return; autoOn = on; autoBtn.classList.toggle('on', on); autoPill.classList.toggle('on', on); autoSub.textContent = on ? '사냥 중' : '자동사냥'; }
   autoBtn.addEventListener('click', () => emit('toggleAuto'));
@@ -329,7 +418,7 @@ export function create(ctx) {
   const pot = {};
   for (const b of el.querySelectorAll('.h-slot[data-p]')) {
     const kind = b.dataset.p; pot[kind] = { b, n: q('.n', b), k: q('.k', b), v: -1 };
-    setIcon(q('.h-ico', b), kind === 'hp' ? 9 : 10, 'item', 60, false);
+    setIcon(q('.h-ico', b), kind === 'hp' ? 9 : 10, 'item', SLOT, false);
     b.addEventListener('click', () => { emit('potion', kind); restart(b, 'use'); });
   }
   function setPotions(d) {
@@ -375,11 +464,20 @@ export function create(ctx) {
   const minimap = { canvas, ctx2d: canvas.getContext('2d'), size: 220, setCoords };
 
   // ── 메뉴 ─────────────────────────────────────────────────────
-  const menuBox = q('.h-menu');
-  for (const [name, label, path] of MENU) {
-    const b = h('button', 'h-mbtn'); b.type = 'button';
-    b.innerHTML = '<span class="c"><svg viewBox="0 0 24 24">' + path + '</svg></span><span class="l">' + label + '</span>';
-    b.addEventListener('click', () => emit('menu', name)); menuBox.appendChild(b);
+  const menuBox = q('.h-menu'), sysBox = q('.h-sys'), menuBtns = {};
+  for (const [name, label, path, small] of MENU) {
+    const b = h('button', 'h-mbtn' + (small ? ' sm' : '')); b.type = 'button'; b.dataset.menu = name;
+    b.innerHTML = '<span class="c"><svg viewBox="0 0 24 24">' + path + '</svg></span><span class="l">' + label + '</span><span class="bd"></span>';
+    b.addEventListener('click', () => emit('menu', name)); (small ? sysBox : menuBox).appendChild(b);
+    menuBtns[name] = { b, bd: b.lastChild, n: 0 }; b.lastChild.style.display = 'none';
+  }
+  // 메뉴 단추 위의 숫자 배지(예: 미분배 능력 포인트). 0 이하면 숨긴다. 숫자 대신 true 를 주면 점만 찍는다.
+  function setMenuBadge(name, count) {
+    const m = menuBtns[name]; if (!m) return;
+    const n = count === true ? -1 : Math.max(0, Math.floor(+count || 0));
+    if (n === m.n) return; m.n = n;
+    m.bd.textContent = n < 0 ? '' : n > 99 ? '99+' : n; m.bd.classList.toggle('dot', n < 0); m.bd.style.display = n ? '' : 'none';
+    if (n) restart(m.bd, 'pop');
   }
 
   // ── 채팅 ─────────────────────────────────────────────────────
@@ -532,7 +630,29 @@ export function create(ctx) {
 
   // ── 연출 ─────────────────────────────────────────────────────
   const fadeEl = q('.h-fade'), capEl = q('.h-caption');
-  function cinema(on) { el.classList.toggle('h-cinema', !!on); }
+  let demoCine = false, cineOn = false, cineSkip = true, cineCap = '', cineT = 0;
+  const syncCine = () => { el.classList.toggle('h-cinema', demoCine || cineOn); el.classList.toggle('h-cineon', cineOn); el.classList.toggle('h-cineskip', cineOn && cineSkip); };
+  function cinema(on) { demoCine = !!on; syncCine(); }
+  // 이야기 컷신: 위아래 검은 띠 + 아래 띠 위의 자막 + "Space · 클릭: 넘기기". 클릭·Space·Esc → emit('cineSkip'). 컷신 동안 다른 HUD 는 숨는다
+  const ccEl = q('.h-cinecap'), ccTx = q('.tx', ccEl), ccHit = q('.h-cinehit');
+  const cine = {
+    show(o) {
+      o = o || {}; const text = o.caption == null ? '' : String(o.caption), was = cineOn;
+      cineOn = true; cineSkip = o.skippable !== false; tipHide(); syncCine();
+      clearTimeout(cineT);
+      const put = () => { cineCap = text; ccTx.textContent = text; ccEl.classList.toggle('long', text.length > 44); if (text) restart(ccEl, 'on'); else ccEl.classList.remove('on'); };
+      if (was && cineCap && text !== cineCap) { ccEl.classList.remove('on'); cineT = setTimeout(put, 240); }   // 앞 자막이 사라진 뒤 새 자막이 떠오른다
+      else if (!was || text !== cineCap) put();
+      if (o.fx) restart(ccEl, 'fx'); else ccEl.classList.remove('fx');
+    },
+    hide() { if (!cineOn) return; cineOn = false; clearTimeout(cineT); cineCap = ''; ccEl.classList.remove('on', 'fx'); syncCine(); },
+    isOn: () => cineOn,
+  };
+  ccHit.addEventListener('pointerdown', (e) => { if (cineOn && cineSkip && e.button === 0) emit('cineSkip'); });
+  (doc.defaultView || doc).addEventListener('keydown', (e) => {
+    if (!cineOn || !cineSkip || e.repeat || e.ctrlKey || e.metaKey || e.altKey || (e.target && e.target.tagName === 'INPUT')) return;
+    if (e.code === 'Space' || e.code === 'Escape') { e.preventDefault(); emit('cineSkip'); }
+  });
   function fade(to, ms, color) {
     ms = ms || 0; fadeEl.style.background = color || '#000';
     fadeEl.style.transition = ms > 0 ? 'opacity ' + ms + 'ms linear' : 'none'; void fadeEl.offsetWidth;
@@ -544,6 +664,6 @@ export function create(ctx) {
 
   setPlayer({}); setZone('', ''); setPotions({ hp: 0, mp: 0 });
 
-  return { el, setPlayer, setBuffs, setTarget, setBoss, setSkills, updateSkill, setAuto, setPotions, setQuest, setZone, zoneBanner, minimap, setCoords, chat,
-    notice, toast, loot, levelUp, damage, plates: { sync: platesSync }, bubble, cinema, fade, showDemoCaption, setVisible };
+  return { el, setPlayer, setBuffs, setTarget, setCast, setBoss, setSkills, updateSkill, setResource, cine, setAuto, setPotions, setQuest, setZone, zoneBanner, minimap, setCoords, chat,
+    notice, toast, loot, levelUp, damage, plates: { sync: platesSync }, bubble, cinema, fade, showDemoCaption, setVisible, setMenuBadge };
 }

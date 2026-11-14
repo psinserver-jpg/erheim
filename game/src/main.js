@@ -14,7 +14,7 @@ import { createChatDirector } from './game/chatdirector.js';
 import * as SoundMod from './audio/audio.js';
 import { DB } from './core/db.js';
 import { showAuth } from './ui/auth.js';
-import { newCharacter } from './game/story.js';
+import { newCharacter } from './game/saga.js';
 
 // 없는 메서드를 불러도 죽지 않게 감싼다(모듈 사이 계약이 조금 어긋나도 게임은 계속 돈다)
 function safe(obj, path = '') {
@@ -42,7 +42,7 @@ async function boot() {
   const win = safe(Windows.create(ctx), 'win.');
   win.loading.show(); win.loading.set(0.02, '에르하임 왕국으로 향하는 중…');
   document.title = '에르하임: 사자의 맹세';
-  const TIPS = ['강화는 +3까지 안전합니다. 그 이후는… 운명에 맡기세요.', '자동사냥 중에도 물약은 알아서 마십니다.', '문파에 가입하면 레이드 보상이 늘어납니다.', '대장장이 브롬은 실패해도 환불해 주지 않습니다.', '발카르의 붉은 장판은 반드시 피하세요.'];
+  const TIPS = ['강화는 +3까지 실패하지 않습니다. +6부터는 실패하면 증발할 수 있으니… 운명에 맡기세요.', '자동사냥 중에도 물약은 알아서 마십니다.', '문파에 가입하면 레이드 보상이 늘어납니다.', '대장장이 브롬은 실패해도 환불해 주지 않습니다.', '발카르의 붉은 장판은 반드시 피하세요.'];
   const keys = Assets.keys('').filter(k => !k.startsWith('ui/'));
   await Assets.preload(keys, (d, t) => win.loading.set(0.05 + 0.8 * d / t, TIPS[(d / t * TIPS.length) | 0] || TIPS[0]));
   const engine = createEngine(stage); stage.insertBefore(engine.renderer.domElement, uiRoot);
@@ -76,22 +76,33 @@ async function boot() {
     if ((e.ctrlKey || e.metaKey) && LOCK.includes(e.code)) { e.preventDefault(); return; }
     if (e.code === 'KeyF' && !e.repeat && !(e.target && e.target.tagName === 'INPUT')) toggleFs();
   }, true);
-  let started = false, leaving = false;
+  let started = false, leaving = false, logoutAt = -1e9, live = false;
   // ── 계정: 로그인한 계정의 캐릭터를 데이터베이스에 자동 저장한다 ──
   let account = null, saving = false;
-  const saveNow = () => { if (!account || saving) return Promise.resolve(); saving = true; return DB.save(account, game.snapshot()).catch((e) => console.warn('[save]', e)).then(() => { saving = false; }); };
+  const saveNow = () => { if (!account || saving) return Promise.resolve(); saving = true;   // snapshot() 이 예외를 던져도 saving 이 true 로 남지 않게 약속 안에서 부른다(남으면 그 뒤 저장이 영영 멈춘다)
+    return Promise.resolve().then(() => DB.save(account, game.snapshot())).catch((e) => console.warn('[save]', e)).then(() => { saving = false; }); };
   setInterval(saveNow, 5000);
   addEventListener('pagehide', saveNow); document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
   addEventListener('beforeunload', (e) => { saveNow(); if (started && !leaving && !q.get('demo') && !q.get('play')) { e.preventDefault(); e.returnValue = ''; } });
   ui.on('menu', (n) => {
     if (n === 'fullscreen') toggleFs(); else if (n === 'enhance') game.enh.open();
-    else if (n === 'logout') { hud.toast(account ? '저장하고 처음 화면으로 돌아갑니다…' : '처음 화면으로 돌아갑니다…', 'info'); saveNow().then(() => { leaving = true; location.reload(); }); }
+    else if (n === 'logout') {   // 실수로 눌러 진행을 잃지 않게, 4초 안에 한 번 더 눌러야 나간다
+      if (leaving) return; const now = performance.now();
+      if (!(now - logoutAt < 4000)) { logoutAt = now; hud.toast(account ? '[나가기]를 한 번 더 누르면 저장하고 처음 화면으로 돌아갑니다.' : '[나가기]를 한 번 더 누르면 처음 화면으로 돌아갑니다. 체험 모드의 진행은 저장되지 않습니다.', 'info'); return; }
+      leaving = true; hud.toast(account ? '저장하고 처음 화면으로 돌아갑니다…' : '처음 화면으로 돌아갑니다…', 'info'); saveNow().then(() => location.reload()); }
     else { game.refreshWindows(); win.toggle(n); } });
+  // 설정 보관(기기 단위): 직접 플레이에서 바꾼 설정을 남겨 두었다가 다음 직접 플레이 때 되살린다. 녹화용 자동 모드는 읽지도 쓰지도 않는다(언제나 기본값)
+  const CFG_KEY = 'erheim_settings_v1', CFG_OPTS = { quality: ['낮음', '보통', '높음'], potionAt: ['40%', '60%', '80%'] };
+  const savedSettings = () => {
+    try { const o = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'), def = win.settings.get(), out = {}; if (!o || typeof o !== 'object') return null;
+      for (const k in def) { const v = o[k]; if (typeof v !== typeof def[k]) continue; if (typeof v === 'number') { if (v >= 0 && v <= 100) out[k] = Math.round(v); } else if (typeof v === 'string') { if ((CFG_OPTS[k] || []).includes(v)) out[k] = v; } else out[k] = v; }
+      return out; } catch (e) { return null; } };
+  ui.on('setting', () => { if (!live) return; try { localStorage.setItem(CFG_KEY, JSON.stringify(win.settings.get())); } catch (e) { } });
   // 화면 조작 소리
   ui.on('windowOpen', () => sound.sfx('ui_open', { volume: 0.7 }));
   document.addEventListener('click', (e) => { if (e.target && e.target.closest && e.target.closest('#ui button, #ui .btn, #ui .interactive, #ui .w-opt, #ui .a-tab')) sound.sfx('ui_click'); }, true);
   const demo = createDemo({ engine, world, game, ui, vfx: safe(vfx, 'vfx.'), sound, chat });
-  window.__GAME__ = { game, engine, demo, hud, win, vfx, sound, DB };
+  window.__GAME__ = { game, engine, demo, hud, win, vfx, sound, DB, emit: ctx.emit };   // emit: 시험 스크립트가 UI 이벤트(itemAction, shopBuy …)를 흉내 낼 때 쓴다
   win.loading.set(1, '입장 준비 완료'); 
   const clock = new THREE.Clock(); let acc = 0;
   engine.renderer.setAnimationLoop(() => {
@@ -100,7 +111,8 @@ async function boot() {
     engine.update(dt); engine.render();
     if (acc > 0.5) window.__READY__ = true;
   });
-  const start = (isDemo, profile) => { started = true; if (profile) game.loadProfile(profile); win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
+  const start = (isDemo, profile) => { started = true; if (profile) game.loadProfile(profile); if (!isDemo) { live = true; const sv = savedSettings(); if (sv) win.settings.set(sv); game.sys.start(win.settings.get()); }   // 직접 플레이: 보관해 둔 설정(없으면 기본값)을 한 번 적용한다. 자동 모드는 이전 그대로
+    win.title.hide(); hud.setVisible(true); try { sound.bgm('bgm_town', { fade: 1 }); } catch (e) { } if (isDemo) demo.start(+(q.get('t') || 0)); else hud.zoneBanner('벨로스 성채', '안전 지역'); };
   setTimeout(() => { win.loading.hide(); if (q.get('demo') || q.get('auto')) start(true); else if (q.get('play')) start(false, q.get('story') ? newCharacter('시험기사') : null);
     else win.title.show({ onStart: () => showAuth({ root: uiRoot, sfx: (n) => sound.sfx(n), onDone: (res) => { account = res.account; start(false, res.data); }, onGuest: () => start(false) }), onDemo: () => start(true) }); }, 300);
 }

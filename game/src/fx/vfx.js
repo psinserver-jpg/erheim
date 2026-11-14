@@ -1,7 +1,8 @@
 // 〈에르하임〉 이펙트 모음 (SPEC 4절).
 // - 텍스처는 전부 캔버스로 그린다(vfx_textures.js). 입자는 인스턴싱 묶음 3개(가산 섬광 / 불길 / 연기), 메시·그룹은 풀에서 꺼내 쓴다(vfx_core.js).
 // - 좌표: Y 위. yaw 는 object.rotation.y 와 같은 뜻(0 이면 +Z 를 바라봄, 앞 = (sin yaw, 0, cos yaw)).
-// - 블룸 전제로 색을 1 보다 세게 낸다(가산 혼합).
+// - 밝기 기준(v4 엔진): 장면은 선형 HDR 로 그려지고 노출(약 2)을 곱한 뒤 1.5 를 넘는 것만 번진다. 섬광의 심지·테두리 선만 그 문턱을 넘기고,
+//   면·연기·잔광은 문턱 아래에 둔다(겹쳐도 화면이 허옇게 날아가지 않게). 전체 배율은 아래 TONE.
 import * as THREE from 'three';
 import { buildTextures, CELL } from './vfx_textures.js';
 import { ParticleBatch, MeshPool, buildGeometries, makeMat, P, np, pcol, pcol1, GAIN } from './vfx_core.js';
@@ -14,7 +15,9 @@ const easeOut = (x) => 1 - (1 - x) * (1 - x);
 const easeOut3 = (x) => 1 - Math.pow(1 - x, 3);
 const _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _v3 = new THREE.Vector3(), _v4 = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4();
 const UP = new THREE.Vector3(0, 1, 0), _c1 = new THREE.Color(), _c2 = new THREE.Color();
-const DUST = 0xb8a88a;
+const DUST = 0x8f8370;
+// 조정 손잡이: glow = 가산 섬광 전체 배율, dust = 먼지·연기 짙기 배율, flame = 불길 밝기 배율
+const TONE = { glow: 0.44, dust: 0.72, flame: 1.0 };
 
 // ───────────── 이펙트 수명 관리 ─────────────
 // cleanup = 정리(메시 반환·그룹 제거만 — 새 이펙트를 만들거나 콜백을 부르지 않는다). 수명이 끝나든, 취소(dead)되든, clear() 되든 한 번 불린다.
@@ -35,7 +38,7 @@ function worldPos(o, out) { return o.isObject3D ? o.getWorldPosition(out) : out.
 // ───────────── 입자 뿌리기 도우미 ─────────────
 function dirRand(ymin, ymax) { const y = rnd(ymin, ymax), r = Math.sqrt(Math.max(0, 1 - y * y)), a = Math.random() * TAU; return _v4.set(Math.cos(a) * r, y, Math.sin(a) * r); }
 function glowAt(x, y, z, color, s0, s1, life, a = 1, mul = 1.2, tex = CELL.GLOW) {
-  mul *= 0.62;
+  mul *= TONE.glow;
   np(); P.x = x; P.y = y; P.z = z; P.s0 = s0; P.s1 = s1; P.life = life; P.a = a; P.tex = tex; P.pow = 2; pcol(color, mul); return S.add.push();
 }
 function sparks(x, y, z, n, color, v0, v1, o = {}) {
@@ -43,15 +46,16 @@ function sparks(x, y, z, n, color, v0, v1, o = {}) {
   for (let i = 0; i < n; i++) {
     const d = dirRand(ymin, ymax), sp = rnd(v0, v1); np();
     P.x = x + d.x * 0.1; P.y = y + d.y * 0.1; P.z = z + d.z * 0.1; P.vx = d.x * sp; P.vy = d.y * sp; P.vz = d.z * sp;
-    P.life = rnd(life0, life1); P.s0 = size * rnd(0.7, 1.3); P.s1 = size * 0.25; P.grav = grav; P.drag = o.drag ?? 2.2; P.stretch = o.stretch ?? 0.06; P.tex = CELL.SPARK; P.pow = 1.2; P.age = -delay;
-    pcol(color, rnd(1.2, 2.0)); if (Math.random() < 0.35) { P.r = Math.max(P.r, 1.6); P.g = Math.max(P.g, 1.6); P.b = Math.max(P.b, 1.4); }
+    P.life = rnd(life0, life1); P.s0 = size * rnd(0.6, 1.2); P.s1 = size * 0.2; P.grav = grav; P.drag = o.drag ?? 2.2; P.stretch = o.stretch ?? 0.07; P.tex = CELL.SPARK; P.pow = 1.1; P.age = -delay;
+    pcol(color, rnd(1.0, 1.7)); if (Math.random() < 0.3) { P.r = Math.max(P.r, 1.5); P.g = Math.max(P.g, 1.4); P.b = Math.max(P.b, 1.1); }
+    P.r1 = P.r * 0.7; P.g1 = P.g * 0.28; P.b1 = P.b * 0.1;      // 식으면서 붉어진다
     S.add.push();
   }
 }
 const SMK = [CELL.SMOKE, CELL.SMOKE2, CELL.SMOKE3];
 function smokeTex() { return SMK[Math.random() * 3 | 0]; }
 function smokePuffs(x, y, z, n, color, o = {}) {
-  const sp = o.speed ?? 1.5, size = o.size ?? 1, rise = o.rise ?? 0.6, alpha = o.alpha ?? 0.32, life = o.life ?? 1, spread = o.spread ?? 0.2, delay = o.delay ?? 0;
+  const sp = o.speed ?? 1.5, size = o.size ?? 1, rise = o.rise ?? 0.6, alpha = (o.alpha ?? 0.32) * TONE.dust, life = o.life ?? 1, spread = o.spread ?? 0.2, delay = o.delay ?? 0;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * TAU, v = sp * rnd(0.4, 1); np();
     P.x = x + Math.cos(a) * spread * Math.random(); P.y = y + rnd(0.05, 0.25) * size; P.z = z + Math.sin(a) * spread * Math.random();
@@ -76,7 +80,8 @@ function init({ scene, camera, renderer }) {
   S.tex = buildTextures();
   if (renderer && renderer.capabilities) { const an = Math.min(4, renderer.capabilities.getMaxAnisotropy()); for (const k of ['rune', 'crack', 'scorch']) S.tex[k].anisotropy = an; }
   S.root = new THREE.Group(); S.root.name = 'VFX'; scene.add(S.root);
-  S.add = new ParticleBatch(7000, S.tex.atlas, 'add'); S.nrm = new ParticleBatch(2500, S.tex.atlas, 'nrm'); S.fire = new ParticleBatch(2500, S.tex.atlas, 'fire');
+  S.add = new ParticleBatch(7000, S.tex.atlas, 'add'); S.nrm = new ParticleBatch(2500, S.tex.atlas, 'nrm'); S.fire = new ParticleBatch(2500, S.tex.atlas, 'fire', S.tex.noise);
+  S.sun = null; S.hemi = null; scene.traverse((o) => { if (o.isDirectionalLight && (!S.sun || o.castShadow)) S.sun = o; if (o.isHemisphereLight) S.hemi = o; });
   S.root.add(S.nrm.mesh, S.fire.mesh, S.add.mesh);
   S.pool = new MeshPool(buildGeometries());
   S.effects.length = 0; S.time = 0; S.ok = true;
@@ -85,6 +90,7 @@ function update(dt) {
   if (!S.ok) return;
   if (!(dt > 0)) dt = 0; if (dt > 0.1) dt = 0.1;
   S.time += dt;
+  syncLight();
   const fx = S.effects, gen = S.gen;
   for (let i = 0; i < fx.length; i++) {
     const e = fx[i];
@@ -98,8 +104,16 @@ function update(dt) {
   }
   S.nrm.update(dt); S.fire.update(dt); S.add.update(dt);
 }
+// 연기·먼지가 받는 빛: 해와 하늘빛에서 어림한다(성채의 늦은 오후가 1 근처, 묘지·제단은 어둡고 푸르게)
+function syncLight() {
+  const L = S.nrm.mat.uniforms.uLight.value; let r = 0.25, g = 0.25, b = 0.25;
+  if (S.sun) { const k = S.sun.intensity * 0.15, c = S.sun.color; r += c.r * k; g += c.g * k; b += c.b * k; }
+  if (S.hemi) { const k = 0.25 + S.hemi.intensity * 0.6, c = S.hemi.color; r += c.r * k; g += c.g * k; b += c.b * k; }
+  else { r += 0.5; g += 0.5; b += 0.5; }
+  L.set(Math.min(1.3, r), Math.min(1.3, g), Math.min(1.3, b));
+}
 function count() { return S.effects.length; }
-function setIntensity(g) { GAIN.value = g; }
+function setIntensity(g) { GAIN.value = g; }      // 전체 밝기 배율(1 = 기본)
 // 전부 즉시 제거: 정리 콜백만 부른다(후속 폭발·충격파·onHit 은 일어나지 않는다). 핸들은 그 뒤로 아무 일도 하지 않는다.
 function clear() {
   if (!S.ok) return;
@@ -117,13 +131,13 @@ function textureFor(name) { return S.tex ? (S.tex[name] || null) : null; }
 // ───────────── 바닥 고리 공용 ─────────────
 function groundRing(x, y, z, radius, color, dur, o = {}) {
   const m = mesh('plane', 'ring', o.parent); m.position.set(x, y + (o.lift ?? 0.05), z); m.scale.setScalar(radius); m.renderOrder = 12;   // o.parent 를 주면 그 그룹 기준 좌표(대상을 따라감)
-  const u = setU(m, color, 1, o.intensity ?? 1.8); u.uFill.value = o.fill ?? 0;
+  const u = setU(m, color, 1, (o.intensity ?? 1.8) * 0.62); u.uFill.value = (o.fill ?? 0) * 0.6;
   const w0 = o.w0 ?? 0.2, w1 = o.w1 ?? 0.04, r0 = o.r0 ?? 0.08;
   run(dur, (k) => { const e = easeOut3(k); u.uRadius.value = r0 + (0.97 - r0) * e; u.uWidth.value = w0 + (w1 - w0) * e; u.uOpacity.value = Math.pow(1 - k, 1.3) * (o.opacity ?? 1); }, () => free(m));
 }
 function groundGlow(x, y, z, radius, color, dur, intensity = 1.5, opacity = 0.9) {
   const m = mesh('plane', 'tex'); m.position.set(x, y + 0.04, z); m.scale.setScalar(radius); m.renderOrder = 11;
-  const u = setU(m, color, opacity, intensity); u.uMap.value = S.tex.glow; u.uRot.value = 0;
+  const u = setU(m, color, opacity, intensity * 0.7); u.uMap.value = S.tex.glow; u.uRot.value = 0;
   run(dur, (k) => { u.uOpacity.value = opacity * Math.pow(1 - k, 1.6); }, () => free(m));
 }
 
@@ -140,7 +154,7 @@ function slash(pos, yaw = 0, o = {}) {
   const g = grp(); g.position.set(pos.x, (pos.y || 0) + c.h * sc, pos.z); g.rotation.y = yaw;
   const m1 = mesh(c.geo, 'slash', g), m2 = mesh(c.geo, 'slash', g);
   m1.rotation.set(c.rx * D, 0, c.rz * D); m1.renderOrder = 25; m1.material.uniforms.uMap.value = S.tex.slash;
-  const u1 = setU(m1, color, 1, 1.7), u2 = setU(m2, color, 0.5, 1.0);
+  const u1 = setU(m1, color, 1, 1.55), u2 = setU(m2, color, 0.3, 0.7);
   if (kind === 'arc1' && S.camera) {
     // 사선(오른위→왼아래)은 그대로 두고, 띠가 카메라에 모로 서서 실처럼 보일 때만 사선 축(띠의 양 끝을 잇는 선)을 중심으로
     // 띠 면을 카메라 쪽으로 눕힌다(최대 40°). 방향은 뒤집히지 않는다.
@@ -154,7 +168,7 @@ function slash(pos, yaw = 0, o = {}) {
   const R = c.R * sc;
   // 띠에서 떨어져 나가는 불티
   m1.scale.setScalar(R); g.updateMatrixWorld(true);
-  const n = kind === 'spin' ? 22 : 12;
+  const n = kind === 'spin' ? 14 : 8;
   for (let i = 0; i < n; i++) {
     const uu = rnd(0.1, 0.95), th = (c.a0 + (c.a1 - c.a0) * uu) * D, sg = Math.sign(c.a1 - c.a0);
     m1.localToWorld(_v.set(-Math.sin(th), 0, Math.cos(th)));
@@ -162,7 +176,7 @@ function slash(pos, yaw = 0, o = {}) {
     _v3.set(-Math.sin(th), 0, Math.cos(th)).transformDirection(m1.matrixWorld);
     np(); const sp = rnd(3, 9) * sc;
     P.x = _v.x; P.y = _v.y; P.z = _v.z; P.vx = _v2.x * sp + _v3.x * sp * 0.5; P.vy = _v2.y * sp + _v3.y * sp * 0.5 + 1; P.vz = _v2.z * sp + _v3.z * sp * 0.5;
-    P.life = rnd(0.2, 0.42); P.s0 = 0.11 * sc; P.s1 = 0.03; P.stretch = 0.05; P.tex = CELL.SPARK; P.drag = 3; P.grav = 5; P.age = -uu * c.sweep; pcol(color, rnd(1.5, 2.6));
+    P.life = rnd(0.18, 0.36); P.s0 = 0.07 * sc; P.s1 = 0.02; P.stretch = 0.06; P.tex = CELL.SPARK; P.drag = 3; P.grav = 6; P.age = -uu * c.sweep; pcol(Math.random() < 0.5 ? 0xffe6c0 : color, rnd(1.0, 1.8));
     S.add.push();
   }
   run(c.dur, (k, dt, e) => {
@@ -170,7 +184,7 @@ function slash(pos, yaw = 0, o = {}) {
     const fade = e.t < c.sweep ? 1 : Math.pow(1 - (e.t - c.sweep) / (c.dur - c.sweep), 1.7);
     u1.uHead.value = hs(e.t); u2.uHead.value = hs(e.t - 0.025);
     u1.uTail.value = u2.uTail.value = 1.15 - 0.55 * k; u1.uTime.value = u2.uTime.value = e.t;
-    u1.uOpacity.value = fade; u2.uOpacity.value = fade * 0.55;
+    u1.uOpacity.value = fade; u2.uOpacity.value = fade * 0.3;
     m1.scale.setScalar(R * (0.94 + 0.14 * k)); m2.scale.setScalar(R * (1.04 + 0.22 * k));
   }, () => { free(m1, m2); ungrp(g); });
   const fx = Math.sin(yaw), fz = Math.cos(yaw), py = pos.y || 0;
@@ -179,49 +193,51 @@ function slash(pos, yaw = 0, o = {}) {
     after(c.sweep * 0.9, () => {
       shockwave({ x: ix, y: py, z: iz }, 2.6 * sc, { color });
       groundDecal({ x: ix, y: py, z: iz }, { kind: 'crack', radius: 1.7 * sc, duration: 3.5, color });
-      glowAt(ix, py + 0.3, iz, 0xffffff, 1.2 * sc, 3.6 * sc, 0.14, 1, 1.6);
-      sparks(ix, py + 0.15, iz, 22, color, 4 * sc, 12 * sc, { ymin: 0.35, grav: 16 });
-      debris(ix, py, iz, 10, 3, 8, 0.1 * sc);
-      for (let i = 0; i < 7; i++) {   // 솟는 빛줄기
+      glowAt(ix, py + 0.3, iz, 0xffffff, 0.8 * sc, 2.2 * sc, 0.12, 1, 1.5);
+      sparks(ix, py + 0.15, iz, 18, 0xffc890, 4 * sc, 11 * sc, { ymin: 0.35, grav: 16 });
+      debris(ix, py, iz, 12, 3, 8, 0.1 * sc);
+      for (let i = 0; i < 4; i++) {   // 솟는 빛줄기
         np(); const a = Math.random() * TAU, r = rnd(0, 0.7) * sc; P.x = ix + Math.cos(a) * r; P.y = py; P.z = iz + Math.sin(a) * r; P.vy = rnd(7, 14) * sc; P.life = rnd(0.18, 0.32);
-        P.s0 = 0.16 * sc; P.s1 = 0.03; P.stretch = 0.09; P.tex = CELL.SPARK; P.drag = 3; pcol(color, 2.2); S.add.push();
+        P.s0 = 0.1 * sc; P.s1 = 0.02; P.stretch = 0.09; P.tex = CELL.SPARK; P.drag = 3; pcol(color, 1.5); S.add.push();
       }
     });
   } else if (kind === 'spin') {
     const px = pos.x, pz = pos.z;
-    after(0.05, () => { groundRing(px, py, pz, 3.0 * sc, color, 0.45, { w0: 0.16, w1: 0.03, r0: 0.3, intensity: 1.4, opacity: 0.8 }); dust(_v.set(px, py, pz), { scale: 1.3 * sc }); });
+    after(0.05, () => { groundRing(px, py, pz, 3.0 * sc, color, 0.4, { w0: 0.12, w1: 0.02, r0: 0.3, intensity: 1.2, opacity: 0.7 }); dust(_v.set(px, py, pz), { scale: 1.3 * sc }); });
   }
 }
 
 // ───────────── 타격 ─────────────
 function hit(pos, o = {}) {
   if (!S.ok) return;
-  const crit = !!o.crit, color = o.color ?? (crit ? 0xffb347 : 0xffd9a0), k = (o.scale ?? 1) * (crit ? 1.45 : 1), x = pos.x, y = pos.y || 0, z = pos.z;
-  glowAt(x, y, z, 0xffffff, 0.9 * k, 2.4 * k, 0.11, 1, 2.6);
-  glowAt(x, y, z, color, 2.2 * k, 4.4 * k, crit ? 0.3 : 0.22, 0.75, 1.6);
-  const i1 = glowAt(x, y, z, 0xfff2d0, 1.6 * k, (crit ? 5.2 : 3.4) * k, crit ? 0.26 : 0.16, 1, 2.4, CELL.STAR);
+  const crit = !!o.crit, color = o.color ?? (crit ? 0xffb347 : 0xffd9a0), k = (o.scale ?? 1) * (crit ? 1.3 : 1), x = pos.x, y = pos.y || 0, z = pos.z;
+  // 섬광은 작고 짧게(2~3프레임), 색 번짐은 옅게. 맞은 느낌은 튀는 불티와 먼지가 만든다
+  glowAt(x, y, z, 0xffffff, 0.45 * k, 1.3 * k, 0.09, 1, 2.6);
+  glowAt(x, y, z, color, 1.0 * k, 2.4 * k, crit ? 0.22 : 0.16, 0.55, 1.3);
+  const i1 = glowAt(x, y, z, 0xfff2d0, 0.9 * k, (crit ? 2.9 : 2.0) * k, crit ? 0.2 : 0.13, 1, 2.2, CELL.STAR);
   if (i1 >= 0) S.add.d.rot[i1] = rnd(-0.4, 0.4);
   if (crit) {
-    const i2 = glowAt(x, y, z, color, 1.2 * k, 3.8 * k, 0.3, 0.9, 2.2, CELL.STAR); if (i2 >= 0) { S.add.d.rot[i2] = PI / 4 + rnd(-0.2, 0.2); S.add.d.rotV[i2] = 2; }
-    glowAt(x, y, z, color, 0.5 * k, 5.0 * k, 0.26, 0.45, 1.4, CELL.RING);
+    const i2 = glowAt(x, y, z, color, 0.7 * k, 2.3 * k, 0.24, 0.9, 1.9, CELL.STAR); if (i2 >= 0) { S.add.d.rot[i2] = PI / 4 + rnd(-0.2, 0.2); S.add.d.rotV[i2] = 2; }
+    glowAt(x, y, z, color, 0.4 * k, 3.0 * k, 0.22, 0.4, 1.2, CELL.RING);
   }
-  sparks(x, y, z, crit ? 34 : 18, color, 5 * k, (crit ? 17 : 12) * k, { ymin: -0.5 });
-  if (crit) sparks(x, y, z, 10, 0xffffff, 1.5, 5, { life0: 0.5, life1: 0.9, grav: 6, stretch: 0.04, size: 0.07 });
+  sparks(x, y, z, crit ? 26 : 13, 0xffb468, 4 * k, (crit ? 15 : 10) * k, { ymin: -0.4, size: 0.08, grav: 15 });
+  sparks(x, y, z, crit ? 8 : 4, color, 2, 6, { life0: 0.35, life1: 0.7, grav: 7, stretch: 0.05, size: 0.06 });
+  smokePuffs(x, y - 0.15, z, crit ? 4 : 2, DUST, { speed: 1.4 * k, size: 0.42 * k, rise: 0.5, alpha: 0.3, life: 0.55, spread: 0.12 });
 }
 
 // ───────────── 충격파 / 먼지 ─────────────
 function shockwave(pos, radius = 3, o = {}) {
   if (!S.ok) return;
   const color = o.color ?? 0xffe2b0, dur = o.duration ?? 0.55, x = pos.x, y = pos.y || 0, z = pos.z;
-  groundRing(x, y, z, radius * 1.12, color, dur, { w0: 0.24, w1: 0.05, intensity: 1.5 });
-  groundRing(x, y, z, radius * 0.8, color, dur * 0.8, { w0: 0.12, w1: 0.03, intensity: 1.2, opacity: 0.6, lift: 0.06 });
-  groundGlow(x, y, z, radius * 0.9, color, dur * 0.5, 0.6, 0.4);
+  groundRing(x, y, z, radius * 1.12, color, dur, { w0: 0.16, w1: 0.03, intensity: 1.5 });
+  groundRing(x, y, z, radius * 0.8, color, dur * 0.8, { w0: 0.08, w1: 0.02, intensity: 1.0, opacity: 0.45, lift: 0.06 });
+  groundGlow(x, y, z, radius * 0.8, color, dur * 0.45, 0.45, 0.3);
   // 먼지: 각도·출발 반경·속도·크기를 흩뜨려 도넛처럼 고르게 보이지 않게 한다(크고 느린 덩이 + 작고 빠른 줄기)
-  const n = Math.min(44, Math.round(12 + radius * 5)), sp = radius / dur * 1.1;
+  const n = Math.min(44, Math.round(12 + radius * 5)), sp = radius / dur * 1.1, pr = Math.min(radius, 5.5);      // 먼지 덩이 크기는 반경이 커도 5.5m 기준에서 멈춘다
   for (let i = 0; i < n; i++) {
-    const a = Math.random() * TAU, big = Math.random() < 0.4, q = big ? rnd(0.35, 0.8) : rnd(0.7, 1.25), r0 = radius * rnd(0.05, 0.5), sz = big ? rnd(0.5, 0.85) : rnd(0.16, 0.42); np();
+    const a = Math.random() * TAU, big = Math.random() < 0.4, q = big ? rnd(0.35, 0.8) : rnd(0.7, 1.25), r0 = radius * rnd(0.05, 0.5), sz = (big ? rnd(0.5, 0.85) : rnd(0.16, 0.42)) * pr / radius; np();
     P.x = x + Math.cos(a) * r0; P.y = y + rnd(0.1, 0.35); P.z = z + Math.sin(a) * r0; P.vx = Math.cos(a) * sp * q; P.vz = Math.sin(a) * sp * q; P.vy = rnd(0.2, big ? 1.0 : 2.4);
-    P.life = dur * rnd(1.4, 3.0); P.s0 = radius * sz * 0.4; P.s1 = radius * sz; P.drag = rnd(2.0, 3.4); P.rot = Math.random() * TAU; P.rotV = rnd(-1.2, 1.2); P.a = rnd(0.3, 0.6); P.tex = smokeTex(); P.fadeIn = 0.06; P.age = -Math.random() * dur * 0.18;
+    P.life = dur * rnd(1.4, 3.0); P.s0 = radius * sz * 0.4; P.s1 = radius * sz; P.drag = rnd(2.0, 3.4); P.rot = Math.random() * TAU; P.rotV = rnd(-1.2, 1.2); P.a = rnd(0.24, 0.5) * TONE.dust; P.tex = smokeTex(); P.fadeIn = 0.06; P.age = -Math.random() * dur * 0.18;
     pcol(DUST, rnd(0.65, 1.15)); S.nrm.push();
   }
   debris(x, y, z, Math.min(14, 4 + radius * 2 | 0), 2, 3 + radius * 1.5, 0.09);
@@ -238,16 +254,16 @@ function footDust(pos) {
 // ───────────── 빛기둥 공용 ─────────────
 function beamMesh(parent, color, radius, height, o = {}) {
   const m = mesh(o.cone ? 'cone' : 'cyl', 'beam', parent); m.scale.set(radius, height, radius); m.renderOrder = 22;
-  const u = setU(m, color, o.opacity ?? 1, o.intensity ?? 1.6); u.uMap.value = S.tex.beam; u.uTopFade.value = o.topFade ?? 1.6; u.uSpeed.value = o.speed ?? 1.2; u.uTime.value = Math.random() * 10;
+  const u = setU(m, color, o.opacity ?? 1, (o.intensity ?? 1.6) * 0.6); u.uMap.value = S.tex.beam; u.uTopFade.value = o.topFade ?? 1.6; u.uSpeed.value = o.speed ?? 1.2; u.uTime.value = Math.random() * 10;
   return m;
 }
 function runeMesh(parent, color, radius, intensity = 1.6) {
   const m = mesh('plane', 'tex', parent); m.position.y = 0.05; m.scale.setScalar(radius); m.renderOrder = 13;
-  const u = setU(m, color, 1, intensity); u.uMap.value = S.tex.rune; u.uRot.value = 0; return m;
+  const u = setU(m, color, 1, intensity * 0.68); u.uMap.value = S.tex.rune; u.uRot.value = 0; return m;
 }
 function riseSpark(x, y, z, color, o = {}) {
   np(); P.x = x; P.y = y; P.z = z; P.vy = rnd(o.v0 ?? 2.5, o.v1 ?? 6); P.life = rnd(o.life0 ?? 0.5, o.life1 ?? 1.1); P.s0 = (o.size ?? 0.11) * rnd(0.7, 1.4); P.s1 = P.s0 * 0.2;
-  P.stretch = o.stretch ?? 0.07; P.tex = CELL.SPARK; P.turb = o.turb ?? 1.5; P.fadeIn = 0.1; P.pow = 1.2; pcol(color, rnd(1.4, 2.4)); S.add.push();
+  P.stretch = o.stretch ?? 0.07; P.tex = CELL.SPARK; P.turb = o.turb ?? 1.5; P.fadeIn = 0.1; P.pow = 1.2; pcol(color, rnd(1.0, 1.8)); S.add.push();
 }
 
 // ───────────── 레벨업 ─────────────
@@ -260,8 +276,8 @@ function levelUp(obj) {
   const u1 = c1.material.uniforms, u2 = c2.material.uniforms;
   let acc = 0, hacc = 0, burst = false; const ang0 = Math.random() * TAU;
   const p = g.position;
-  glowAt(p.x, p.y + 1, p.z, 0xffffff, 2, 7, 0.22, 1, 2.4);
-  glowAt(p.x, p.y + 1.1, p.z, PALE, 2, 8, 0.35, 0.9, 2.2, CELL.STAR);
+  glowAt(p.x, p.y + 1, p.z, 0xffffff, 1.4, 4.2, 0.2, 1, 2.2);
+  glowAt(p.x, p.y + 1.1, p.z, PALE, 1.6, 5.5, 0.32, 0.9, 2.0, CELL.STAR);
   groundRing(0, 0, 0, 4.2, GOLD, 0.6, { intensity: 2.2, parent: g });     // 고리도 대상을 따라간다
   run(2.5, (k, dt, e) => {
     worldPos(obj, p); const t = e.t;
@@ -269,12 +285,12 @@ function levelUp(obj) {
     c1.scale.setScalar(2.6 * (0.3 + 0.7 * easeOut3(fin))); c2.scale.setScalar(3.5 * (0.2 + 0.8 * easeOut3(clamp01(t / 0.3))));
     u1.uRot.value = t * 1.3; u2.uRot.value = -t * 0.8; u1.uOpacity.value = env; u2.uOpacity.value = env * 0.7;
     const pulse = 0.85 + 0.15 * Math.sin(t * 18), open = easeOut3(clamp01(t / 0.25)), bo = clamp01((2.3 - t) / 0.9);
-    b1.scale.set(1.25 * open * (0.75 + 0.25 * bo), 10, 1.25 * open * (0.75 + 0.25 * bo)); b1.material.uniforms.uOpacity.value = bo * pulse * 0.6; b1.material.uniforms.uTime.value += dt;
+    b1.scale.set(1.25 * open * (0.75 + 0.25 * bo), 10, 1.25 * open * (0.75 + 0.25 * bo)); b1.material.uniforms.uOpacity.value = bo * pulse * 0.42; b1.material.uniforms.uTime.value += dt;
     b2.scale.set(0.45 * open * bo + 0.02, 12, 0.45 * open * bo + 0.02); b2.material.uniforms.uOpacity.value = bo * 0.8; b2.material.uniforms.uTime.value += dt;
     b3.material.uniforms.uOpacity.value = env * 0.7; b3.material.uniforms.uTime.value += dt;
     if (!burst && t > 0.12) { burst = true; sparks(p.x, p.y + 0.3, p.z, 46, GOLD, 5, 12, { ymin: 0.0, ymax: 0.5, grav: 3, life0: 0.5, life1: 1.0, drag: 2.5 }); }
     if (t < 2.0) {
-      acc += dt * 150;
+      acc += dt * 95;
       while (acc >= 1) {
         acc--; const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * 1.8;
         riseSpark(p.x + Math.cos(a) * r, p.y + rnd(0, 0.6), p.z + Math.sin(a) * r, Math.random() < 0.3 ? PALE : GOLD, { v0: 3, v1: 9, life0: 0.6, life1: 1.3 });
@@ -307,16 +323,16 @@ function buff(obj, o = {}) {
   const e = run(dur, (k, dt, e) => {
     worldPos(obj, p); const t = e.t, env = clamp01(t / 0.2) * clamp01((e.dur - t) / 0.5);
     ur.uOpacity.value = env * (0.7 + 0.3 * Math.sin(t * 6)); rune.material.uniforms.uOpacity.value = env * 0.8; rune.material.uniforms.uRot.value = t * 1.5;
-    aura.material.uniforms.uOpacity.value = env * 0.45; aura.material.uniforms.uTime.value += dt;
+    aura.material.uniforms.uOpacity.value = env * 0.36; aura.material.uniforms.uTime.value += dt;
     // 몸을 감아 도는 세 줄 나선(구슬 + 긴 꼬리). 초당 개수로 뿌리고 프레임 사이를 메워 주사율과 무관하게 같은 밝기.
     oacc += dt * 64; const no = oacc | 0; oacc -= no;
     for (let j = 0; j < no; j++) {
       const tj = t - dt * (j / no);
       for (let s = 0; s < 3; s++) {
         const a = ang0 + tj * 4.6 + s * TAU / 3, y = 1.1 + 0.8 * Math.sin(tj * 1.9 + s * TAU / 3), ox = Math.cos(a) * 0.95, oz = Math.sin(a) * 0.95;
-        np(); P.x = p.x + ox; P.y = p.y + y; P.z = p.z + oz; P.s0 = 0.56; P.s1 = 0.1; P.life = 0.62; P.a = env; P.pow = 1.1; P.tex = CELL.GLOW; pcol(color, 1.0); S.add.push();
+        np(); P.x = p.x + ox; P.y = p.y + y; P.z = p.z + oz; P.s0 = 0.42; P.s1 = 0.08; P.life = 0.6; P.a = env; P.pow = 1.1; P.tex = CELL.GLOW; pcol(color, 0.62); S.add.push();
         if (s === 0) on++;
-        if ((on & 1) === 0) { np(); P.x = p.x + ox; P.y = p.y + y; P.z = p.z + oz; P.s0 = 0.26; P.s1 = 0.05; P.life = 0.26; P.a = env; P.pow = 1; P.tex = CELL.GLOW; pcol(0xffffff, 1.1); S.add.push(); }
+        if ((on & 1) === 0) { np(); P.x = p.x + ox; P.y = p.y + y; P.z = p.z + oz; P.s0 = 0.2; P.s1 = 0.04; P.life = 0.26; P.a = env; P.pow = 1; P.tex = CELL.GLOW; pcol(0xffffff, 0.75); S.add.push(); }
       }
     }
     acc += dt * 22 * env; while (acc >= 1) { acc--; const a = Math.random() * TAU; riseSpark(p.x + Math.cos(a) * rnd(0.4, 1), p.y + rnd(0, 0.5), p.z + Math.sin(a) * rnd(0.4, 1), color, { v0: 1.2, v1: 3, life0: 0.5, life1: 0.9, size: 0.07 }); }
@@ -359,10 +375,10 @@ function teleport(pos, o = {}) {
     b1.scale.set(r, 11, r); b2.scale.set(r * 0.35 + 0.03, 13, r * 0.35 + 0.03);
     b1.material.uniforms.uOpacity.value = env * 0.6; b2.material.uniforms.uOpacity.value = env * 0.8; b1.material.uniforms.uTime.value += dt; b2.material.uniforms.uTime.value += dt;
     if (!flashed && k >= flashAt) {
-      flashed = true; glowAt(x, y + 1, z, 0xffffff, 1.5, 6, 0.2, 1, 2.4); glowAt(x, y + 1, z, PALE, 2, 7, 0.3, 0.9, 2, CELL.STAR);
+      flashed = true; glowAt(x, y + 1, z, 0xffffff, 1.2, 4, 0.18, 1, 2.2); glowAt(x, y + 1, z, PALE, 1.5, 5, 0.28, 0.9, 1.9, CELL.STAR);
       groundRing(x, y, z, 3.2, color, 0.45, { intensity: 2 }); sparks(x, y + 0.8, z, 26, color, 3, 9, { ymin: -0.2, grav: 2, life0: 0.4, life1: 0.8 });
     }
-    acc += dt * 110 * env;
+    acc += dt * 80 * env;
     while (acc >= 1) {
       acc--; const a = Math.random() * TAU, rr = rnd(0.1, 1.0);
       if (out) riseSpark(x + Math.cos(a) * rr, y + rnd(0, 1.5), z + Math.sin(a) * rr, Math.random() < 0.3 ? PALE : color, { v0: 6, v1: 15, life0: 0.3, life1: 0.6, stretch: 0.12 });
@@ -394,7 +410,8 @@ function lootBeam(pos, o = {}) {
 // ───────────── 장판 예고 ─────────────
 function telegraph(pos, radius = 3, duration = 1.5, o = {}) {
   if (!S.ok) return { cancel() {} };
-  const color = o.color ?? 0xff2a14, m = mesh('plane', 'tele'); m.position.set(pos.x, (pos.y || 0) + 0.06, pos.z); m.scale.setScalar(radius); m.renderOrder = 14;
+  const color = o.color ?? 0xff2a14, m = mesh('plane', 'tele'); m.position.set(pos.x, (pos.y || 0) + 0.06, pos.z); m.scale.setScalar(radius / 0.944); m.renderOrder = 14;      // 테두리 선의 한가운데가 판정 반경에 온다
+  const mt = m.material; mt.blending = THREE.CustomBlending; mt.blendSrc = mt.blendSrcAlpha = THREE.OneFactor; mt.blendDst = mt.blendDstAlpha = THREE.OneMinusSrcAlphaFactor;
   const u = setU(m, color, 0); u.uProgress.value = 0; u.uFlash.value = 0; u.uTime.value = 0;
   const tail = 0.14; let cancelled = false;
   const e = run(duration + tail, (k, dt, e) => {
@@ -486,7 +503,7 @@ function meteor(pos, o = {}) {
   }, null, () => {            // 완료(자연 종료)일 때만 — clear()/dispose() 로 지워지면 폭발도 onHit 도 없다
     HITP.x = x; HITP.y = y; HITP.z = z;
     flameBurst(HITP, { scale: radius / 2.4 }); shockwave(HITP, radius * 1.35, { color: 0xffa050, duration: 0.6 });
-    groundDecal(HITP, { kind: 'scorch', radius: radius * 1.1, duration: 6 }); groundDecal(HITP, { kind: 'crack', radius: radius * 0.9, duration: 5, color: 0xff6a1a });
+    groundDecal(HITP, { kind: 'scorch', radius: radius * 1.1, duration: 3.5 }); groundDecal(HITP, { kind: 'crack', radius: radius * 0.9, duration: 5, color: 0xff6a1a });
     debris(x, y, z, 16, 4, 11, 0.14);
     if (o.onHit) o.onHit();
   });
@@ -749,7 +766,7 @@ function groundDecal(pos, o = {}) {
     run(dur, (k, dt, e) => { u.uOpacity.value = env(k, e); u.uRot.value = rot + e.t * 0.5; }, () => free(m)); return;
   }
   const m = mesh('plane', 'tex'); m.position.set(x, y + (kind === 'crack' ? 0.03 : 0.02), z); m.scale.setScalar(radius); m.renderOrder = kind === 'crack' ? 9 : 8; m.material.blending = THREE.NormalBlending;
-  const u = setU(m, kind === 'crack' ? 0x050403 : 0x070504, 0, 1); u.uMap.value = kind === 'crack' ? S.tex.crack : S.tex.scorch; u.uRot.value = rot;
+  const u = setU(m, kind === 'crack' ? 0x050403 : 0x241008, 0, kind === 'crack' ? 1 : 0.5); u.uMap.value = kind === 'crack' ? S.tex.crack : S.tex.scorch; u.uRot.value = rot;
   let hot = null, uh = null;
   if (kind === 'crack' || o.color != null) {   // 갓 생긴 자국은 달아올라 있다가 식는다
     hot = mesh('plane', 'tex'); hot.position.set(x, y + 0.04, z); hot.scale.setScalar(radius); hot.renderOrder = 10; uh = setU(hot, o.color ?? 0xff7a2a, 1, 1.0); uh.uMap.value = u.uMap.value; uh.uRot.value = rot;

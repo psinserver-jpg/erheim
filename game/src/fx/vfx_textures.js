@@ -18,7 +18,7 @@ const GLOW_STOPS = [[0, 1], [0.12, 0.8], [0.3, 0.38], [0.55, 0.12], [0.8, 0.03],
 
 function drawGlow(g, s) { radial(g, s / 2, s / 2, s * 0.48, GLOW_STOPS); }
 function drawSpark(g, s) {
-  g.save(); g.translate(s / 2, s / 2); g.scale(0.36, 1);
+  g.save(); g.translate(s / 2, s / 2); g.scale(0.24, 1);
   radial(g, 0, 0, s * 0.47, [[0, 1], [0.25, 0.9], [0.55, 0.4], [1, 0]]); g.restore();
 }
 function drawBlobs(g, s, r, n, spread, rmin, rmax, amin, amax, shape) {
@@ -47,25 +47,36 @@ function makeNoise(seed) {
   return (x, y) => (n(x, y) * 0.5 + n(x * 2.03 + 17, y * 2.03 + 5) * 0.27 + n(x * 4.1 + 31, y * 4.1 + 11) * 0.15 + n(x * 8.2 + 3, y * 8.2 + 41) * 0.08);
 }
 const sstep = (a, b, x) => { x = (x - a) / (b - a); x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); };
-// 불꽃 혀: 아래가 둥글고 위로 갈수록 여러 갈래로 갈라지며 뾰족해진다(침식 셰이더와 짝)
+// 불꽃 덩이: 아래 1/3 지점이 가장 넓고 위로 길게 빠지는 부드러운 물방울꼴. 윤곽을 그려 넣지 않는다 —
+// 가장자리를 뜯고 속을 일렁이게 하는 것은 셰이더의 흐르는 잡음이다(그림처럼 보이지 않게).
 function flameCell(seed) {
   return (g, s) => {
     const nz = makeNoise(seed), img = g.getImageData(0, 0, s, s), d = img.data, o = seed * 3.7;
     for (let py = 0; py < s; py++) for (let px = 0; px < s; px++) {
-      const u = (px + 0.5) / s - 0.5, h = 1 - (py + 0.5) / s;
-      const x = u + (nz(u * 3 + o, h * 2.4 + o) - 0.5) * 0.55 * h;                 // 위로 갈수록 옆으로 일렁임
-      const w = 0.36 * Math.pow(Math.sin(Math.PI * Math.pow(h, 0.6)), 0.9) + 1e-4; // 몸통 반폭(아래 1/4 지점이 가장 넓다)
-      const body = Math.max(0, 1 - Math.abs(x) / w);
-      const lick = sstep(0.36, 0.62, nz(x * 7.5 + o * 2, h * 1.5 - o));             // 세로 갈래
-      const curl = 0.55 + 0.9 * nz(u * 5 - o, h * 5 + o * 2);
-      let v = Math.pow(body, 0.8) * (1 - sstep(0.12, 0.85, h) * (1 - lick * 1.15)) * curl * (1.15 - 0.55 * h);
-      v *= sstep(0, 0.16, h) * (1 - sstep(0.86, 1, h));
+      const u = (px + 0.5) / s - 0.5, h = 1 - (py + 0.5) / s, cy = 0.34;
+      const wob = (nz(u * 2.2 + o, h * 2.0 + o) - 0.5) * 0.26 * h;                    // 위쪽이 옆으로 흔들린다
+      const rx = 0.31 * (h < cy ? 1 : 1 - 0.5 * (h - cy) / (1 - cy)), ry = h < cy ? 0.29 : 0.58;
+      const r = Math.hypot((u - wob) / rx, (h - cy) / ry);
+      let v = Math.pow(Math.max(0, 1 - r), 1.3) * (0.62 + 0.75 * nz(u * 5.5 - o, h * 3.8 + o * 2));
       const e = Math.min(1, Math.min(px, s - 1 - px, py, s - 1 - py) / 5);          // 칸 가장자리는 반드시 0
-      v *= 0.45 + 0.75 * Math.pow(Math.max(0, 1 - Math.abs(x) / (w * 0.75)), 1.2) * (1 - 0.5 * h);     // 가운데 아래가 가장 짙다(침식될 때 가는 혀만 남도록)
-      const c = Math.max(0, Math.min(255, v * e * 215)), i = (py * s + px) * 4; d[i] = d[i + 1] = d[i + 2] = c; d[i + 3] = 255;
+      const c = Math.max(0, Math.min(255, v * e * 300)), i = (py * s + px) * 4; d[i] = d[i + 1] = d[i + 2] = c; d[i + 3] = 255;
     }
     g.putImageData(img, 0, 0);
   };
+}
+// 이어 붙는 잡음(불길의 일렁임용): 주기가 맞는 값 잡음 네 겹
+function drawNoiseTile() {
+  const S = 128, [c, g] = canvas(S, S), img = g.getImageData(0, 0, S, S), d = img.data, r = rng(4242);
+  const oct = [4, 8, 16, 32].map((P) => { const t = new Float32Array(P * P); for (let i = 0; i < P * P; i++) t[i] = r(); return { P, t }; });
+  const at = (o, x, y) => o.t[((y % o.P + o.P) % o.P) * o.P + ((x % o.P + o.P) % o.P)];
+  const val = (o, x, y) => { const xi = Math.floor(x), yi = Math.floor(y); let fx = x - xi, fy = y - yi; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+    const a = at(o, xi, yi), b = at(o, xi + 1, yi), cc = at(o, xi, yi + 1), dd = at(o, xi + 1, yi + 1); return a + (b - a) * fx + (cc - a) * fy + (a - b - cc + dd) * fx * fy; };
+  const amp = [0.5, 0.27, 0.15, 0.08];
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    let v = 0; for (let k = 0; k < 4; k++) v += val(oct[k], x / S * oct[k].P, y / S * oct[k].P) * amp[k];
+    const cv = Math.max(0, Math.min(255, (v - 0.5) * 1.9 * 255 + 128)), i = (y * S + x) * 4; d[i] = d[i + 1] = d[i + 2] = cv; d[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0); return c;
 }
 // 뭉게 연기: 잡음으로 가장자리를 뜯어 솜뭉치처럼 보이지 않게 한다
 function smokeCell(seed) {
@@ -224,6 +235,6 @@ export function buildTextures() {
     star: tex(single(drawStar, 128)), flame: tex(single(flameCell(29), 128)),
     ring: tex(single((g, s) => drawRing(g, s, 0.03, 0.44), 256)),
     slash: tex(drawSlash(), true), beam: tex(drawBeam(), true),
-    rune: tex(drawRune()), crack: tex(drawCrack()), scorch: tex(drawScorch()), aura: tex(drawAura(false)), auraSoft: tex(drawAura(true)), arrow: tex(drawArrow()),
+    rune: tex(drawRune()), crack: tex(drawCrack()), scorch: tex(drawScorch()), aura: tex(drawAura(false)), auraSoft: tex(drawAura(true)), arrow: tex(drawArrow()), noise: tex(drawNoiseTile(), true),
   };
 }

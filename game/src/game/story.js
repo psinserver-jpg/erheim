@@ -71,7 +71,7 @@ export const CHAPTERS = [
       ['brom', '좋아, 날에 빛이 돌기 시작했군. 여기서부터는 운일세. 욕심은 천천히 부리게.'],
       ['liena', '@, 급한 소식이야. 숲 동쪽 오크 야영지에서 밤새 북소리가 울렸대. 오크는 원래 이 계절에 움직이지 않아.'],
     ],
-    reward: { exp: 200, potions: { hp: 10, mp: 5 } } },
+    reward: { exp: 200, potions: { hp: 5, mp: 3 } } },   // v2 수정: 물약이 남아돌아 상점·보급이 쓸모없던 것을 줄였다(10/5 → 5/3)
 
   { title: '오크의 북소리', obj: { type: 'kill', tag: 'orc_warrior', max: 8, text: '오크 전사 처치' },
     done: [
@@ -80,7 +80,7 @@ export const CHAPTERS = [
       ['me', '오크들까지 낙인이 찍혔어. 숲 전체가 제단을 향해 움직이고 있다.'],
       ['liena', '하나 더 있어. 서쪽 잊혀진 묘지에서 갑옷 입은 해골이 걸어 다닌대. 가서 확인해 줄래? 조심해, 거긴 오크보다 훨씬 세.'],
     ],
-    reward: { exp: 400, scrolls: 3, gold: 600 } },
+    reward: { exp: 400, scrolls: 3, armorScrolls: 2, gold: 600 } },
 
   { title: '잠들지 못한 기사들', obj: { type: 'kill', tag: 'skeleton_knight', max: 8, text: '해골 기사 처치' },
     done: [
@@ -89,7 +89,7 @@ export const CHAPTERS = [
       ['nar', '갑옷 틈에서 반으로 쪼개진 인장이 빛난다. 손에 쥐자 희미한 목소리가 들린다. "…맹세를… 이어다오."'],
       ['liena', '맹세의 인장이야. 봉인을 다시 잠글 열쇠. 그걸 오르벤 현자께 가져가.'],
     ],
-    reward: { exp: 700, scrolls: 3, potions: { hp: 15, mp: 8 } } },
+    reward: { exp: 700, scrolls: 3, armorScrolls: 2, potions: { hp: 5, mp: 3 } } },   // 15/8 → 5/3
 
   { title: '맹세의 계승', obj: { type: 'talk', npc: 'orben', text: '현자 오르벤에게 인장 전달' },
     done: [
@@ -110,7 +110,7 @@ export const CHAPTERS = [
       ['liena', '좋아, 이제 눈빛이 다르네. 전원 집결했어. 잿불 제단으로 와.'],
       ['valkar', '…들린다. 사자 새끼들의 발소리가. 백 년을 기다렸다. 이번에는 맹세째로 태워 주마.'],
     ],
-    reward: { potions: { hp: 20, mp: 10 }, scrolls: 2 } },
+    reward: { potions: { hp: 10, mp: 5 }, scrolls: 2 } },   // 20/10 → 10/5
 
   { title: '염옥의 군주', obj: { type: 'raid', text: '잿불 제단에서 발카르 토벌' },
     done: [
@@ -121,7 +121,7 @@ export const CHAPTERS = [
       ['orben', '기록해 두겠네. 벨로스 성채의 신참이 사자의 맹세를 이었다고.'],
       ['nar', '에르하임에 다시 아침이 왔다. 그러나 맹세는 끝나지 않는다. 불이 다시 깨어나는 날, 사자는 다시 일어설 것이다. — 〈사자의 맹세〉 끝'],
     ],
-    reward: { gold: 50000, exp: 1000, title: '맹세를 잇는 자' } },
+    reward: { gold: 10000, exp: 1000, title: '맹세를 잇는 자' } },   // v2: 금화 소비처(상점·방어구 강화)에 맞춰 50,000 → 10,000
 ];
 
 // 이야기 모드의 몬스터 수치(1레벨부터 키우는 계정용)
@@ -133,6 +133,8 @@ export const STORY_MON = {
 
 // 새 캐릭터의 처음 상태
 export function newCharacter(name) {
-  return { v: 1, name, level: 1, exp: 0, gold: 100, plus: 0, weapon: '낡은 장검', scrolls: 0, potions: { hp: 10, mp: 5 }, kills: 0,
-    story: { ch: 0, n: 0, seen: false, started: false }, daily: { werewolf: 0, orc_warrior: 0 }, raidDone: false, title: null, created: Date.now(), played: 0 };
+  return { v: 2, name, level: 1, exp: 0, gold: 100, plus: 0, weapon: '낡은 장검', scrolls: 0, potions: { hp: 10, mp: 5 }, kills: 0,
+    story: { ch: 0, n: 0, seen: false, started: false }, daily: { werewolf: 0, orc_warrior: 0 }, raidDone: false, title: null, created: Date.now(), played: 0,
+    // v2: 가방(장비 인스턴스 { u, b, r, p })·착용 칸·방어구 주문서·능력치 포인트·명성·도감. 새 캐릭터는 장비 없이 낡은 장검만 든다
+    inv: [], eq: {}, armorScrolls: 0, crystals: 0, pts: 0, alloc: { str: 0, dex: 0, con: 0, wis: 0 }, fame: 0, codex: {} };
 }
